@@ -107,7 +107,21 @@ func runBash(ctx context.Context, args map[string]any, _ *Env) (any, error) {
 	c.Dir, _ = os.UserHomeDir()
 	var out strings.Builder
 	c.Stdout, c.Stderr = &out, &out
-	err := c.Run()
+	// 先 Start（c.Process 由此确定），再用看门狗在超时时杀整个进程组，
+	// 最后 Wait。必须先 Start 再起 goroutine，否则 c.Process 会和 Run 内部写入竞争。
+	if err := c.Start(); err != nil {
+		return "[error] " + err.Error(), nil
+	}
+	done := make(chan struct{})
+	go func() {
+		select {
+		case <-cctx.Done():
+			_ = syscall.Kill(-c.Process.Pid, syscall.SIGKILL)
+		case <-done:
+		}
+	}()
+	err := c.Wait()
+	close(done)
 	if cctx.Err() == context.DeadlineExceeded {
 		if c.Process != nil {
 			_ = syscall.Kill(-c.Process.Pid, syscall.SIGKILL)

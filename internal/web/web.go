@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"net/http"
 	"os"
@@ -110,8 +111,11 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 
+	var sendMu sync.Mutex
 	send := func(ev string, v any) {
 		b, _ := json.Marshal(v)
+		sendMu.Lock()
+		defer sendMu.Unlock()
 		fmt.Fprintf(w, "event: %s\ndata: %s\n\n", ev, b)
 		flusher.Flush()
 	}

@@ -1,0 +1,134 @@
+// agentd：本机 agent 的骨架。P0 = 多轮对话（无工具、无 UI）。
+//
+//	agentd chat                 交互式多轮（Ctrl-D 退出）
+//	agentd send "一句话"         单轮（可带 -conv <id> 续用会話）
+//	agentd convs                列出会话
+//	agentd show <id>            打印会话全文
+//	agentd config               打印生效的配置
+package main
+
+import (
+	"bufio"
+	"context"
+	"fmt"
+	"os"
+	"os/signal"
+	"strings"
+	"time"
+
+	"agentd/internal/agent"
+	"agentd/internal/config"
+	"agentd/internal/llm"
+	"agentd/internal/store"
+)
+
+const version = "0.0.1-p0"
+
+func main() {
+	cfg := config.Load()
+	st, err := store.NewJSON(cfg.DataDir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "初始化存储失败:", err)
+		os.Exit(1)
+	}
+	a := agent.New(cfg, st)
+
+	args := os.Args[1:]
+	cmd := "chat"
+	if len(args) > 0 {
+		cmd = args[0]
+		args = args[1:]
+	}
+	switch cmd {
+	case "version":
+		fmt.Println("agentd " + version)
+	case "config":
+		fmt.Printf("base_url  %s\nmodel     %s\ndata_dir  %s\n", cfg.BaseURL, cfg.Model, cfg.DataDir)
+	case "convs":
+		list, err := st.List()
+		if err != nil {
+			fatal(err)
+		}
+		for _, c := range list {
+			fmt.Printf("%s  %s  %s\n", c.ID, c.UpdatedAt.Format("2006-01-02 15:04"), c.Title)
+		}
+	case "show":
+		if len(args) == 0 {
+			fatal(fmt.Errorf("用法: agentd show <id>"))
+		}
+		c, err := st.Get(args[0])
+		if err != nil {
+			fatal(err)
+		}
+		fmt.Printf("# %s (%s)\n", c.Title, c.ID)
+		for _, m := range c.Messages {
+			fmt.Printf("\n[%s]\n%s\n", m.Role, m.Content)
+		}
+	case "send":
+		if len(args) == 0 {
+			fatal(fmt.Errorf(`用法: agentd send "一句话" [-conv id]`))
+		}
+		text, convID := args[0], ""
+		for i := 1; i < len(args); i++ {
+			if args[i] == "-conv" && i+1 < len(args) {
+				convID = args[i+1]
+				i++
+			}
+		}
+		c, err := a.Conversation(convID)
+		if err != nil {
+			fatal(err)
+		}
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+		err = a.Send(ctx, c, text, func(content, reasoning string) {
+			if content != "" {
+				fmt.Print(content)
+			}
+		})
+		fmt.Println()
+		if err != nil {
+			fatal(err)
+		}
+		fmt.Fprintf(os.Stderr, "\n[conv %s]\n", c.ID)
+	case "chat":
+		c, err := a.Conversation("")
+		if err != nil {
+			fatal(err)
+		}
+		fmt.Printf("agentd %s · model=%s · conv=%s\n（空行退出；Ctrl-D 结束）\n", version, cfg.Model, c.ID)
+		sc := bufio.NewScanner(os.Stdin)
+		for {
+			fmt.Print("\n> ")
+			if !sc.Scan() {
+				break
+			}
+			line := strings.TrimSpace(sc.Text())
+			if line == "" {
+				break
+			}
+			ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+			start := time.Now()
+			err := a.Send(ctx, c, line, func(content, reasoning string) {
+				if content != "" {
+					fmt.Print(content)
+				}
+			})
+			cancel()
+			fmt.Printf("\n[%.1fs]\n", time.Since(start).Seconds())
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "✗", err)
+			}
+		}
+		fmt.Fprintf(os.Stderr, "会话已保存: %s（agentd show %s）\n", c.ID, c.ID)
+	default:
+		fmt.Fprintf(os.Stderr, "未知命令 %q\n\n可用: chat | send | convs | show | config | version\n", cmd)
+		os.Exit(2)
+	}
+	_ = llm.Chunk{}
+}
+
+func fatal(err error) {
+	fmt.Fprintln(os.Stderr, "✗", err)
+	os.Exit(1)
+}

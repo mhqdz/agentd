@@ -1,0 +1,166 @@
+package config
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
+	"sync"
+	"syscall"
+)
+
+// Profile = 模型 + 思考强度 + 提示词 + 工具集。前端通过 CRUD 管理，解码/校验都在 Go。
+type Profile struct {
+	Name            string   `json:"name"`
+	BaseURL         string   `json:"base_url"`
+	Model           string   `json:"model"`
+	ReasoningEffort string   `json:"reasoning_effort,omitempty"` // none|low|medium|high
+	System          string   `json:"system"`
+	Tools           []string `json:"tools"`
+	KeepMessages    int      `json:"keep_messages,omitempty"`
+	Summarizer      string   `json:"summarizer,omitempty"` // 用哪个 profile 写摘要；空=自己
+	Builtin         bool     `json:"builtin,omitempty"`
+}
+
+var (
+	pmu    sync.RWMutex
+	pcache []Profile
+	plock  *os.File
+)
+
+func profilesPath() string {
+	if v := os.Getenv("AGENTD_PROFILES"); v != "" {
+		return v
+	}
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".data/agentd/profiles.json")
+}
+
+func defaults() []Profile {
+	return []Profile{
+		{Name: "180-think", BaseURL: "http://127.0.0.1:18320/180/v1", Model: "qwen3.8-flash-next-iq3_xxs",
+			ReasoningEffort: "high", Builtin: true, KeepMessages: 16,
+			Tools:  []string{"bash", "screenshot", "kb_search", "recall"},
+			System: "你是规划层。需要本机事实才用工具；生成内容直接输出，不要写文件再读回来。"},
+		{Name: "180-low", BaseURL: "http://127.0.0.1:18320/180/v1", Model: "qwen3.8-flash-next-iq3_xxs",
+			ReasoningEffort: "low", Builtin: true, KeepMessages: 16,
+			Tools:  []string{"bash", "screenshot", "kb_search", "recall"},
+			System: "你是规划层，追求快速收敛。需要本机事实才用工具。"},
+		{Name: "9-exec", BaseURL: "http://127.0.0.1:18320/9/v1", Model: "Qwen3.5-9B-int4-ov",
+			ReasoningEffort: "none", Builtin: true, KeepMessages: 8,
+			Tools:  []string{"bash"},
+			System: "你是执行层：只跑命令、读输出、按清单判断。不规划、不查知识库、不检索历史。"},
+	}
+}
+
+// LoadProfiles：首次没有文件就用内置默认（不写盘）。
+func LoadProfiles() []Profile {
+	pmu.Lock()
+	defer pmu.Unlock()
+	if pcache != nil {
+		return pcache
+	}
+	b, err := os.ReadFile(profilesPath())
+	if err != nil {
+		pcache = defaults()
+		return pcache
+	}
+	var list []Profile
+	if json.Unmarshal(b, &list) != nil || len(list) == 0 {
+		pcache = defaults()
+		return pcache
+	}
+	pcache = list
+	return pcache
+}
+
+func GetProfile(name string) (Profile, bool) {
+	for _, p := range LoadProfiles() {
+		if p.Name == name {
+			return p, true
+		}
+	}
+	return Profile{}, false
+}
+
+// writeProfiles：flock 串行化多进程写，原子替换。
+func writeProfiles(list []Profile) error {
+	p := profilesPath()
+	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+		return err
+	}
+	lf, err := os.OpenFile(p+".lock", os.O_CREATE|os.O_RDWR, 0o644)
+	if err != nil {
+		return err
+	}
+	defer lf.Close()
+	if err := syscall.Flock(int(lf.Fd()), syscall.LOCK_EX); err != nil {
+		return err
+	}
+	defer syscall.Flock(int(lf.Fd()), syscall.LOCK_UN)
+
+	sort.Slice(list, func(i, j int) bool { return list[i].Name < list[j].Name })
+	b, _ := json.MarshalIndent(list, "", "  ")
+	tmp := p + ".tmp"
+	if err := os.WriteFile(tmp, append(b, '\n'), 0o644); err != nil {
+		return err
+	}
+	if err := os.Rename(tmp, p); err != nil {
+		return err
+	}
+	pcache = list
+	return nil
+}
+
+func ValidateProfile(p Profile) error {
+	if p.Name == "" || p.BaseURL == "" || p.Model == "" {
+		return fmt.Errorf("name / base_url / model 都不能为空")
+	}
+	if p.ReasoningEffort != "" && p.ReasoningEffort != "none" && p.ReasoningEffort != "low" &&
+		p.ReasoningEffort != "medium" && p.ReasoningEffort != "high" {
+		return fmt.Errorf("reasoning_effort 只能是 none|low|medium|high")
+	}
+	return nil
+}
+
+func UpsertProfile(p Profile) error {
+	if err := ValidateProfile(p); err != nil {
+		return err
+	}
+	list := append([]Profile{}, LoadProfiles()...)
+	replaced := false
+	for i := range list {
+		if list[i].Name == p.Name {
+			if list[i].Builtin {
+				p.Builtin = true
+			}
+			list[i] = p
+			replaced = true
+		}
+	}
+	if !replaced {
+		list = append(list, p)
+	}
+	return writeProfiles(list)
+}
+
+func DeleteProfile(name string) error {
+	list := append([]Profile{}, LoadProfiles()...)
+	out := make([]Profile, 0, len(list))
+	found := false
+	for _, p := range list {
+		if p.Name == name {
+			if p.Builtin {
+				return fmt.Errorf("内置 profile 不能删除")
+			}
+			found = true
+			continue
+		}
+		out = append(out, p)
+	}
+	if !found {
+		return fmt.Errorf("没有这个 profile")
+	}
+	return writeProfiles(out)
+}

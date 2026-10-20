@@ -15,14 +15,23 @@ import (
 )
 
 type Agent struct {
-	cfg config.Config
-	llm *llm.Client
-	st  store.Store
+	cfg     config.Config
+	llm     *llm.Client
+	st      store.Store
+	profile config.Profile
 }
 
-func New(cfg config.Config, st store.Store) *Agent {
-	return &Agent{cfg: cfg, llm: llm.New(cfg.BaseURL, cfg.APIKey), st: st}
+func New(cfg config.Config, st store.Store, profile config.Profile) *Agent {
+	if profile.Model == "" {
+		profile.Model = cfg.Model
+	}
+	if profile.BaseURL == "" {
+		profile.BaseURL = cfg.BaseURL
+	}
+	return &Agent{cfg: cfg, llm: llm.New(profile.BaseURL, cfg.APIKey), st: st, profile: profile}
 }
+
+func (a *Agent) Profile() config.Profile { return a.profile }
 
 func NewID() string {
 	b := make([]byte, 6)
@@ -60,7 +69,7 @@ func (a *Agent) Send(ctx context.Context, c *store.Conversation, text string,
 	}
 
 	var content, reasoning strings.Builder
-	err := a.llm.Stream(ctx, llm.ChatRequest{Model: a.cfg.Model, Messages: msgs}, func(ch llm.Chunk) error {
+	err := a.llm.Stream(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, ReasoningEffort: a.profile.ReasoningEffort}, func(ch llm.Chunk) error {
 		if ch.Done {
 			return nil
 		}

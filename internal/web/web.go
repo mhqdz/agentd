@@ -34,6 +34,8 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/api/convs", s.handleConvs)
 	mux.HandleFunc("/api/conv/", s.handleConv)
 	mux.HandleFunc("/api/chat", s.handleChat)
+	mux.HandleFunc("/api/profiles", s.handleProfiles)
+	mux.HandleFunc("/api/profiles/", s.handleProfileItem)
 	mux.HandleFunc("/", s.handleStatic)
 	return logReq(mux)
 }
@@ -90,8 +92,9 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		ConvID string `json:"conv_id"`
-		Text   string `json:"text"`
+		ConvID  string `json:"conv_id"`
+		Text    string `json:"text"`
+		Profile string `json:"profile"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil || strings.TrimSpace(in.Text) == "" {
 		writeJSON(w, 400, map[string]string{"error": "需要 text"})
@@ -113,7 +116,13 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 	}
 
-	c, err := s.a.Conversation(in.ConvID)
+	ag := s.a
+	if in.Profile != "" {
+		if prof, ok := config.GetProfile(in.Profile); ok {
+			ag = agent.New(s.cfg, s.st, prof)
+		}
+	}
+	c, err := ag.Conversation(in.ConvID)
 	if err != nil {
 		send("error", map[string]string{"error": err.Error()})
 		return
@@ -123,7 +132,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 	start := time.Now()
-	err = s.a.SendWithTools(ctx, c, in.Text,
+	err = ag.SendWithTools(ctx, c, in.Text,
 		func(content, reasoning string) {
 			if content != "" {
 				send("delta", map[string]string{"text": content})
@@ -177,3 +186,45 @@ const placeholder = `<!doctype html><meta charset="utf-8"><title>agentd</title>
 <style>body{background:#0f1115;color:#d7dae0;font:14px/1.6 ui-monospace,monospace;padding:2rem}</style>
 <h3>agentd</h3><p>API 已就绪；前端还没构建（P4）。</p>
 <ul><li>GET /api/health</li><li>GET /api/convs</li><li>POST /api/chat</li></ul>`
+
+// GET/POST /api/profiles  ·  PUT/DELETE /api/profiles/<name>
+func (s *Server) handleProfiles(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		list := config.LoadProfiles()
+		writeJSON(w, 200, list)
+	case http.MethodPost, http.MethodPut:
+		var p config.Profile
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		if err := config.UpsertProfile(p); err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]any{"ok": true, "profile": p.Name})
+	default:
+		writeJSON(w, 405, map[string]string{"error": "GET/POST/PUT only"})
+	}
+}
+
+func (s *Server) handleProfileItem(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimPrefix(r.URL.Path, "/api/profiles/")
+	switch r.Method {
+	case http.MethodGet:
+		if p, ok := config.GetProfile(name); ok {
+			writeJSON(w, 200, p)
+			return
+		}
+		writeJSON(w, 404, map[string]string{"error": "没有这个 profile"})
+	case http.MethodDelete:
+		if err := config.DeleteProfile(name); err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]any{"ok": true})
+	default:
+		writeJSON(w, 405, map[string]string{"error": "GET/DELETE only"})
+	}
+}

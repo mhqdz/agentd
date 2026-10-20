@@ -33,12 +33,13 @@ type Message struct {
 }
 
 type ChatRequest struct {
-	Model       string    `json:"model"`
-	Messages    []Message `json:"messages"`
-	MaxTokens   int       `json:"max_tokens,omitempty"`
-	Temperature *float64  `json:"temperature,omitempty"`
-	Stream      bool      `json:"stream"`
-	Tools       any       `json:"tools,omitempty"`
+	Model           string    `json:"model"`
+	Messages        []Message `json:"messages"`
+	MaxTokens       int       `json:"max_tokens,omitempty"`
+	Temperature     *float64  `json:"temperature,omitempty"`
+	Stream          bool      `json:"stream"`
+	Tools           any       `json:"tools,omitempty"`
+	ReasoningEffort string    `json:"reasoning_effort,omitempty"`
 }
 
 type Chunk struct {

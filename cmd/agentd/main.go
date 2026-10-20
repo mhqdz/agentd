@@ -33,7 +33,25 @@ func main() {
 		fmt.Fprintln(os.Stderr, "初始化存储失败:", err)
 		os.Exit(1)
 	}
-	a := agent.New(cfg, st)
+	pname := "180-think"
+	for i, x := range os.Args {
+		if x == "--profile" && i+1 < len(os.Args) {
+			pname = os.Args[i+1]
+		}
+	}
+	if v := os.Getenv("AGENTD_PROFILE"); v != "" {
+		pname = v
+	}
+	prof, ok := config.GetProfile(pname)
+	if !ok {
+		fmt.Fprintf(os.Stderr, "✗ 没有 profile %q；可用: ", pname)
+		for _, q := range config.LoadProfiles() {
+			fmt.Print(q.Name, " ")
+		}
+		fmt.Println()
+		os.Exit(2)
+	}
+	a := agent.New(cfg, st, prof)
 
 	args := os.Args[1:]
 	cmd := "chat"
@@ -58,6 +76,37 @@ func main() {
 		fmt.Printf("base_url  %s\nmodel     %s\ndata_dir  %s\n", cfg.BaseURL, cfg.Model, cfg.DataDir)
 	case "convs":
 		list, err := st.List()
+		if err != nil {
+			fatal(err)
+		}
+		for _, c := range list {
+			fmt.Printf("%s  %s  %s\n", c.ID, c.UpdatedAt.Format("2006-01-02 15:04"), c.Title)
+		}
+	case "archive", "restore", "rm":
+		if len(args) == 0 {
+			fatal(fmt.Errorf("用法: agentd %s <id>", cmd))
+		}
+		var err error
+		switch cmd {
+		case "archive":
+			err = st.Archive(args[0])
+		case "restore":
+			err = st.Restore(args[0])
+		case "rm":
+			hard := false
+			for _, a := range args[1:] {
+				if a == "--hard" {
+					hard = true
+				}
+			}
+			err = st.Delete(args[0], hard)
+		}
+		if err != nil {
+			fatal(err)
+		}
+		fmt.Println("✓", cmd, args[0])
+	case "archived":
+		list, err := st.ListArchived()
 		if err != nil {
 			fatal(err)
 		}

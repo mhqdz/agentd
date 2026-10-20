@@ -44,12 +44,13 @@ func main() {
 	}
 	prof, ok := config.GetProfile(pname)
 	if !ok {
-		fmt.Fprintf(os.Stderr, "✗ 没有 profile %q；可用: ", pname)
-		for _, q := range config.LoadProfiles() {
-			fmt.Print(q.Name, " ")
+		list := config.LoadProfiles()
+		if len(list) == 0 {
+			fmt.Fprintln(os.Stderr, "✗ 没有任何 profile")
+			os.Exit(2)
 		}
-		fmt.Println()
-		os.Exit(2)
+		prof = list[0]
+		fmt.Fprintf(os.Stderr, "（没有 %q，改用 %q）\n", pname, prof.Name)
 	}
 	a := agent.New(cfg, st, prof)
 

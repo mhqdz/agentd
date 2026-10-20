@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
+	"time"
 
+	"agentd/internal/config"
 	"agentd/internal/llm"
 	"agentd/internal/store"
 	"agentd/internal/tools"
@@ -45,10 +48,33 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 	}
 
 	for round := 0; round < maxRounds; round++ {
+		// 超阈值就先做一次摘要压缩（带检查点），再走轻量裁剪兜底
+		keep := a.profile.KeepMessages
+		if keep <= 0 {
+			keep = a.cfg.KeepMessages
+		}
+		_ = a.maybeSummarize(ctx, c, keep)
 		msgs, toolMsgs := toWire(c.Messages, reg)
-		msgs = compact(msgs, a.cfg.KeepMessages, a.cfg.MaxPromptChars/2)
-		if a.cfg.System != "" {
-			msgs = append([]llm.Message{{Role: "system", Content: a.cfg.System}}, msgs...)
+		msgs = compact(msgs, keep, a.cfg.MaxPromptChars/2)
+		if a.profile.System != "" || c.Summary != "" || len(c.KV) > 0 {
+			sys := a.profile.System
+			if len(c.KV) > 0 {
+				sys += "\n\n[已知事实]\n"
+				keys := make([]string, 0, len(c.KV))
+				for k := range c.KV {
+					keys = append(keys, k)
+				}
+				sort.Strings(keys)
+				for _, k := range keys {
+					sys += "- " + k + ": " + c.KV[k] + "\n"
+				}
+			}
+			pfx := make([]llm.Message, 0, 2)
+			pfx = append(pfx, llm.Message{Role: "system", Content: sys})
+			if c.Summary != "" {
+				pfx = append(pfx, llm.Message{Role: "user", Content: "[更早对话的摘要]\n" + c.Summary})
+			}
+			msgs = append(pfx, msgs...)
 		}
 		total := 0
 		for _, m := range msgs {
@@ -183,4 +209,68 @@ func compact(msgs []llm.Message, keep int, budget int) []llm.Message {
 	out = append(out, note)
 	out = append(out, body[cut:]...)
 	return out
+}
+
+// maybeSummarize：超过预算的一半时，把"最近 keep 条之前"的消息交给摘要模型，
+// 生成检查点（summary + upto + model + ts）。失败不阻断本轮（降级为轻量裁剪）。
+func (a *Agent) maybeSummarize(ctx context.Context, c *store.Conversation, keep int) error {
+	total := 0
+	for _, m := range c.Messages {
+		total += len(m.Content)
+	}
+	if total < a.cfg.MaxPromptChars/2 {
+		return nil
+	}
+	cut := len(c.Messages) - keep
+	if cut <= 0 {
+		return nil
+	}
+	for cut < len(c.Messages) && c.Messages[cut].Role != "user" {
+		cut++
+	}
+	if cut <= 0 {
+		return nil
+	}
+	var b strings.Builder
+	for _, m := range c.Messages[:cut] {
+		b.WriteString(m.Role)
+		b.WriteString(": ")
+		b.WriteString(tailRunes(m.Content, 400))
+		b.WriteString("\n")
+	}
+	prompt := "把下面的对话压缩成不超过 400 字的摘要，供后续继续工作使用。务必保留：" +
+		"任务目标、已确认的决策、涉及的文件路径与服务端口、遇到的问题与结论、下一步。" +
+		"不要编造；不确定就写\"不确定\"。\n\n" + b.String()
+
+	// 摘要模型：profile.Summarizer 指定，否则用自己
+	sumProfile := a.profile
+	if a.profile.Summarizer != "" {
+		if p, ok := config.GetProfile(a.profile.Summarizer); ok {
+			sumProfile = p
+		}
+	}
+	sc := llm.New(sumProfile.BaseURL, a.cfg.APIKey)
+	out, err := sc.Chat(ctx, llm.ChatRequest{Model: sumProfile.Model, ReasoningEffort: sumProfile.ReasoningEffort,
+		Messages: []llm.Message{{Role: "user", Content: prompt}}})
+	if err != nil || strings.TrimSpace(out) == "" {
+		return err
+	}
+	c.Summary = strings.TrimSpace(out)
+	c.SummaryUpto = c.Messages[cut-1].Seq
+	c.SummaryModel = sumProfile.Model
+	c.SummaryAt = time.Now()
+	// KV：先只放"生成者"，其余由后续从摘要里抽（下一轮做）
+	if c.KV == nil {
+		c.KV = map[string]string{}
+	}
+	c.KV["summary_generated_by"] = sumProfile.Model + " @ " + c.SummaryAt.Format("2006-01-02 15:04")
+	return a.st.Save(c)
+}
+
+func tailRunes(s string, n int) string {
+	r := []rune(s)
+	if len(r) <= n {
+		return s
+	}
+	return string(r[len(r)-n:])
 }

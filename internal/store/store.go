@@ -29,6 +29,13 @@ type Conversation struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Messages  []Message `json:"messages"`
+
+	// 压缩检查点（模型可换、可追溯）
+	Summary      string            `json:"summary,omitempty"`
+	SummaryUpto  int               `json:"summary_upto,omitempty"` // 压到第几条 Seq
+	SummaryModel string            `json:"summary_model,omitempty"`
+	SummaryAt    time.Time         `json:"summary_at,omitempty"`
+	KV           map[string]string `json:"kv,omitempty"` // 5 类固定字段 + generated_by
 }
 
 type Store interface {

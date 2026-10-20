@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 type Config struct {
@@ -56,6 +57,11 @@ func Load() Config {
 	}
 	if v := os.Getenv("AGENTD_DATA_DIR"); v != "" {
 		c.DataDir = v
+	}
+	if v := os.Getenv("AGENTD_MAX_PROMPT_CHARS"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			c.MaxPromptChars = n
+		}
 	}
 	if v := os.Getenv("AGENTD_WEB_DIR"); v != "" {
 		c.WebDir = v

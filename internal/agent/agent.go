@@ -74,7 +74,7 @@ func (a *Agent) Send(ctx context.Context, c *store.Conversation, text string,
 	// 即使出错也把已收到的部分存下来，便于排查
 	if content.Len() > 0 || err == nil {
 		c.Messages = append(c.Messages, store.Message{
-			Role: "assistant", Content: content.String(), Reasoning: reasoning.String(), CreatedAt: time.Now(),
+			Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(), CreatedAt: time.Now(),
 		})
 	}
 	if serr := a.st.Save(c); serr != nil {

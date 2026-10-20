@@ -3,6 +3,8 @@ package store
 
 import (
 	"encoding/json"
+
+	"agentd/internal/llm"
 	"os"
 	"path/filepath"
 	"sort"
@@ -10,10 +12,13 @@ import (
 )
 
 type Message struct {
-	Role      string    `json:"role"`
-	Content   string    `json:"content"`
-	Reasoning string    `json:"reasoning,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	Role       string         `json:"role"`
+	Content    string         `json:"content"`
+	Reasoning  string         `json:"reasoning,omitempty"`
+	ToolCalls  []llm.ToolCall `json:"tool_calls,omitempty"`
+	ToolCallID string         `json:"tool_call_id,omitempty"`
+	ToolResult any            `json:"tool_result,omitempty"`
+	CreatedAt  time.Time      `json:"created_at"`
 }
 
 type Conversation struct {

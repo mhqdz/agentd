@@ -13,9 +13,23 @@ import (
 	"time"
 )
 
+type FunctionCall struct {
+	Name      string `json:"name"`
+	Arguments string `json:"arguments"`
+}
+
+type ToolCall struct {
+	Index    int          `json:"index,omitempty"`
+	ID       string       `json:"id"`
+	Type     string       `json:"type"`
+	Function FunctionCall `json:"function"`
+}
+
 type Message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role       string     `json:"role"`
+	Content    string     `json:"content"`
+	ToolCalls  []ToolCall `json:"tool_calls,omitempty"`
+	ToolCallID string     `json:"tool_call_id,omitempty"`
 }
 
 type ChatRequest struct {
@@ -24,6 +38,7 @@ type ChatRequest struct {
 	MaxTokens   int       `json:"max_tokens,omitempty"`
 	Temperature *float64  `json:"temperature,omitempty"`
 	Stream      bool      `json:"stream"`
+	Tools       any       `json:"tools,omitempty"`
 }
 
 type Chunk struct {
@@ -142,3 +157,86 @@ func (c *Client) Chat(ctx context.Context, req ChatRequest) (string, error) {
 }
 
 var _ = time.Second
+
+// StreamWithTools：带工具的流式请求；tool_calls 按 index 累积分片后返回。
+func (c *Client) StreamWithTools(ctx context.Context, req ChatRequest, onChunk func(Chunk) error, calls *[]ToolCall) error {
+	req.Stream = true
+	resp, err := c.post(ctx, req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 2000))
+		return fmt.Errorf("upstream %d: %s", resp.StatusCode, strings.TrimSpace(string(b)))
+	}
+	sc := bufio.NewScanner(resp.Body)
+	sc.Buffer(make([]byte, 0, 64<<10), 8<<20)
+	acc := map[int]*ToolCall{}
+	for sc.Scan() {
+		line := strings.TrimSpace(sc.Text())
+		if !strings.HasPrefix(line, "data:") {
+			continue
+		}
+		data := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+		if data == "[DONE]" {
+			break
+		}
+		var ev struct {
+			Choices []struct {
+				Delta struct {
+					Content          string `json:"content"`
+					ReasoningContent string `json:"reasoning_content"`
+					Reasoning        string `json:"reasoning"`
+					ToolCalls        []struct {
+						Index    int    `json:"index"`
+						ID       string `json:"id"`
+						Function struct {
+							Name      string `json:"name"`
+							Arguments string `json:"arguments"`
+						} `json:"function"`
+					} `json:"tool_calls"`
+				} `json:"delta"`
+			} `json:"choices"`
+		}
+		if err := json.Unmarshal([]byte(data), &ev); err != nil {
+			continue
+		}
+		for _, ch := range ev.Choices {
+			d := ch.Delta
+			r := d.ReasoningContent
+			if r == "" {
+				r = d.Reasoning
+			}
+			if d.Content != "" || r != "" {
+				if onChunk != nil {
+					if err := onChunk(Chunk{Delta: d.Content, Reasoning: r}); err != nil {
+						return err
+					}
+				}
+			}
+			for _, tc := range d.ToolCalls {
+				k := tc.Index
+				cur, ok := acc[k]
+				if !ok {
+					cur = &ToolCall{Index: k}
+					acc[k] = cur
+				}
+				if tc.ID != "" {
+					cur.ID = tc.ID
+				}
+				cur.Type = "function"
+				if tc.Function.Name != "" {
+					cur.Function.Name += tc.Function.Name
+				}
+				cur.Function.Arguments += tc.Function.Arguments
+			}
+		}
+	}
+	for i := 0; i < len(acc); i++ {
+		if c, ok := acc[i]; ok {
+			*calls = append(*calls, *c)
+		}
+	}
+	return sc.Err()
+}

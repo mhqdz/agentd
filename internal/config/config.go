@@ -12,6 +12,7 @@ type Config struct {
 	Model   string `json:"model"`
 	APIKey  string `json:"api_key"`
 	DataDir string `json:"data_dir"` // JSON 存储目录（P0 先不用 sqlite）
+	WebDir  string `json:"web_dir"`  // 前端构建产物目录
 }
 
 func Default() Config {
@@ -21,6 +22,7 @@ func Default() Config {
 		Model:   "Qwen3.5-9B-int4-ov",
 		APIKey:  "local-no-auth",
 		DataDir: filepath.Join(home, ".local/state/agentd"),
+		WebDir:  "web/dist",
 	}
 }
 
@@ -46,6 +48,9 @@ func Load() Config {
 	}
 	if v := os.Getenv("AGENTD_DATA_DIR"); v != "" {
 		c.DataDir = v
+	}
+	if v := os.Getenv("AGENTD_WEB_DIR"); v != "" {
+		c.WebDir = v
 	}
 	return c
 }

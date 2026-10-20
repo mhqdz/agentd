@@ -11,6 +11,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -20,6 +21,7 @@ import (
 	"agentd/internal/config"
 	"agentd/internal/llm"
 	"agentd/internal/store"
+	"agentd/internal/web"
 )
 
 const version = "0.0.1-p0"
@@ -40,6 +42,16 @@ func main() {
 		args = args[1:]
 	}
 	switch cmd {
+	case "serve":
+		addr := "127.0.0.1:18400"
+		if v := os.Getenv("AGENTD_ADDR"); v != "" {
+			addr = v
+		}
+		srv := &http.Server{Addr: addr, Handler: web.New(cfg, a, st).Handler()}
+		fmt.Fprintf(os.Stderr, "agentd %s · model=%s · http://%s\n", version, cfg.Model, addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			fatal(err)
+		}
 	case "version":
 		fmt.Println("agentd " + version)
 	case "config":

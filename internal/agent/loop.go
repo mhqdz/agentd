@@ -78,7 +78,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		}
 		total := 0
 		for _, m := range msgs {
-			total += len(m.Content)
+			total += wireLen(m.Content)
 			for _, tc := range m.ToolCalls {
 				total += len(tc.Function.Arguments)
 			}
@@ -143,8 +143,14 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		}
 		wg.Wait()
 		for i, call := range calls {
+			textOut, imgs := splitResult(results[i])
 			c.Messages = append(c.Messages, store.Message{
-				Role: "tool", ToolCallID: call.ID, Content: stringify(results[i]), ToolResult: results[i]})
+				Role: "tool", ToolCallID: call.ID, Content: textOut, ToolResult: results[i], Images: imgs})
+			if len(imgs) > 0 {
+				// OpenAI 的 tool 消息不能带图 → 用一条 user 消息把像素喂给模型
+				c.Messages = append(c.Messages, store.Message{
+					Role: "user", Content: "（上一个工具的截图，请以图为准）", Images: imgs})
+			}
 		}
 	}
 	return fmt.Errorf("超过 %d 轮工具调用，已停止", maxRounds)
@@ -153,7 +159,15 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 func toWire(msgs []store.Message, reg map[string]*tools.Spec) ([]llm.Message, bool) {
 	out := make([]llm.Message, 0, len(msgs))
 	for _, m := range msgs {
-		out = append(out, llm.Message{Role: m.Role, Content: m.Content, ToolCalls: m.ToolCalls, ToolCallID: m.ToolCallID})
+		var content any = m.Content
+		if len(m.Images) > 0 {
+			parts := []map[string]any{{"type": "text", "text": m.Content}}
+			for _, img := range m.Images {
+				parts = append(parts, map[string]any{"type": "image_url", "image_url": map[string]string{"url": img}})
+			}
+			content = parts
+		}
+		out = append(out, llm.Message{Role: m.Role, Content: content, ToolCalls: m.ToolCalls, ToolCallID: m.ToolCallID})
 	}
 	return out, true
 }
@@ -184,7 +198,7 @@ func compact(msgs []llm.Message, keep int, budget int) []llm.Message {
 	body := msgs[start:]
 	total := 0
 	for _, m := range body {
-		total += len(m.Content)
+		total += wireLen(m.Content)
 	}
 	if keep <= 0 {
 		keep = 12
@@ -216,7 +230,7 @@ func compact(msgs []llm.Message, keep int, budget int) []llm.Message {
 func (a *Agent) maybeSummarize(ctx context.Context, c *store.Conversation, keep int) error {
 	total := 0
 	for _, m := range c.Messages {
-		total += len(m.Content)
+		total += wireLen(m.Content)
 	}
 	if total < a.cfg.MaxPromptChars/2 {
 		return nil
@@ -273,4 +287,47 @@ func tailRunes(s string, n int) string {
 		return s
 	}
 	return string(r[len(r)-n:])
+}
+
+// splitResult：工具结果是 []map{type:text|image} 时拆成 文本 + 图片列表。
+func splitResult(v any) (string, []string) {
+	parts, ok := v.([]map[string]any)
+	if !ok {
+		return stringify(v), nil
+	}
+	var text string
+	var imgs []string
+	for _, p := range parts {
+		switch p["type"] {
+		case "text":
+			if t, ok := p["text"].(string); ok {
+				text += t
+			}
+		case "image":
+			if u, ok := p["url"].(string); ok {
+				imgs = append(imgs, u)
+			}
+		}
+	}
+	if text == "" {
+		text = "（工具返回了一张图片）"
+	}
+	return text, imgs
+}
+
+// wireLen：Content 可能是 string 或 []parts，估算字符数即可（只用于预算判断）。
+func wireLen(v any) int {
+	switch t := v.(type) {
+	case string:
+		return len(t)
+	case []map[string]any:
+		n := 0
+		for _, p := range t {
+			if s, ok := p["text"].(string); ok {
+				n += len(s)
+			}
+		}
+		return n
+	}
+	return 0
 }

@@ -20,6 +20,7 @@ type Message struct {
 	ToolCalls  []llm.ToolCall `json:"tool_calls,omitempty"`
 	ToolCallID string         `json:"tool_call_id,omitempty"`
 	ToolResult any            `json:"tool_result,omitempty"`
+	Images     []string       `json:"images,omitempty"` // data:image/...;base64（工具返回的图 ✓）
 	CreatedAt  time.Time      `json:"created_at"`
 }
 

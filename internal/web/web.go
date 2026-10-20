@@ -58,7 +58,13 @@ func (s *Server) handleConvs(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 405, map[string]string{"error": "GET only"})
 		return
 	}
-	list, err := s.st.List()
+	var list []*store.Conversation
+	var err error
+	if r.URL.Query().Get("archived") == "1" {
+		list, err = s.st.ListArchived()
+	} else {
+		list, err = s.st.List()
+	}
 	if err != nil {
 		writeJSON(w, 500, map[string]string{"error": err.Error()})
 		return
@@ -78,6 +84,14 @@ func (s *Server) handleConvs(w http.ResponseWriter, r *http.Request) {
 // GET /api/conv/<id>
 func (s *Server) handleConv(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/conv/")
+	if r.Method == http.MethodDelete {
+		if err := s.st.Archive(id); err != nil {
+			writeJSON(w, 404, map[string]string{"error": "归档失败：" + err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]any{"ok": true, "archived": id})
+		return
+	}
 	c, err := s.st.Get(id)
 	if err != nil {
 		writeJSON(w, 404, map[string]string{"error": "没有这个会话"})

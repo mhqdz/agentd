@@ -268,3 +268,7 @@ body{background:var(--paper);color:var(--ink);
   border:1px solid var(--line);color:var(--ink2);background:var(--panel);margin-right:.1rem}
 .msg.assistant .av{border-color:var(--sage);color:var(--sage-d)}
 .msg .mhead{align-items:center}
+
+/* 只让 Agent 气泡带 skill 的"顶边页签"；用户/工具气泡不要那条黑块 */
+.msg.user::before,.msg.tool::before,
+.msg.user > *::before,.msg.tool > *::before{display:none !important;content:none !important}

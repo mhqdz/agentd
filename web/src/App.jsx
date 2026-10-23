@@ -246,7 +246,6 @@ export default function App() {
           <div className="status">{status}</div>
           <div className="composer">
             <div className="row1">
-              <span className="eb" style={{ display: 'inline', letterSpacing: '.14em' }}>PROFILE</span>
               <label className="pick">
                 <select value={profile} onChange={e => setProfile(e.target.value)}>
                   {(profiles.length ? profiles : [{ name: profile, model: '' }]).map(p => (

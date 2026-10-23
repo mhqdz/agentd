@@ -183,7 +183,7 @@ export default function App() {
                 <div className="eyebrow">LOCAL AGENT CONSOLE</div>
                 <h1>选一个 profile，说一句话<br /><em>剩下的交给它：调工具、读屏幕、查知识库</em></h1>
                 <p className="lead">过程会留在左侧记录里；工具输出、思考链、截图都会附在回复下面。</p>
-                <div className="panel">
+                <div className="panel ef-panel cut-tl">
                   <div className="hd"><span>START HERE</span><span>03 STEPS</span></div>
                   <div className="step">
                     <span className="n">01</span>
@@ -210,7 +210,7 @@ export default function App() {
             ) : (
               <div className="col">
                 {msgs.map((m, i) => (
-                  <div key={i} className={'msg ' + m.role}>
+                  <div key={i} className={'msg ef-panel cut-tl ' + m.role}>
                     <div className="av">{m.role === 'user' ? '用' : m.role === 'tool' ? 'T' : '◈'}</div>
                     <div>
                       <div className="mhead">
@@ -226,10 +226,10 @@ export default function App() {
                       ) : null}
                       {m.content ? <Sections text={m.content} /> : null}
                       {(m.tools || []).length > 0 ? (
-                        <div className="tools">
+                        <div className="tools ef-panel cut-tl">
                           <div className="hd"><span>TOOL LOG / 工具调用记录</span><span>{m.tools.length} 项 · 全部完成</span></div>
                           {m.tools.map((t, k) => (
-                            <div className="row" key={k}>
+                            <div className="row ef-row" key={k}>
                               <span className="nm">{t.name}</span>
                               <div>
                                 <div style={{ color: 'var(--ink2)', fontSize: '.78rem' }}>{(t.args || '').slice(0, 140)}</div>

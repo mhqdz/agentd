@@ -73,6 +73,14 @@ export default function App() {
 
   useEffect(() => { localStorage.setItem('colW', String(colW)) }, [colW])
 
+  // 滚轮：在输入区/状态栏上滚动也归给会话区（否则滚轮在这里"失灵"）
+  const onStageWheel = (e) => {
+    const th = stageRef.current?.querySelector('.thread')
+    if (!th) return
+    if (e.target.closest('.thread')) return          // 会话区内部走原生滚动
+    th.scrollTop += e.deltaY                          // 输入区上滚 → 滚动会话
+  }
+
   // 取装饰线的实际横坐标（.col 左缘再往左 1.4rem）
   const lineX = () => {
     const col = stageRef.current?.querySelector('.thread .col')
@@ -269,7 +277,8 @@ export default function App() {
         {sideOpen ? <div className="split" onMouseDown={startDrag} title="拖动调整左侧面板宽度" /> : null}
 
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
-          onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>
+          onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}
+          onWheel={onStageWheel}>
           <i className="guideline" aria-hidden="true" />
           <div className="thread">
             {msgs.length === 0 ? (

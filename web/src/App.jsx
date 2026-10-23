@@ -59,6 +59,8 @@ export default function App() {
   const [colW, setColW] = useState(() => Number(localStorage.getItem('colW')) || 960)
   const colDrag = useRef(null)
   const stageRef = useRef(null)
+  const [inputH, setInputH] = useState(() => Number(localStorage.getItem('inputH')) || 92)
+  const hDrag = useRef(null)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -72,6 +74,25 @@ export default function App() {
   useEffect(() => { localStorage.setItem('sideW', String(sideW)) }, [sideW])
 
   useEffect(() => { localStorage.setItem('colW', String(colW)) }, [colW])
+
+  useEffect(() => { localStorage.setItem('inputH', String(inputH)) }, [inputH])
+
+  // 右上角小三角：拖动调整输入框高度（替代原生右下角 resize ✓）
+  const startResize = (e) => {
+    e.preventDefault(); e.stopPropagation()
+    hDrag.current = { y: e.clientY, h: inputH }
+    const move = (ev) => {
+      const h = Math.min(420, Math.max(56, hDrag.current.h + (ev.clientY - hDrag.current.y)))
+      setInputH(h)
+    }
+    const up = () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+      document.body.style.cursor = ''; document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'ns-resize'; document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', move); window.addEventListener('mouseup', up)
+  }
 
   // 滚轮：在输入区/状态栏上滚动也归给会话区（否则滚轮在这里"失灵"）
   const onStageWheel = (e) => {
@@ -366,7 +387,8 @@ export default function App() {
               </label>
               <span className="model" style={{ marginLeft: 'auto' }} title={cur ? cur.model : ''}>{cur && cur.model ? cur.model : (profile === '9-exec' ? 'Qwen3.5-9B-int4-ov' : 'qwen3.8-flash-next-iq3_xxs')}</span>
             </div>
-            <textarea value={text} onChange={e => setText(e.target.value)}
+            <i className="resizer" onMouseDown={startResize} title="拖动调整输入框高度" />
+            <textarea value={text} style={{ height: inputH + 'px' }} onChange={e => setText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send() }}
               placeholder="输入你的问题…" />
             <div className="row3">

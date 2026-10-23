@@ -317,3 +317,8 @@ body{background:var(--paper);color:var(--ink);
 /* 输入区/状态栏与正文同宽：一律以 --colw 为准，不再有 60rem 的额外上限 */
 .composer{width:min(var(--colw,60rem),calc(100% - 2*clamp(.5rem,1.2vw,1rem)));max-width:none;margin:0 auto 1.2rem}
 .status{width:min(var(--colw,60rem),calc(100% - 2*clamp(.5rem,1.2vw,1rem)));max-width:none;margin-inline:auto}
+
+/* 渐隐线默认完全隐藏，鼠标靠近拖拽带时才渐显 */
+.thread .col::before{opacity:0;transition:opacity .18s ease}
+.stage:has(.colsplit:hover) .thread .col::before,
+.stage:has(.colsplit:active) .thread .col::before{opacity:1}

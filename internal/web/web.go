@@ -191,13 +191,15 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	page, err := os.ReadFile(s.cfg.WebDir + "/index.html")
-	if err != nil {
-		fmt.Fprint(w, placeholder)
-		return
+	// 静态资源：dist 下的文件（/assets/*.js|css 等）；缺文件时给占位页
+	if s.cfg.WebDir != "" {
+		if _, err := os.Stat(s.cfg.WebDir + "/index.html"); err == nil {
+			http.FileServer(http.Dir(s.cfg.WebDir)).ServeHTTP(w, r)
+			return
+		}
 	}
-	w.Write(page)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprint(w, placeholder)
 }
 
 const placeholder = `<!doctype html><meta charset="utf-8"><title>agentd</title>

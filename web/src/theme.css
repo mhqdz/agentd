@@ -145,7 +145,7 @@ body{background:var(--paper);color:var(--ink);
   color:#0f1716;font-weight:800;font-size:.85rem;
   clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
 /* 抽屉四列：编号 / 日期 / 名称 / 计数 */
-.drawer .r{grid-template-columns:1.7rem 4.6rem 1fr auto}
+.drawer .r{grid-template-columns:1.5rem 2.9rem 1fr 1.4rem}
 .drawer .r .dt{font-size:.66rem;color:var(--rail-dim);font-variant-numeric:tabular-nums}
 .drawer .r .ct{font-size:.66rem;color:var(--rail-dim);font-variant-numeric:tabular-nums}
 /* 悬停：左边 4px 色条 + 右移 6px（skill 的记录行规则） */

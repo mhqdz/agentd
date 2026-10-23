@@ -158,7 +158,7 @@ export default function App() {
             {list.map((c, i) => (
               <div key={c.ID} className={'r' + (c.ID === convId ? ' on' : '')} onClick={() => openConv(c.ID)}>
                 <span className="no">{pad(i + 1)}</span>
-                <span className="dt ef-field">{(c.UpdatedAt || '').slice(0, 10).replace(/-/g, '.')}</span>
+                <span className="dt ef-field">{(c.UpdatedAt || '').slice(5, 10).replace('-', '.')}</span>
                 <span className="ti">{c.Title || '(无标题)'}</span>
                 <span className="ct ef-field">{String(c.N || 0).padStart(2, '0')}</span>
                 <span className="act" onClick={e => act(tab === 'archive' ? 'restore' : 'archive', c.ID, e)}>

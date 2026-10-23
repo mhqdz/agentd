@@ -152,6 +152,11 @@ export default function App() {
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}>会话 {convs.length}</a>
             <a className={tab === 'archive' ? 'on' : ''} onClick={() => setTab('archive')}>归档 {archived.length}</a>
           </div>
+          <div className="ef-figs drawer-figs">
+            <a><b>{String(convs.length).padStart(2, '0')}</b><span>会话</span></a>
+            <a><b>{String(archived.length).padStart(2, '0')}</b><span>归档</span></a>
+            <a><b>{String(msgs.length).padStart(2, '0')}</b><span>本轮</span></a>
+          </div>
           <div className="list" style={{ padding: '0 .5rem' }}>
             {list.length === 0 ? (
               <div style={{ padding: '.9rem .4rem', color: 'var(--rail-dim)', fontSize: '.78rem' }}>没有记录</div>

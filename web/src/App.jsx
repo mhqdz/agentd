@@ -5,6 +5,21 @@ const pad = n => String(n).padStart(2, '0')
 const now = () => new Date().toTimeString().slice(0, 5)
 
 
+
+function ProfileSeg({ profiles, value, onChange, small }) {
+  return (
+    <div className="ef-seg" role="radiogroup" aria-label="profile" style={small ? { height: 'auto' } : undefined}>
+      {profiles.map(p => (
+        <label key={p.name} title={p.model}>
+          <input type="radio" name={'seg-' + (small ? 's' : 'l')} checked={p.name === value}
+            onChange={() => onChange(p.name)} />
+          <span>{p.name}</span>
+        </label>
+      ))}
+    </div>
+  )
+}
+
 // 把回复按 markdown 标题切成"01 / 标题"编号段落；无标题则整段输出
 function Sections({ text }) {
   const lines = String(text || '').split('\n')
@@ -117,7 +132,7 @@ export default function App() {
       <header className="cmd">
         <button onClick={() => setSideOpen(!sideOpen)} title="折叠/展开侧栏">{sideOpen ? '«' : '»'}</button>
         <div className="brand">
-          <svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20 L12 4 L20 20" fill="none" stroke="#7c9a93"/><path d="M8 15 H16" stroke="#dfe9e6"/></svg>
+          <span className="seal">A</span>
           <div><b>Agent</b><small>EXECUTE · CREATE</small></div>
         </div>
         <div className="figs">
@@ -128,9 +143,7 @@ export default function App() {
         </div>
         <div className="grow" />
         <span className="status" style={{ fontSize: '.75rem', color: '#9fb3b0' }}><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
-        <select value={profile} onChange={e => setProfile(e.target.value)}>
-          {profiles.map(p => <option key={p.name} value={p.name}>{p.name} · {p.model}</option>)}
-        </select>
+        <ProfileSeg profiles={profiles} value={profile} onChange={setProfile} small />
         <button onClick={() => openConv(null)}>＋ 新建</button>
       </header>
 
@@ -145,7 +158,9 @@ export default function App() {
             {list.map((c, i) => (
               <div key={c.ID} className={'r' + (c.ID === convId ? ' on' : '')} onClick={() => openConv(c.ID)}>
                 <span className="no">{pad(i + 1)}</span>
+                <span className="dt ef-field">{(c.UpdatedAt || '').slice(0, 10).replace(/-/g, '.')}</span>
                 <span className="ti">{c.Title || '(无标题)'}</span>
+                <span className="ct ef-field">{String(c.N || 0).padStart(2, '0')}</span>
                 <span className="act" onClick={e => act(tab === 'archive' ? 'restore' : 'archive', c.ID, e)}>
                   {tab === 'archive' ? '恢复' : '归档'}
                 </span>
@@ -194,8 +209,8 @@ export default function App() {
                     <div>
                       <div className="mhead">
                         <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? '工具' : 'Agent'}</b>
-                        <span>{m.at || ''}</span>
-                        {m.seq ? <span>#{m.seq}</span> : null}
+                        <span className="ef-field">{m.at || ''}</span>
+                        {m.seq ? <span className="ef-field">#{m.seq}</span> : null}
                       </div>
                       {m.reasoning ? (
                         <details className="fold">
@@ -232,16 +247,14 @@ export default function App() {
           <div className="composer">
             <div className="row1">
               <span className="eb" style={{ display: 'inline', letterSpacing: '.14em' }}>PROFILE</span>
-              <select value={profile} onChange={e => setProfile(e.target.value)}>
-                {profiles.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
-              </select>
+              <ProfileSeg profiles={profiles} value={profile} onChange={setProfile} small />
               <span style={{ marginLeft: 'auto' }}>{cur ? cur.model : ''}</span>
             </div>
             <textarea value={text} onChange={e => setText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send() }}
               placeholder="输入你的问题…" />
             <div className="row3">
-              <span className="hint">Ctrl+Enter 发送 · {convId ? '#' + convId.slice(0, 8) : '新会话'}</span>
+              <span className="hint">Ctrl+Enter 发送　{convId ? '#' + convId.slice(0, 8) : '新会话'}</span>
               <button className="send" onClick={send} disabled={busy}>{busy ? '运行中' : '发送 ↗'}</button>
             </div>
           </div>

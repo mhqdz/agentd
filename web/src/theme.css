@@ -139,3 +139,20 @@ body{background:var(--paper);color:var(--ink);
 .fold>summary::before{content:"▸ ";color:var(--sage)}
 .fold[open]>summary::before{content:"▾ "}
 .msg .prose{margin:.15rem 0}
+
+/* 命令栏徽记：强调色切角方块 + 字母 */
+.cmd .seal{width:1.6rem;height:1.6rem;display:grid;place-items:center;background:var(--sage);
+  color:#0f1716;font-weight:800;font-size:.85rem;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
+/* 抽屉四列：编号 / 日期 / 名称 / 计数 */
+.drawer .r{grid-template-columns:1.7rem 4.6rem 1fr auto}
+.drawer .r .dt{font-size:.66rem;color:var(--rail-dim);font-variant-numeric:tabular-nums}
+.drawer .r .ct{font-size:.66rem;color:var(--rail-dim);font-variant-numeric:tabular-nums}
+/* 悬停：左边 4px 色条 + 右移 6px（skill 的记录行规则） */
+.drawer .r{transition:padding-left .12s}
+.drawer .r:hover{padding-left:.95rem}
+.drawer .r.on{padding-left:.95rem}
+/* 分段控件在深色命令栏里：用 skill 的 ef-seg，但边框/文字反色 */
+.cmd .ef-seg{border-color:#33474333;background:transparent}
+.cmd .ef-seg label span{color:#b9cbc7;font-size:.72rem;padding:.18rem .5rem;height:auto}
+.cmd .ef-seg input:checked+span{background:#dfe9e6;color:#12201e}

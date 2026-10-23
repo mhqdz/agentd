@@ -164,6 +164,4 @@ body{background:var(--paper);color:var(--ink);
   }
 .composer .pick select:hover{border-color:var(--sage)}
 .composer .pick .caret{position:absolute;right:.45rem;pointer-events:none;color:var(--sage-d);font-size:.7rem}
-.composer .model{color:var(--ink2);min-width:8rem;font-size:.74rem;font-variant-numeric:tabular-nums;
-  background:#fff;border:1px solid var(--line);padding:.14rem .45rem;max-width:22rem;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.composer .model{font-size:.72rem;color:var(--ink3);font-variant-numeric:tabular-nums;max-width:24rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:auto}

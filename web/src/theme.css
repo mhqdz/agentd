@@ -39,7 +39,7 @@ body{background:var(--paper);color:var(--ink);
 .work{display:flex;flex:1;min-height:0}
 
 /* ===== 左抽屉 ===== */
-.drawer{width:325px;flex:0 0 325px;color:var(--rail-fg);display:flex;flex-direction:column;
+.drawer{width:250px;flex:0 0 250px;color:var(--rail-fg);display:flex;flex-direction:column;
   border-right:1px solid #253331;
   background:
     radial-gradient(420px 260px at 8% -6%,rgba(124,154,147,.28),transparent 70%),
@@ -179,7 +179,7 @@ body{background:var(--paper);color:var(--ink);
 
 /* 抽屉里的 ef-records：深色底上反色，行内右侧挂"归档/恢复" */
 .drawer .ef-records.dark .ef-record{color:var(--rail-fg);border-color:rgba(255,255,255,.06);
-  padding:.42rem .35rem;display:grid;grid-template-columns:3.6rem 2.8rem 1fr auto;gap:.5rem;align-items:center;
+  padding:.58rem .35rem;min-height:2.6rem;display:grid;grid-template-columns:3.4rem 2.6rem 1fr auto;gap:.5rem;align-items:center;
   text-decoration:none;cursor:pointer;border-left:3px solid transparent}
 .drawer .ef-records.dark .ef-record:hover{background:rgba(255,255,255,.05);border-left-color:var(--ef-signal);padding-left:.6rem}
 .drawer .ef-records.dark .ef-record.on{background:rgba(255,255,255,.07);border-left-color:var(--ef-signal)}

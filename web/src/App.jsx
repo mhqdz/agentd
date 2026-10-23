@@ -58,6 +58,7 @@ export default function App() {
   const [sideW, setSideW] = useState(() => Number(localStorage.getItem('sideW')) || 250)
   const [colW, setColW] = useState(() => Number(localStorage.getItem('colW')) || 960)
   const colDrag = useRef(null)
+  const stageRef = useRef(null)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -71,6 +72,33 @@ export default function App() {
   useEffect(() => { localStorage.setItem('sideW', String(sideW)) }, [sideW])
 
   useEffect(() => { localStorage.setItem('colW', String(colW)) }, [colW])
+
+  // 取装饰线的实际横坐标（.col 左缘再往左 1.4rem）
+  const lineX = () => {
+    const col = stageRef.current?.querySelector('.thread .col')
+    return col ? col.getBoundingClientRect().left - 22 : -999
+  }
+
+  // 鼠标靠近：按距离设置不透明度（0 → 1，无生硬切换）
+  const onStageMove = (e) => {
+    const col = stageRef.current?.querySelector('.thread .col')
+    if (!col) return
+    const d = Math.abs(e.clientX - (col.getBoundingClientRect().left - 22))
+    const a = Math.max(0, Math.min(1, 1 - (d - 6) / 54))   // 6px 内全显，60px 外全隐
+    col.style.setProperty('--lineA', String(a))
+    e.currentTarget.style.cursor = d <= 10 ? 'col-resize' : ''
+  }
+
+  const onStageLeave = () => {
+    const col = stageRef.current?.querySelector('.thread .col')
+    if (col) col.style.setProperty('--lineA', '0')
+    if (stageRef.current) stageRef.current.style.cursor = ''
+  }
+
+  // 只在贴近线时才允许拖动
+  const onStageDown = (e) => {
+    if (Math.abs(e.clientX - lineX()) <= 10) startColDrag(e)
+  }
 
   // 拖动阅读栏左边界调整正文宽度（居中 → 左右留白同步变化）
   const startColDrag = (e) => {
@@ -235,8 +263,8 @@ export default function App() {
         </aside>
         {sideOpen ? <div className="split" onMouseDown={startDrag} title="拖动调整左侧面板宽度" /> : null}
 
-        <main className="stage" style={{ '--colw': colW + 'px' }}>
-          <div className="colsplit" onMouseDown={startColDrag} title="拖动调整正文栏宽度（左右留白同步变化）" />
+        <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
+          onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>
           <div className="thread">
             {msgs.length === 0 ? (
               <div className="col empty">

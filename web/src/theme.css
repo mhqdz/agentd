@@ -322,3 +322,8 @@ body{background:var(--paper);color:var(--ink);
 .thread .col::before{opacity:0;transition:opacity .18s ease}
 .stage:has(.colsplit:hover) .thread .col::before,
 .stage:has(.colsplit:active) .thread .col::before{opacity:1}
+
+/* 渐隐线：不透明度由 JS 按鼠标距离写入 --lineA（6px 内 1，60px 外 0） */
+.thread .col::before{opacity:var(--lineA,0);transition:none}
+.stage:has(.colsplit:hover) .thread .col::before{opacity:var(--lineA,0)}
+.colsplit{display:none}

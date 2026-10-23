@@ -82,7 +82,7 @@ export default function App() {
     e.preventDefault(); e.stopPropagation()
     hDrag.current = { y: e.clientY, h: inputH }
     const move = (ev) => {
-      const h = Math.min(420, Math.max(56, hDrag.current.h + (ev.clientY - hDrag.current.y)))
+      const h = Math.min(420, Math.max(56, hDrag.current.h - (ev.clientY - hDrag.current.y)))
       setInputH(h)
     }
     const up = () => {

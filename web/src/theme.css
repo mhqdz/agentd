@@ -62,10 +62,18 @@ body{background:var(--paper);color:var(--ink);font:14px/1.6 "Noto Sans SC",syste
 .composer textarea{flex:1;min-height:3.4rem;resize:vertical;border:1px solid var(--line);background:#fff;color:var(--ink);padding:.6rem .7rem;font:inherit}
 .send{width:2.6rem;height:2.6rem;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:1.1rem;cursor:pointer}
 .send:disabled{opacity:.45}
-.sel{background:#fff;color:var(--ink);border:1px solid var(--line);padding:.2rem .4rem;font:inherit;font-size:.8rem}
+.sel{background:#fff;color:var(--ink);border:1px solid var(--line);padding:.2rem .4rem;font:inherit;font-size:.8rem;
+  max-width:15rem;text-overflow:ellipsis}
+@media (max-width:1100px){.brandline{display:none}}
+/* 会话行的归档/恢复按钮：默认淡出，悬停才显眼（避免一列按钮抢注意力） */
+.side .rec .ef-btn{opacity:0;transition:opacity .12s}
+.side .rec:hover .ef-btn,.side .rec.on .ef-btn{opacity:1}
 .empty{color:var(--ink2);padding:1rem}
 @media (max-width:720px){
   .side{display:none}
   .thread{padding:.8rem}
   .composer{flex-wrap:wrap}
 }
+
+.side.hidden{display:none}
+.ef-btn.icon{min-width:2rem;text-align:center}

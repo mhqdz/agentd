@@ -15,6 +15,7 @@ export default function App() {
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [status, setStatus] = useState('')
+  const [sideOpen, setSideOpen] = useState(localStorage.getItem('sideOpen') !== '0')
   const endRef = useRef(null)
 
   const refresh = async () => {
@@ -24,6 +25,7 @@ export default function App() {
   }
   useEffect(() => { refresh() }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
+  useEffect(() => { localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
   useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }) }, [msgs, status])
 
   const openConv = async (id) => {
@@ -75,7 +77,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <aside className="side">
+      <aside className={'side' + (sideOpen ? '' : ' hidden')}>
         <div className="brand">
           <svg width="26" height="26" viewBox="0 0 26 26"><rect x="1" y="1" width="24" height="24" fill="none" stroke="#8fae9f"/><path d="M6 20 L13 6 L20 20" fill="none" stroke="#e6ecea"/><path d="M9 16 H17" stroke="#8fae9f"/></svg>
           <div><b>Agent</b><small>EXECUTE · CREATE</small></div>
@@ -108,6 +110,8 @@ export default function App() {
 
       <main className="main">
         <header className="top">
+          <button className="ef-btn icon" title={sideOpen ? '隐藏侧栏' : '显示侧栏'}
+            onClick={() => setSideOpen(!sideOpen)}>{sideOpen ? '«' : '»'}</button>
           <button className="ef-btn" onClick={() => openConv(null)}>＋ 新建</button>
           <h2>{title}</h2>
           <span className="chip">工作区</span>

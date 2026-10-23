@@ -212,6 +212,11 @@ export default function App() {
             </div>
           </div>
         </main>
+        <aside className="rail">
+          <span className="vt">AGENT EXECUTE · CREATE</span>
+          <span className="fig">{String(convs.length).padStart(2,'0')} / {String(archived.length).padStart(2,'0')}</span>
+          <span className="dots"><i /><i /><i /></span>
+        </aside>
       </div>
     </div>
   )

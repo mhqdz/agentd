@@ -98,7 +98,7 @@ export default function App() {
           <div className="fig"><b>{secs ? secs.toFixed(1) + 's' : '—'}</b><span>LAST RUN</span></div>
         </div>
         <div className="grow" />
-        <span style={{ fontSize: '.75rem', color: '#9fb3b0' }}><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
+        <span className="status" style={{ fontSize: '.75rem', color: '#9fb3b0' }}><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
         <select value={profile} onChange={e => setProfile(e.target.value)}>
           {profiles.map(p => <option key={p.name} value={p.name}>{p.name} · {p.model}</option>)}
         </select>
@@ -130,12 +130,31 @@ export default function App() {
           <div className="thread">
             {msgs.length === 0 ? (
               <div className="col empty">
-                <div className="mark">// AGENTD<i>LOCAL</i></div>
-                <p className="lead">本地 agent 控制台。选一个 profile，写一句话，它会调工具、读屏幕、查知识库，并把过程留在记录里。</p>
-                <div className="acts">
-                  <button onClick={() => openConv(null)}>＋ 新会话</button>
-                  <button onClick={() => setTab('archive')}>看归档</button>
-                  <button onClick={() => refresh()}>刷新记录</button>
+                <div className="eyebrow">LOCAL AGENT CONSOLE</div>
+                <h1>选一个 profile，说一句话<br /><em>剩下的交给它：调工具、读屏幕、查知识库</em></h1>
+                <p className="lead">过程会留在左侧记录里；工具输出、思考链、截图都会附在回复下面。</p>
+                <div className="panel">
+                  <div className="hd"><span>START HERE</span><span>03 STEPS</span></div>
+                  <div className="step">
+                    <span className="n">01</span>
+                    <span className="t"><b>新建会话</b><span>从空白开始，或点左侧任一历史记录继续</span></span>
+                    <button onClick={() => openConv(null)}>新建</button>
+                  </div>
+                  <div className="step">
+                    <span className="n">02</span>
+                    <span className="t"><b>选 profile</b><span>180-think 规划 · 180-low 快速 · 9-exec 只跑命令</span></span>
+                    <button onClick={() => document.querySelector('.composer select')?.focus()}>选择</button>
+                  </div>
+                  <div className="step">
+                    <span className="n">03</span>
+                    <span className="t"><b>写一句话</b><span>Ctrl+Enter 发送；要中断就刷新页面</span></span>
+                    <button onClick={() => document.querySelector('.composer textarea')?.focus()}>去输入</button>
+                  </div>
+                </div>
+                <div className="tips">
+                  <span>会话 <code id="n1">{convs.length}</code></span>
+                  <span>归档 <code>{archived.length}</code></span>
+                  <span>当前 <code>{profile}</code></span>
                 </div>
               </div>
             ) : (

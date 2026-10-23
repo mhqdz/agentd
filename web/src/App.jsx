@@ -4,6 +4,35 @@ const api = (p, opt) => fetch(p, opt).then(r => r.json())
 const pad = n => String(n).padStart(2, '0')
 const now = () => new Date().toTimeString().slice(0, 5)
 
+
+// 把回复按 markdown 标题切成"01 / 标题"编号段落；无标题则整段输出
+function Sections({ text }) {
+  const lines = String(text || '').split('\n')
+  const out = []
+  let buf = [], n = 0
+  const flush = () => {
+    if (buf.length) {
+      const body = buf.join('\n').trim()
+      if (body) out.push(<pre className="prose" key={'b' + out.length}>{body}</pre>)
+      buf = []
+    }
+  }
+  for (const raw of lines) {
+    const m = /^#{1,4}\s+(.*)$/.exec(raw.trim())
+    if (m) {
+      flush(); n++
+      out.push(
+        <div className="sec" key={'h' + n}>
+          <span className="secno">{pad(n)}</span>
+          <span className="secti">{m[1]}</span>
+        </div>)
+    } else buf.push(raw)
+  }
+  flush()
+  if (out.length === 0) return <pre className="prose">{text}</pre>
+  return <>{out}</>
+}
+
 export default function App() {
   const [convs, setConvs] = useState([])
   const [archived, setArchived] = useState([])
@@ -168,17 +197,22 @@ export default function App() {
                         <span>{m.at || ''}</span>
                         {m.seq ? <span>#{m.seq}</span> : null}
                       </div>
-                      {m.reasoning ? <div className="think">{m.reasoning}</div> : null}
-                      {m.content ? <div className="prose">{m.content}</div> : null}
+                      {m.reasoning ? (
+                        <details className="fold">
+                          <summary>思考过程 · {String(m.reasoning).length} 字</summary>
+                          <pre className="think">{m.reasoning}</pre>
+                        </details>
+                      ) : null}
+                      {m.content ? <Sections text={m.content} /> : null}
                       {(m.tools || []).length > 0 ? (
                         <div className="tools">
-                          <div className="hd"><span>工具调用记录</span><span>{m.tools.length} 项</span></div>
+                          <div className="hd"><span>TOOL LOG / 工具调用记录</span><span>{m.tools.length} 项 · 全部完成</span></div>
                           {m.tools.map((t, k) => (
                             <div className="row" key={k}>
                               <span className="nm">{t.name}</span>
                               <div>
                                 <div style={{ color: 'var(--ink2)', fontSize: '.78rem' }}>{(t.args || '').slice(0, 140)}</div>
-                                {t.text ? <details><summary className="eb">输出</summary><pre className="out">{t.text}</pre></details> : null}
+                                {t.text ? <details className="fold"><summary>输出 · {String(t.text).length} 字</summary><pre className="out">{t.text}</pre></details> : null}
                                 {t.image ? <img src={t.image} alt="tool" /> : null}
                               </div>
                               <span className="ok">✓</span>

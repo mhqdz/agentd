@@ -127,3 +127,15 @@ body{background:var(--paper);color:var(--ink);
 @media (max-width:1180px){.cmd .fig:nth-child(n+3){display:none}}
 @media (max-width:900px){.cmd .figs{display:none}.cmd .brand small{display:none}}
 @media (max-width:760px){.drawer{position:absolute;z-index:9;height:100%}}
+
+/* 编号段落 */
+.sec{display:flex;align-items:baseline;gap:.7rem;margin:1.1rem 0 .45rem;padding-bottom:.35rem;border-bottom:1px solid var(--line)}
+.sec .secno{font-variant-numeric:tabular-nums;color:var(--sage-d);font-weight:700;letter-spacing:.06em}
+.sec .secti{font-size:1.02rem;font-weight:700}
+/* 折叠块 */
+.fold{border-left:2px solid var(--line);margin:.35rem 0 .6rem;padding-left:.7rem}
+.fold>summary{cursor:pointer;font-size:.72rem;letter-spacing:.1em;color:var(--ink3);list-style:none}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::before{content:"▸ ";color:var(--sage)}
+.fold[open]>summary::before{content:"▾ "}
+.msg .prose{margin:.15rem 0}

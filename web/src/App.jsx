@@ -28,7 +28,7 @@ function Sections({ text }) {
   const flush = () => {
     if (buf.length) {
       const body = buf.join('\n').trim()
-      if (body) out.push(<pre className="prose" key={'b' + out.length}>{body}</pre>)
+      if (body) out.push(<pre className="prose ef-prose" key={'b' + out.length}>{body}</pre>)
       buf = []
     }
   }
@@ -44,7 +44,7 @@ function Sections({ text }) {
     } else buf.push(raw)
   }
   flush()
-  if (out.length === 0) return <pre className="prose">{text}</pre>
+  if (out.length === 0) return <pre className="prose ef-prose">{text}</pre>
   return <>{out}</>
 }
 
@@ -187,7 +187,7 @@ export default function App() {
               <div className="col empty">
                 <div className="eyebrow">LOCAL AGENT CONSOLE</div>
                 <h1>选一个 profile，说一句话<br /><em>剩下的交给它：调工具、读屏幕、查知识库</em></h1>
-                <p className="lead">过程会留在左侧记录里；工具输出、思考链、截图都会附在回复下面。</p>
+                <figure className="ef-frame empty-frame"><div className="window"><figcaption className="ef-plate lead">过程会留在左侧记录里；工具输出、思考链、截图都会附在回复下面。</p>
                 <div className="panel ef-panel cut-tl">
                   <div className="hd"><span>START HERE</span><span>03 STEPS</span></div>
                   <div className="step">

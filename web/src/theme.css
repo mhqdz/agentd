@@ -200,3 +200,12 @@ body{background:var(--paper);color:var(--ink);
 .drawer-figs a span{display:block;margin-top:.15rem;font-size:.6rem;letter-spacing:.18em;color:var(--rail-dim)}
 /* 当前 tab：整块信号色（ef-cmdbar 的"当前分区"规则） */
 .drawer .tabs a.on{background:var(--ef-signal);color:#08201d;border-bottom-color:transparent;font-weight:700}
+
+/* ⑦ 正文按 skill：17px / 行高 1.85 / 每行约 38 字 */
+.ef-prose{font-size:17px;line-height:1.85;max-width:38em;letter-spacing:.01em}
+.ef-prose+ .ef-prose{margin-top:.6rem}
+/* ⑧ 空状态的画框：不用图片，用"留白 + 铭牌"表达层次 */
+.empty-frame{position:relative;margin:1rem 0 1.4rem;padding:.2rem 0}
+.empty-frame .window{padding:.9rem 1rem;border:1px solid var(--line);background:var(--panel);
+  clip-path:polygon(3.25rem 0,100% 0,100% calc(100% - 3.25rem),calc(100% - 3.25rem) 100%,0 100%,0 3.25rem)}
+.empty-frame .ef-plate{display:block;padding:0;background:none;clip-path:none}

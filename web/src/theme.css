@@ -168,3 +168,6 @@ body{background:var(--paper);color:var(--ink);
 
 .cmd .modeltxt{flex:0 1 auto;font-size:.74rem;color:#a9bdb9;font-variant-numeric:tabular-nums;
   max-width:15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 黑栏隐藏读数块（与左抽屉、右栏重复）→ 把空间让给模型名 */
+.cmd .figs{display:none !important}

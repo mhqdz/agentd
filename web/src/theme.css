@@ -161,7 +161,7 @@ body{background:var(--paper);color:var(--ink);
 .composer .pick{position:relative;display:inline-flex;align-items:center}
 .composer .pick select{min-width:10.5rem;appearance:none;-webkit-appearance:none;background:var(--sage-l,#e6edeb);color:var(--sage-d);
   border:1px solid #c3d2ce;font:inherit;font-size:.78rem;font-weight:600;padding:.22rem 1.5rem .22rem .55rem;
-  clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,0 100%)}
+  }
 .composer .pick select:hover{border-color:var(--sage)}
 .composer .pick .caret{position:absolute;right:.45rem;pointer-events:none;color:var(--sage-d);font-size:.7rem}
 .composer .model{color:var(--ink2);min-width:8rem;font-size:.74rem;font-variant-numeric:tabular-nums;

@@ -187,6 +187,12 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 
 // 静态文件：优先 embed（P4 会填 web/dist），没有就返回占位页。
 func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.WebDir != "" {
+		if _, err := os.Stat(s.cfg.WebDir + "/index.html"); err == nil {
+			http.FileServer(http.Dir(s.cfg.WebDir)).ServeHTTP(w, r)
+			return
+		}
+	}
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return

@@ -81,18 +81,23 @@ export default function App() {
 
   // 鼠标靠近：按距离设置不透明度（0 → 1，无生硬切换）
   const onStageMove = (e) => {
-    const col = stageRef.current?.querySelector('.thread .col')
-    if (!col) return
-    const d = Math.abs(e.clientX - (col.getBoundingClientRect().left - 22))
-    const a = Math.max(0, Math.min(1, 1 - (d - 6) / 54))   // 6px 内全显，60px 外全隐
-    col.style.setProperty('--lineA', String(a))
-    e.currentTarget.style.cursor = d <= 10 ? 'col-resize' : ''
+    const stage = stageRef.current
+    const col = stage?.querySelector('.thread .col')
+    if (!stage || !col) return
+    const cr = col.getBoundingClientRect(), sr = stage.getBoundingClientRect()
+    const dx = Math.abs(e.clientX - (cr.left - 22))
+    const a = Math.max(0, Math.min(1, 1 - (dx - 6) / 54))     // 横向：近线才显示
+    stage.style.setProperty('--lineA', String(a))
+    stage.style.setProperty('--lineX', (cr.left - 22 - sr.left) + 'px')
+    stage.style.setProperty('--lineY', (e.clientY - sr.top) + 'px')   // 纵向：可见窗口跟随鼠标
+    stage.style.cursor = dx <= 10 ? 'col-resize' : ''
   }
 
   const onStageLeave = () => {
-    const col = stageRef.current?.querySelector('.thread .col')
-    if (col) col.style.setProperty('--lineA', '0')
-    if (stageRef.current) stageRef.current.style.cursor = ''
+    if (stageRef.current) {
+      stageRef.current.style.setProperty('--lineA', '0')
+      stageRef.current.style.cursor = ''
+    }
   }
 
   // 只在贴近线时才允许拖动
@@ -265,6 +270,7 @@ export default function App() {
 
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
           onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>
+          <i className="guideline" aria-hidden="true" />
           <div className="thread">
             {msgs.length === 0 ? (
               <div className="col empty">

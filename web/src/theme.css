@@ -327,3 +327,16 @@ body{background:var(--paper);color:var(--ink);
 .thread .col::before{opacity:var(--lineA,0);transition:none}
 .stage:has(.colsplit:hover) .thread .col::before{opacity:var(--lineA,0)}
 .colsplit{display:none}
+
+/* 全长参考线：整条贯穿内容区，但只显示鼠标纵向位置附近的一段 */
+.guideline{position:absolute;top:0;bottom:0;left:var(--lineX,0px);width:1px;
+  background:var(--line);opacity:var(--lineA,0);pointer-events:none;z-index:3;
+  --win:70px;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,
+    #000 calc(var(--lineY,0px) - var(--win)),#000 calc(var(--lineY,0px) + var(--win)),
+    transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0,
+    #000 calc(var(--lineY,0px) - var(--win)),#000 calc(var(--lineY,0px) + var(--win)),
+    transparent 100%)}
+/* 旧的 .col::before 线彻底关掉，避免两条重叠 */
+.thread .col::before{display:none}

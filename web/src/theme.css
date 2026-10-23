@@ -249,3 +249,12 @@ body{background:var(--paper);color:var(--ink);
 /* 气泡内首尾元素不留额外外边距，避免左右视觉不齐 */
 .msg > div > :first-child{margin-top:0}
 .msg > div > :last-child{margin-bottom:0}
+
+/* 左侧留白收紧：气泡自身内边距一致，但整体左边距不再偏大 */
+.thread{padding:1.1rem clamp(.5rem,1.2vw,1rem) .8rem}
+.msg,.msg.ef-panel{padding:.85rem .85rem}
+/* 正文贴气泡左内边距，不跟随"思考过程"的缩进 */
+.msg .prose,.msg .ef-prose,.msg .sec{margin-left:0;padding-left:0}
+/* 思考过程保留自己的缩进（左线 + 内缩），与正文不齐是故意的 */
+.msg .fold{margin-left:0;padding-left:.7rem;border-left:2px solid var(--line)}
+.msg .fold > summary{padding-left:0}

@@ -69,7 +69,12 @@ export default function App() {
     setArchived(await api('/api/convs?archived=1').catch(() => []))
     setProfiles(await api('/api/profiles'))
   }
-  useEffect(() => { refresh() }, [])
+  useEffect(() => {
+    refresh().then(() => {
+      const c = new URLSearchParams(location.search).get('conv')   // 支持 ?conv=<id> 深链，也方便截图验证
+      if (c) openConv(c)
+    })
+  }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
   useEffect(() => { localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
   useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }) }, [msgs, status])

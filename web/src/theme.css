@@ -223,7 +223,7 @@ body{background:var(--paper);color:var(--ink);
 /* ② 角色用形状与底色区分（长会话里不再连成一片） */
 .msg.ef-panel{background:rgba(255,255,255,.86);border-color:rgba(20,26,25,.10);padding:.9rem 1rem;margin:.2rem 0 1rem}
 /* 用户：窄卡 + 右对齐 + 左侧信号色条 */
-.msg.user{grid-template-columns:1fr;max-width:34rem;margin-left:auto;
+.msg.user{grid-template-columns:1fr;max-width:44rem;margin-left:0;
   background:rgba(255,255,255,.86);border-left:3px solid var(--ef-signal);padding:.7rem .95rem}
 .msg.user .av{display:none}
 .msg.user .mhead b{color:var(--ef-signal)}

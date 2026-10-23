@@ -152,19 +152,26 @@ export default function App() {
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}>会话 {convs.length}</a>
             <a className={tab === 'archive' ? 'on' : ''} onClick={() => setTab('archive')}>归档 {archived.length}</a>
           </div>
-          <div className="list">
-            {list.length === 0 ? <div style={{ padding: '.9rem', color: '#6f8582', fontSize: '.78rem' }}>没有记录</div> : null}
-            {list.map((c, i) => (
-              <div key={c.ID} className={'r' + (c.ID === convId ? ' on' : '')} onClick={() => openConv(c.ID)}>
-                <span className="no">{pad(i + 1)}</span>
-                <span className="dt ef-field">{(c.UpdatedAt || '').slice(5, 10).replace('-', '.')}</span>
-                <span className="ti">{c.Title || '(无标题)'}</span>
-                <span className="ct ef-field">{String(c.N || 0).padStart(2, '0')}</span>
-                <span className="act" onClick={e => act(tab === 'archive' ? 'restore' : 'archive', c.ID, e)}>
-                  {tab === 'archive' ? '恢复' : '归档'}
-                </span>
-              </div>
-            ))}
+          <div className="list" style={{ padding: '0 .5rem' }}>
+            {list.length === 0 ? (
+              <div style={{ padding: '.9rem .4rem', color: 'var(--rail-dim)', fontSize: '.78rem' }}>没有记录</div>
+            ) : (
+              <ol className="ef-records dark">
+                {list.map((c, i) => (
+                  <li key={c.ID}>
+                    <a className={'ef-record' + (c.ID === convId ? ' on' : '')} onClick={() => openConv(c.ID)}>
+                      <span className="ef-tag">No.{pad(i + 1)}</span>
+                      <time className="ef-field">{(c.UpdatedAt || '').slice(5, 10).replace('-', '.')}</time>
+                      <span className="name ef-read">{c.Title || '(无标题)'}</span>
+                      <span className="ef-field">{c.N}</span>
+                    </a>
+                    <span className="act" onClick={e => act(tab === 'archive' ? 'restore' : 'archive', c.ID, e)}>
+                      {tab === 'archive' ? '恢复' : '归档'}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
           <div className="foot">WORKSPACE / AGENT</div>
         </aside>

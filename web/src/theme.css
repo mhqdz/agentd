@@ -176,3 +176,17 @@ body{background:var(--paper);color:var(--ink);
 
 /* 黑栏隐藏读数块（与左抽屉、右栏重复）→ 把空间让给模型名 */
 .cmd .figs{display:none !important}
+
+/* 抽屉里的 ef-records：深色底上反色，行内右侧挂"归档/恢复" */
+.drawer .ef-records.dark .ef-record{color:var(--rail-fg);border-color:rgba(255,255,255,.06);
+  padding:.42rem .35rem;display:grid;grid-template-columns:3.4rem 2.6rem 1fr auto;gap:.5rem;align-items:center;
+  text-decoration:none;cursor:pointer;border-left:3px solid transparent}
+.drawer .ef-records.dark .ef-record:hover{background:rgba(255,255,255,.05);border-left-color:var(--ef-signal);padding-left:.6rem}
+.drawer .ef-records.dark .ef-record.on{background:rgba(255,255,255,.07);border-left-color:var(--ef-signal)}
+.drawer .ef-records.dark .ef-tag{background:rgba(255,255,255,.08);color:var(--rail-fg);font-size:.62rem;padding:.02rem .25rem}
+.drawer .ef-records.dark .ef-field{color:var(--rail-dim);font-size:.66rem;font-variant-numeric:tabular-nums}
+.drawer .ef-records.dark .name{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drawer .ef-records.dark li{position:relative}
+.drawer .ef-records.dark li .act{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);
+  opacity:0;font-size:.62rem;border:1px solid #33433f;padding:0 .25rem;cursor:pointer}
+.drawer .ef-records.dark li:hover .act{opacity:1}

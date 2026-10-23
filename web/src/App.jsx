@@ -143,7 +143,6 @@ export default function App() {
         </div>
         <div className="grow" />
         <span className="status" style={{ fontSize: '.75rem', color: '#9fb3b0' }}><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
-        <span className="modeltxt" title={cur ? cur.model : ''}>{cur && cur.model ? cur.model : (profile === '9-exec' ? 'Qwen3.5-9B-int4-ov' : 'qwen3.8-flash-next-iq3_xxs')}</span>
         <button onClick={() => openConv(null)}>＋ 新建</button>
       </header>
 

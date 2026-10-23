@@ -219,3 +219,19 @@ body{background:var(--paper);color:var(--ink);
 .msg.ef-panel{background:rgba(255,255,255,.58);border-color:rgba(20,26,25,.10);
   backdrop-filter:blur(2px);padding:.9rem 1rem;margin:.2rem 0 1rem}
 .msg.ef-panel .ef-prose{background:none}
+
+/* ② 角色用形状与底色区分（长会话里不再连成一片） */
+.msg.ef-panel{background:rgba(255,255,255,.86);border-color:rgba(20,26,25,.10);padding:.9rem 1rem;margin:.2rem 0 1rem}
+/* 用户：窄卡 + 右对齐 + 左侧信号色条 */
+.msg.user{grid-template-columns:1fr;max-width:34rem;margin-left:auto;
+  background:rgba(255,255,255,.86);border-left:3px solid var(--ef-signal);padding:.7rem .95rem}
+.msg.user .av{display:none}
+.msg.user .mhead b{color:var(--ef-signal)}
+/* 工具：整行式，弱化成一行的存在感 */
+.msg.tool{grid-template-columns:1fr;background:rgba(236,241,239,.75);border-left:3px solid var(--line);padding:.55rem .9rem}
+.msg.tool .av{display:none}
+/* Agent：通宽白板，左上角页签保留 */
+.msg.assistant{background:rgba(255,255,255,.86)}
+/* 编号胶囊：靠右，弱化 */
+.mhead .ef-tag{margin-left:auto;background:rgba(20,26,25,.06);color:var(--ink2);font-size:.62rem;padding:.02rem .3rem}
+.msg.user .mhead .ef-tag{background:rgba(111,167,156,.16);color:var(--sage-d)}

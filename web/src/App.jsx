@@ -218,8 +218,8 @@ export default function App() {
                     <div>
                       <div className="mhead">
                         <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? '工具' : 'Agent'}</b>
+                        {m.seq ? <span className="ef-tag">No.{String(m.seq).padStart(3, '0')}</span> : null}
                         <span className="ef-field">{m.at || ''}</span>
-                        {m.seq ? <span className="ef-field">#{m.seq}</span> : null}
                       </div>
                       {m.reasoning ? (
                         <details className="fold">

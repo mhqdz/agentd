@@ -61,6 +61,8 @@ export default function App() {
   const stageRef = useRef(null)
   const [inputH, setInputH] = useState(() => Number(localStorage.getItem('inputH')) || 92)
   const hDrag = useRef(null)
+  const abortRef = useRef(null)
+  const [aborted, setAborted] = useState(false)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -92,6 +94,14 @@ export default function App() {
     }
     document.body.style.cursor = 'ns-resize'; document.body.style.userSelect = 'none'
     window.addEventListener('mousemove', move); window.addEventListener('mouseup', up)
+  }
+
+  // 停止生成：中断 fetch → 后端 r.Context() 被取消 → 上游请求结束
+  const stop = () => {
+    abortRef.current?.abort()
+    abortRef.current = null
+    setAborted(true)
+    setStatus('已停止（已保留已生成的内容）')
   }
 
   // 滚轮：在输入区/状态栏上滚动也归给会话区（否则滚轮在这里"失灵"）
@@ -199,13 +209,16 @@ export default function App() {
 
   const send = async () => {
     const t = text.trim(); if (!t || busy) return
-    setText(''); setBusy(true); setStatus(''); setSecs(null)
+    setText(''); setBusy(true); setStatus(''); setSecs(null); setAborted(false)
+    const ac = new AbortController()
+    abortRef.current = ac
     setMsgs(m => [...m, { role: 'user', content: t, at: now() }])
     let cur = convId
     try {
       const resp = await fetch('/api/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conv_id: cur || '', text: t, profile }),
+        signal: ac.signal,
       })
       const reader = resp.body.getReader(); const dec = new TextDecoder()
       let buf = '', asst = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
@@ -231,7 +244,10 @@ export default function App() {
         }
       }
       await refresh(); if (cur) await openConv(cur)
-    } catch (e) { setStatus('✗ ' + e.message) } finally { setBusy(false) }
+    } catch (e) {
+      if (e.name === 'AbortError') setStatus('已停止')
+      else setStatus('✗ ' + e.message + '（可重试）')
+    } finally { abortRef.current = null; setBusy(false) }
   }
 
   const act = async (kind, id, e) => {
@@ -341,6 +357,9 @@ export default function App() {
                         <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? '工具' : 'Agent'}</b>
                         {m.seq ? <span className="ef-tag">No.{String(m.seq).padStart(3, '0')}</span> : null}
                         <span className="ef-field">{m.at || ''}</span>
+                        {m.role === 'assistant' && m.content ? (
+                          <span className="mact" onClick={() => navigator.clipboard?.writeText(m.content)}>复制</span>
+                        ) : null}
                       </div>
                       {m.reasoning ? (
                         <details className="fold">
@@ -393,7 +412,9 @@ export default function App() {
               placeholder="输入你的问题…" />
             <div className="row3">
               <span className="hint">Ctrl+Enter 发送　{convId ? '#' + convId.slice(0, 8) : '新会话'}</span>
-              <button className="send" onClick={send} disabled={busy}>{busy ? '运行中' : '发送 ↗'}</button>
+              {busy
+                ? <button className="send stop" onClick={stop}>停止 ■</button>
+                : <button className="send" onClick={send}>发送 ↗</button>}
             </div>
           </div>
         </main>

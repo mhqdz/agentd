@@ -258,3 +258,6 @@ body{background:var(--paper);color:var(--ink);
 /* 思考过程保留自己的缩进（左线 + 内缩），与正文不齐是故意的 */
 .msg .fold{margin-left:0;padding-left:.7rem;border-left:2px solid var(--line)}
 .msg .fold > summary{padding-left:0}
+
+/* 用户/工具气泡左侧是 3px 色条（其余边 1px），补偿 2px 让左右内边距真正相等 */
+.msg.user,.msg.tool{padding-left:calc(.85rem - 2px)}

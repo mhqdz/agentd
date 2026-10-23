@@ -219,9 +219,9 @@ export default function App() {
               <div className="col">
                 {msgs.map((m, i) => (
                   <div key={i} className={'msg ef-panel cut-tl ' + m.role}>
-                    <div className="av">{m.role === 'user' ? '用' : m.role === 'tool' ? 'T' : '◈'}</div>
                     <div>
                       <div className="mhead">
+                        <span className={'av' + (m.role === 'user' ? ' u' : m.role === 'tool' ? ' t' : '')}>{m.role === 'user' ? '用' : m.role === 'tool' ? 'T' : '◈'}</span>
                         <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? '工具' : 'Agent'}</b>
                         {m.seq ? <span className="ef-tag">No.{String(m.seq).padStart(3, '0')}</span> : null}
                         <span className="ef-field">{m.at || ''}</span>

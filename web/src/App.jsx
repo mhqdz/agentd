@@ -247,8 +247,13 @@ export default function App() {
           <div className="composer">
             <div className="row1">
               <span className="eb" style={{ display: 'inline', letterSpacing: '.14em' }}>PROFILE</span>
-              <ProfileSeg profiles={profiles} value={profile} onChange={setProfile} small />
-              <span style={{ marginLeft: 'auto' }}>{cur ? cur.model : ''}</span>
+              <label className="pick">
+                <select value={profile} onChange={e => setProfile(e.target.value)}>
+                  {profiles.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+                </select>
+                <span className="caret">▾</span>
+              </label>
+              <span className="model" title={cur ? cur.model : ''}>{cur ? cur.model : '—'}</span>
             </div>
             <textarea value={text} onChange={e => setText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send() }}

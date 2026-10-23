@@ -166,8 +166,8 @@ body{background:var(--paper);color:var(--ink);
 .composer .pick .caret{position:absolute;right:.45rem;pointer-events:none;color:var(--sage-d);font-size:.7rem}
 .composer .model{font-size:.72rem;color:var(--ink3);font-variant-numeric:tabular-nums;max-width:24rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:auto}
 
-.cmd .modeltxt{flex:0 1 auto;font-size:.74rem;color:#a9bdb9;font-variant-numeric:tabular-nums;
-  max-width:24rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmd .modeltxt{flex:0 0 auto;font-size:.74rem;color:#a9bdb9;font-variant-numeric:tabular-nums;
+  max-width:none;overflow:visible;white-space:nowrap}
 
 /* 黑栏隐藏读数块（与左抽屉、右栏重复）→ 把空间让给模型名 */
 .cmd .figs{display:none !important}

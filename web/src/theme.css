@@ -272,3 +272,15 @@ body{background:var(--paper);color:var(--ink);
 /* 只让 Agent 气泡带 skill 的"顶边页签"；用户/工具气泡不要那条黑块 */
 .msg.user::before,.msg.tool::before,
 .msg.user > *::before,.msg.tool > *::before{display:none !important;content:none !important}
+
+/* 按你的偏好：气泡内边距加大 + 正文字号缩小 */
+.msg,.msg.ef-panel,.msg.user,.msg.tool{padding:1.15rem 1.25rem}
+.msg.user,.msg.tool{padding-left:calc(1.25rem - 2px)}
+.msg .ef-prose,.msg .prose{font-size:15px;line-height:1.78}
+.msg .mhead b{font-size:.82rem}
+.msg .mhead .ef-tag,.msg .mhead .ef-field{font-size:.62rem}
+.msg .sec .secti{font-size:.95rem}
+.msg .sec .secno{font-size:.85rem}
+.msg .fold>summary{font-size:.7rem}
+.msg .think,.msg .out{font-size:.78rem}
+.msg .tools .row{font-size:.8rem}

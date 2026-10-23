@@ -309,3 +309,11 @@ body{background:var(--paper);color:var(--ink);
 /* 拖动正文栏宽度时，输入区与会话框同步变化（同一个 --colw） */
 .composer{width:min(var(--colw,60rem),calc(100% - 2*clamp(.5rem,1.2vw,1rem)))}
 .status{width:min(var(--colw,60rem),calc(100% - 2*clamp(.5rem,1.2vw,1rem)))}
+
+/* 装饰线回到"内容高度"版本（长度随 .col 内容变化，不是定长 ✗） */
+.colsplit::before{display:none}
+.thread .col::before{display:block;content:"";position:absolute;left:-1.1rem;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,var(--line) 12%,var(--line) 88%,transparent)}
+/* 输入区/状态栏与正文同宽：一律以 --colw 为准，不再有 60rem 的额外上限 */
+.composer{width:min(var(--colw,60rem),calc(100% - 2*clamp(.5rem,1.2vw,1rem)));max-width:none;margin:0 auto 1.2rem}
+.status{width:min(var(--colw,60rem),calc(100% - 2*clamp(.5rem,1.2vw,1rem)));max-width:none;margin-inline:auto}

@@ -43,6 +43,13 @@ func (s *Server) Handler() http.Handler {
 
 func logReq(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/assets/") || r.URL.Path == "/" {
+			ua := r.UserAgent()
+			if len(ua) > 28 {
+				ua = ua[:28]
+			}
+			fmt.Fprintf(os.Stderr, "[web] %s %s ua=%q\n", r.Method, r.URL.Path, ua)
+		}
 		h.ServeHTTP(w, r)
 	})
 }
@@ -83,7 +90,17 @@ func (s *Server) handleConvs(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/conv/<id>
 func (s *Server) handleConv(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/conv/")
+	raw := strings.TrimPrefix(r.URL.Path, "/api/conv/")
+	if strings.HasSuffix(raw, "/restore") && r.Method == http.MethodPost {
+		id := strings.TrimSuffix(raw, "/restore")
+		if err := s.st.Restore(id); err != nil {
+			writeJSON(w, 404, map[string]string{"error": "恢复失败：" + err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]any{"ok": true, "restored": id})
+		return
+	}
+	id := raw
 	if r.Method == http.MethodDelete {
 		if err := s.st.Archive(id); err != nil {
 			writeJSON(w, 404, map[string]string{"error": "归档失败：" + err.Error()})
@@ -189,6 +206,10 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 	if s.cfg.WebDir != "" {
 		if _, err := os.Stat(s.cfg.WebDir + "/index.html"); err == nil {
+			// 带 hash 的资源可以长缓存；index.html 必须不缓存，否则改了页面刷不出来
+			if r.URL.Path == "/" || strings.HasSuffix(r.URL.Path, ".html") {
+				w.Header().Set("Cache-Control", "no-store, must-revalidate")
+			}
 			http.FileServer(http.Dir(s.cfg.WebDir)).ServeHTTP(w, r)
 			return
 		}
@@ -200,6 +221,10 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 	// 静态资源：dist 下的文件（/assets/*.js|css 等）；缺文件时给占位页
 	if s.cfg.WebDir != "" {
 		if _, err := os.Stat(s.cfg.WebDir + "/index.html"); err == nil {
+			// 带 hash 的资源可以长缓存；index.html 必须不缓存，否则改了页面刷不出来
+			if r.URL.Path == "/" || strings.HasSuffix(r.URL.Path, ".html") {
+				w.Header().Set("Cache-Control", "no-store, must-revalidate")
+			}
 			http.FileServer(http.Dir(s.cfg.WebDir)).ServeHTTP(w, r)
 			return
 		}

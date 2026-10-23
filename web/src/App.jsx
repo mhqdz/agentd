@@ -72,7 +72,6 @@ export default function App() {
   }
 
   const list = showArchived ? archived : convs
-  const nav = [['对话', () => openConv(null)], ['工作区', () => setShowArchived(false)], ['工具', () => setShowArchived(true)], ['知识库', () => refresh()]]
 
   return (
     <div className="app">
@@ -82,17 +81,25 @@ export default function App() {
           <div><b>Agent</b><small>EXECUTE · CREATE</small></div>
         </div>
         <nav className="nav">
-          {nav.map(([label, fn], i) => (
-            <a key={label} className={i === 0 ? 'on' : ''} onClick={fn}><span>{label}</span><span>{pad(i + 1)}</span></a>
-          ))}
+          <a className={!showArchived ? 'on' : ''} onClick={() => { setShowArchived(false); openConv(null) }}>
+            <span>对话</span><span>＋</span></a>
+          <a className={showArchived ? 'on' : ''} onClick={() => setShowArchived(true)}>
+            <span>归档</span><span>{archived.length}</span></a>
         </nav>
-        <div className="grp">{showArchived ? 'ARCHIVE / 归档' : 'HISTORY / 历史会话'}</div>
+        <div className="grp">{showArchived ? 'ARCHIVE / 归档' : 'HISTORY / 历史会话'} · {list.length}</div>
         <div className="recs">
           {list.length === 0 ? <div className="empty" style={{ color: 'var(--side-dim)' }}>没有记录</div> : null}
           {list.map((c, i) => (
             <div key={c.ID} className={'rec' + (c.ID === convId ? ' on' : '')} onClick={() => openConv(c.ID)}>
               <span className="no">{pad(i + 1)}</span>
               <span className="ti">{c.Title || '(无标题)'}</span>
+              {showArchived ? (
+                <span className="ef-btn" style={{ padding: '0 .35rem', fontSize: '.7em' }}
+                  onClick={async (e) => { e.stopPropagation(); await fetch('/api/conv/' + c.ID + '/restore', { method: 'POST' }); refresh() }}>恢复</span>
+              ) : (
+                <span className="ef-btn" style={{ padding: '0 .35rem', fontSize: '.7em' }}
+                  onClick={async (e) => { e.stopPropagation(); await fetch('/api/conv/' + c.ID, { method: 'DELETE' }); refresh() }}>归档</span>
+              )}
             </div>
           ))}
         </div>
@@ -101,7 +108,7 @@ export default function App() {
 
       <main className="main">
         <header className="top">
-          <button className="sel" onClick={() => openConv(null)}>←</button>
+          <button className="ef-btn" onClick={() => openConv(null)}>＋ 新建</button>
           <h2>{title}</h2>
           <span className="chip">工作区</span>
           <span className="spacer" />
@@ -109,7 +116,7 @@ export default function App() {
           <select className="sel" value={profile} onChange={e => setProfile(e.target.value)}>
             {profiles.map(p => <option key={p.name} value={p.name}>{p.name} · {p.model}</option>)}
           </select>
-          <button className="sel" onClick={() => setShowArchived(!showArchived)}>{showArchived ? '历史' : '归档'}</button>
+
           <span className="brandline">AGENT EXECUTE · CREATE</span>
         </header>
 

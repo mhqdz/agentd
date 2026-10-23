@@ -148,14 +148,12 @@ export default function App() {
 
       <div className="work">
         <aside className={'drawer' + (sideOpen ? '' : ' hide')}>
-          <div className="tabs">
-            <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}>会话 {convs.length}</a>
-            <a className={tab === 'archive' ? 'on' : ''} onClick={() => setTab('archive')}>归档 {archived.length}</a>
-          </div>
           <div className="ef-figs drawer-figs">
-            <a><b>{String(convs.length).padStart(2, '0')}</b><span>会话</span></a>
-            <a><b>{String(archived.length).padStart(2, '0')}</b><span>归档</span></a>
-            <a><b>{String(msgs.length).padStart(2, '0')}</b><span>本轮</span></a>
+            <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}
+               title="只看会话"><b>{String(convs.length).padStart(2, '0')}</b><span>会话</span></a>
+            <a className={tab === 'archive' ? 'on' : ''} onClick={() => setTab('archive')}
+               title="只看归档"><b>{String(archived.length).padStart(2, '0')}</b><span>归档</span></a>
+            <a title="当前会话消息数"><b>{String(msgs.length).padStart(2, '0')}</b><span>本轮</span></a>
           </div>
           <div className="list" style={{ padding: '0 .5rem' }}>
             {list.length === 0 ? (

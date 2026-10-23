@@ -209,3 +209,13 @@ body{background:var(--paper);color:var(--ink);
 .empty-frame .window{padding:.9rem 1rem;border:1px solid var(--line);background:var(--panel);
   clip-path:polygon(3.25rem 0,100% 0,100% calc(100% - 3.25rem),calc(100% - 3.25rem) 100%,0 100%,0 3.25rem)}
 .empty-frame .ef-plate{display:block;padding:0;background:none;clip-path:none}
+
+/* 数字块可点：当前项用信号色描边 */
+.drawer-figs a{cursor:pointer;transition:background .12s}
+.drawer-figs a:hover{background:#1d2a28}
+.drawer-figs a.on{background:#1d2a28;box-shadow:inset 0 -2px 0 var(--ef-signal)}
+.drawer-figs a.on b{color:#fff}
+/* 会话消息块：半透明底，让底纹透上来（原来是纯白 ✗） */
+.msg.ef-panel{background:rgba(255,255,255,.58);border-color:rgba(20,26,25,.10);
+  backdrop-filter:blur(2px);padding:.9rem 1rem;margin:.2rem 0 1rem}
+.msg.ef-panel .ef-prose{background:none}

@@ -235,3 +235,17 @@ body{background:var(--paper);color:var(--ink);
 /* 编号胶囊：靠右，弱化 */
 .mhead .ef-tag{margin-left:auto;background:rgba(20,26,25,.06);color:var(--ink2);font-size:.62rem;padding:.02rem .3rem}
 .msg.user .mhead .ef-tag{background:rgba(111,167,156,.16);color:var(--sage-d)}
+
+/* ===== 统一消息布局（覆盖前面的零散规则）=====
+   目标：三种角色的气泡左右边距一致、宽度一致，正文铺满气泡，右边缘对齐 */
+.msg,.msg.ef-panel{display:grid;grid-template-columns:2.1rem 1fr;gap:.85rem;
+  width:100%;max-width:none;margin:0 0 .9rem;padding:.9rem 1rem;
+  background:rgba(255,255,255,.86);border:1px solid rgba(20,26,25,.10);border-top:0}
+.msg.user,.msg.tool{grid-template-columns:1fr;max-width:none;margin-left:0}
+.msg.tool{background:rgba(236,241,239,.75);border-left:3px solid var(--line)}
+.msg.user{border-left:3px solid var(--ef-signal)}
+/* 正文铺满气泡：不再被 38em / 52rem 提前截断 ✗ */
+.msg .ef-prose,.msg .prose{max-width:none;width:100%}
+/* 气泡内首尾元素不留额外外边距，避免左右视觉不齐 */
+.msg > div > :first-child{margin-top:0}
+.msg > div > :last-child{margin-bottom:0}

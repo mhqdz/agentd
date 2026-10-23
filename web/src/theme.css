@@ -284,3 +284,9 @@ body{background:var(--paper);color:var(--ink);
 .msg .fold>summary{font-size:.7rem}
 .msg .think,.msg .out{font-size:.78rem}
 .msg .tools .row{font-size:.8rem}
+
+/* 可拖动的分隔条（替代原来那条只作装饰的边界线） */
+.split{flex:0 0 7px;cursor:col-resize;position:relative;background:transparent;z-index:5}
+.split::before{content:"";position:absolute;left:3px;top:0;bottom:0;width:1px;
+  background:rgba(20,26,25,.18);transition:background .12s,width .12s,left .12s}
+.split:hover::before,.split:active::before{background:var(--ef-signal);width:3px;left:2px}

@@ -55,6 +55,8 @@ export default function App() {
   const [profile, setProfile] = useState(localStorage.getItem('profile') || '180-think')
   const [tab, setTab] = useState('live')
   const [sideOpen, setSideOpen] = useState(localStorage.getItem('sideOpen') !== '0')
+  const [sideW, setSideW] = useState(() => Number(localStorage.getItem('sideW')) || 250)
+  const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
   const [msgs, setMsgs] = useState([])
@@ -63,6 +65,28 @@ export default function App() {
   const [status, setStatus] = useState('')
   const [secs, setSecs] = useState(null)
   const endRef = useRef(null)
+
+  useEffect(() => { localStorage.setItem('sideW', String(sideW)) }, [sideW])
+
+  // 拖动抽屉右缘调整宽度（200 ~ 520）
+  const startDrag = (e) => {
+    e.preventDefault()
+    drag.current = { x: e.clientX, w: sideW }
+    const move = (ev) => {
+      const w = Math.min(520, Math.max(200, drag.current.w + (ev.clientX - drag.current.x)))
+      setSideW(w)
+    }
+    const up = () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+  }
 
   const refresh = async () => {
     setConvs(await api('/api/convs'))
@@ -152,7 +176,8 @@ export default function App() {
       </header>
 
       <div className="work">
-        <aside className={'drawer' + (sideOpen ? '' : ' hide')}>
+        <aside className={'drawer' + (sideOpen ? '' : ' hide')}
+          style={{ width: sideW, flexBasis: sideW }}>
           <div className="ef-figs drawer-figs">
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}
                title="只看会话"><b>{String(convs.length).padStart(2, '0')}</b><span>会话</span></a>
@@ -183,6 +208,7 @@ export default function App() {
           </div>
           <div className="foot">WORKSPACE / AGENT</div>
         </aside>
+        {sideOpen ? <div className="split" onMouseDown={startDrag} title="拖动调整左侧面板宽度" /> : null}
 
         <main className="stage">
           <div className="thread">

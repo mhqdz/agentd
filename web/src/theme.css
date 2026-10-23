@@ -300,3 +300,12 @@ body{background:var(--paper);color:var(--ink);
 .colsplit::before{content:"";position:absolute;left:5px;top:0;bottom:0;width:1px;
   background:rgba(20,26,25,.16);transition:background .12s,width .12s,left .12s}
 .colsplit:hover::before,.colsplit:active::before{background:var(--ef-signal);width:3px;left:4px}
+
+/* 拖动条回归"装饰线"外观：1px 渐隐细线，不做绿色高亮 */
+.colsplit::before{background:linear-gradient(180deg,transparent,var(--line) 12%,var(--line) 88%,transparent);
+  width:1px;left:5.5px;transition:none}
+.colsplit:hover::before,.colsplit:active::before{background:linear-gradient(180deg,transparent,var(--line) 12%,var(--line) 88%,transparent);
+  width:1px;left:5.5px}
+/* 拖动正文栏宽度时，输入区与会话框同步变化（同一个 --colw） */
+.composer{width:min(var(--colw,60rem),calc(100% - 2*clamp(.5rem,1.2vw,1rem)))}
+.status{width:min(var(--colw,60rem),calc(100% - 2*clamp(.5rem,1.2vw,1rem)))}

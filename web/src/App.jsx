@@ -56,6 +56,8 @@ export default function App() {
   const [tab, setTab] = useState('live')
   const [sideOpen, setSideOpen] = useState(localStorage.getItem('sideOpen') !== '0')
   const [sideW, setSideW] = useState(() => Number(localStorage.getItem('sideW')) || 250)
+  const [colW, setColW] = useState(() => Number(localStorage.getItem('colW')) || 960)
+  const colDrag = useRef(null)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -67,6 +69,29 @@ export default function App() {
   const endRef = useRef(null)
 
   useEffect(() => { localStorage.setItem('sideW', String(sideW)) }, [sideW])
+
+  useEffect(() => { localStorage.setItem('colW', String(colW)) }, [colW])
+
+  // 拖动阅读栏左边界调整正文宽度（居中 → 左右留白同步变化）
+  const startColDrag = (e) => {
+    e.preventDefault()
+    colDrag.current = { x: e.clientX, w: colW }
+    const move = (ev) => {
+      const dx = colDrag.current.x - ev.clientX
+      const w = Math.min(1400, Math.max(560, colDrag.current.w + dx * 2))
+      setColW(w)
+    }
+    const up = () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+  }
 
   // 拖动抽屉右缘调整宽度（200 ~ 520）
   const startDrag = (e) => {
@@ -210,7 +235,8 @@ export default function App() {
         </aside>
         {sideOpen ? <div className="split" onMouseDown={startDrag} title="拖动调整左侧面板宽度" /> : null}
 
-        <main className="stage">
+        <main className="stage" style={{ '--colw': colW + 'px' }}>
+          <div className="colsplit" onMouseDown={startColDrag} title="拖动调整正文栏宽度（左右留白同步变化）" />
           <div className="thread">
             {msgs.length === 0 ? (
               <div className="col empty">

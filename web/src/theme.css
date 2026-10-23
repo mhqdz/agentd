@@ -290,3 +290,13 @@ body{background:var(--paper);color:var(--ink);
 .split::before{content:"";position:absolute;left:3px;top:0;bottom:0;width:1px;
   background:rgba(20,26,25,.18);transition:background .12s,width .12s,left .12s}
 .split:hover::before,.split:active::before{background:var(--ef-signal);width:3px;left:2px}
+
+/* 正文栏宽度由 --colw 决定；居中对齐 → 左右留白同步变化 ✓ */
+.col{max-width:var(--colw,60rem);margin-inline:auto}
+/* 用可拖动的边界线替代原来那条纯装饰线 */
+.thread .col::before{display:none}
+.colsplit{position:absolute;top:0;bottom:0;width:12px;z-index:4;cursor:col-resize;
+  left:calc(50% - (var(--colw,960px) / 2) - 6px)}
+.colsplit::before{content:"";position:absolute;left:5px;top:0;bottom:0;width:1px;
+  background:rgba(20,26,25,.16);transition:background .12s,width .12s,left .12s}
+.colsplit:hover::before,.colsplit:active::before{background:var(--ef-signal);width:3px;left:4px}

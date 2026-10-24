@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"sync"
 
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"agentd/internal/agent"
 	"agentd/internal/config"
 	"agentd/internal/store"
+	"agentd/internal/tools"
 )
 
 type Server struct {
@@ -35,6 +37,15 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/api/convs", s.handleConvs)
 	mux.HandleFunc("/api/conv/", s.handleConv)
 	mux.HandleFunc("/api/chat", s.handleChat)
+	mux.HandleFunc("/api/tools", func(w http.ResponseWriter, r *http.Request) {
+		reg := tools.Registry()
+		out := make([]map[string]string, 0, len(reg))
+		for _, sp := range reg {
+			out = append(out, map[string]string{"name": sp.Name, "description": sp.Description, "params": sp.Params})
+		}
+		sort.Slice(out, func(i, j int) bool { return out[i]["name"] < out[j]["name"] })
+		writeJSON(w, 200, out)
+	})
 	mux.HandleFunc("/api/profiles", s.handleProfiles)
 	mux.HandleFunc("/api/profiles/", s.handleProfileItem)
 	mux.HandleFunc("/", s.handleStatic)

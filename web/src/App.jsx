@@ -528,7 +528,7 @@ export default function App() {
                     <div className="set-section">模型配置</div>
                     {profiles.map(pr => (
                       <div className={'set-card set-card-click' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
-                        onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null); setToolEdit(null) }>
+                        onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null); setToolEdit(null) }}>
                         <div className="set-row">
                           <b className="set-name" title="单击编辑"
                             onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null) }}>{pr.name}</b>

@@ -64,6 +64,7 @@ export default function App() {
   const abortRef = useRef(null)
   const [aborted, setAborted] = useState(false)
   const [showSet, setShowSet] = useState(false)
+  const [newP, setNewP] = useState(null)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -450,19 +451,51 @@ export default function App() {
                       }}>
                         {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                       </select></label>
+                    <label className="set-f"><span>接口地址（本地或云端）</span>
+                      <input defaultValue={pr.base_url} onBlur={async e => {
+                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ ...pr, base_url: e.target.value }) }); refresh()
+                      }} /></label>
+                    <label className="set-f"><span>API Key（留空用全局）</span>
+                      <input type="password" defaultValue={pr.api_key || ''} placeholder="sk-…" onBlur={async e => {
+                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ ...pr, api_key: e.target.value }) }); refresh()
+                      }} /></label>
                     <div className="set-meta">
                       工具：{pr.tools && pr.tools.length ? pr.tools.join(' / ') : '无'}　·　保留 {pr.keep_messages || 16} 条
                     </div>
                   </div>
                 ))}
-                <button className="ef-btn small" onClick={async () => {
-                  const name = prompt('新 profile 名称（英文短名，例如 180-max）')
-                  if (!name) return
-                  await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, base_url: 'http://127.0.0.1:18320/180/v1',
-                      model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: [], keep_messages: 16 }) })
-                  refresh()
-                }}>＋ 新建 profile</button>
+                {newP ? (
+                  <div className="set-card">
+                    <div className="set-row"><b>新建 profile</b></div>
+                    {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
+                      ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名'],
+                      ['tools', '工具（逗号分隔，如 bash,kb_search）'], ['system', '系统提示（可空）']].map(([k, label]) => (
+                      <label className="set-f" key={k}><span>{label}</span>
+                        <input value={newP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}
+                          onChange={e => setNewP({ ...newP, [k]: e.target.value })} /></label>
+                    ))}
+                    <label className="set-f"><span>思考强度</span>
+                      <select value={newP.reasoning_effort} onChange={e => setNewP({ ...newP, reasoning_effort: e.target.value })}>
+                        {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
+                      </select></label>
+                    <div className="set-row" style={{ marginTop: '.6rem' }}>
+                      <button className="ef-btn small" onClick={async () => {
+                        if (!newP.name || !newP.base_url || !newP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
+                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ ...newP, tools: (newP.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: 16 }) })
+                        setNewP(null); refresh()
+                      }}>保存</button>
+                      <button className="ef-btn small" onClick={() => setNewP(null)}>取消</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button className="ef-btn small" onClick={() => setNewP({
+                    name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '', model: 'qwen3.8-flash-next-iq3_xxs',
+                    reasoning_effort: 'high', tools: '', system: ''
+                  })}>＋ 新建 profile</button>
+                )}
               </div>
             </aside>
           ) : null}

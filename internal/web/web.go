@@ -39,11 +39,11 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/api/chat", s.handleChat)
 	mux.HandleFunc("/api/tools", func(w http.ResponseWriter, r *http.Request) {
 		reg := tools.Registry()
-		out := make([]map[string]string, 0, len(reg))
+		out := make([]map[string]any, 0, len(reg))
 		for _, sp := range reg {
-			out = append(out, map[string]string{"name": sp.Name, "description": sp.Description, "params": sp.Params})
+			out = append(out, map[string]any{"name": sp.Name, "description": sp.Description, "params": sp.Params})
 		}
-		sort.Slice(out, func(i, j int) bool { return out[i]["name"] < out[j]["name"] })
+		sort.Slice(out, func(i, j int) bool { return out[i]["name"].(string) < out[j]["name"].(string) })
 		writeJSON(w, 200, out)
 	})
 	mux.HandleFunc("/api/profiles", s.handleProfiles)

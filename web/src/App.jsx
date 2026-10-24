@@ -421,62 +421,65 @@ export default function App() {
             </div>
           </div>
           {showSet ? (
-            <aside className="settings">
+            <aside className={'settings' + (editP ? ' two' : '')}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
                 <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null) }}>关闭 ✕</button>
               </div>
-              <div className="set-body">
-                {profiles.map(pr => (
-                  <div className="set-card" key={pr.name}>
-                    <div className="set-row">
-                      <b>{pr.name}</b>
-                      {pr.builtin ? <span className="ef-tag">内置</span> : null}
-                      <span className="sp" />
-                      <button className="ef-btn small" onClick={() => setEditP({ ...pr, tools: (pr.tools || []).join(',') })}>编辑</button>
+              <div className={'set-cols' + (editP ? ' two' : '')}>
+                <div className="set-body">
+                  {profiles.map(pr => (
+                    <div className="set-card" key={pr.name}>
+                      <div className="set-row">
+                        <b>{pr.name}</b>
+                        {pr.builtin ? <span className="ef-tag">内置</span> : null}
+                        <span className="sp" />
+                        <button className="ef-btn small" onClick={() => setEditP({ ...pr, tools: (pr.tools || []).join(',') })}>编辑</button>
+                      </div>
+                      <div className="set-meta">{pr.model || '（未设置模型）'}</div>
                     </div>
-                    <div className="set-meta">{pr.model || '（未设置模型）'}</div>
-                  </div>
-                ))}
-
-                {editP ? (
-                  <div className="set-card">
-                    <div className="set-row"><b>{editP._new ? '新建 profile' : '编辑 ' + editP.name}</b></div>
-                    {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
-                      ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名'],
-                      ['tools', '工具（逗号分隔，如 bash,kb_search）'], ['system', '系统提示（可空）']].map(([k, label]) => (
-                      <label className="set-f" key={k}><span>{label}</span>
-                        <input value={editP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}
-                          onChange={e => setEditP({ ...editP, [k]: e.target.value })} /></label>
-                    ))}
-                    <label className="set-f"><span>思考强度</span>
-                      <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
-                        {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
-                      </select></label>
-                    <div className="set-row" style={{ marginTop: '.6rem' }}>
-                      <button className="ef-btn small" onClick={async () => {
-                        if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
-                        const { _new, ...body } = editP
-                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
-                        setEditP(null); refresh()
-                      }}>保存</button>
-                      {!editP._new && !editP.builtin ? (
-                        <button className="ef-btn small" onClick={async () => {
-                          if (!confirm('删除 ' + editP.name + '？')) return
-                          await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
-                          setEditP(null); refresh()
-                        }}>删除</button>
-                      ) : null}
-                      <button className="ef-btn small" onClick={() => setEditP(null)}>取消</button>
-                    </div>
-                  </div>
-                ) : (
+                  ))}
                   <button className="ef-btn small" onClick={() => setEditP({
                     _new: true, name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '',
                     model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: '', system: ''
                   })}>＋ 新建 profile</button>
-                )}
+                </div>
+
+                {editP ? (
+                  <div className="set-body set-form">
+                    <div className="set-card">
+                      <div className="set-row"><b>{editP._new ? '新建 profile' : '编辑 ' + editP.name}</b></div>
+                      {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
+                        ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名'],
+                        ['tools', '工具（逗号分隔，如 bash,kb_search）'], ['system', '系统提示（可空）']].map(([k, label]) => (
+                        <label className="set-f" key={k}><span>{label}</span>
+                          <input value={editP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}
+                            onChange={e => setEditP({ ...editP, [k]: e.target.value })} /></label>
+                      ))}
+                      <label className="set-f"><span>思考强度</span>
+                        <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
+                          {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
+                        </select></label>
+                      <div className="set-row" style={{ marginTop: '.6rem' }}>
+                        <button className="ef-btn small" onClick={async () => {
+                          if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
+                          const { _new, ...body } = editP
+                          await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
+                          setEditP(null); refresh()
+                        }}>保存</button>
+                        {!editP._new && !editP.builtin ? (
+                          <button className="ef-btn small" onClick={async () => {
+                            if (!confirm('删除 ' + editP.name + '？')) return
+                            await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
+                            setEditP(null); refresh()
+                          }}>删除</button>
+                        ) : null}
+                        <button className="ef-btn small" onClick={() => setEditP(null)}>取消</button>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </aside>
           ) : null}

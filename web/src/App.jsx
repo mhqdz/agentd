@@ -63,6 +63,7 @@ export default function App() {
   const hDrag = useRef(null)
   const abortRef = useRef(null)
   const [aborted, setAborted] = useState(false)
+  const [showSet, setShowSet] = useState(false)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -417,11 +418,60 @@ export default function App() {
                 : <button className="send" onClick={send}>发送 ↗</button>}
             </div>
           </div>
+          {showSet ? (
+            <aside className="settings">
+              <div className="set-hd">
+                <span className="eb">SETTINGS / PROFILES</span>
+                <button className="ef-btn small" onClick={() => setShowSet(false)}>关闭 ✕</button>
+              </div>
+              <div className="set-body">
+                {profiles.map(pr => (
+                  <div className="set-card" key={pr.name}>
+                    <div className="set-row">
+                      <b>{pr.name}</b>
+                      {pr.builtin ? <span className="ef-tag">内置</span> : null}
+                      <span className="sp" />
+                      {!pr.builtin ? (
+                        <button className="ef-btn small" onClick={async () => {
+                          await fetch('/api/profiles/' + pr.name, { method: 'DELETE' }); refresh()
+                        }}>删除</button>
+                      ) : null}
+                    </div>
+                    <label className="set-f"><span>模型</span>
+                      <input defaultValue={pr.model} onBlur={async e => {
+                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ ...pr, model: e.target.value }) }); refresh()
+                      }} /></label>
+                    <label className="set-f"><span>思考强度</span>
+                      <select defaultValue={pr.reasoning_effort || 'none'} onBlur={async e => {
+                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ ...pr, reasoning_effort: e.target.value }) }); refresh()
+                      }}>
+                        {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
+                      </select></label>
+                    <div className="set-meta">
+                      工具：{pr.tools && pr.tools.length ? pr.tools.join(' / ') : '无'}　·　保留 {pr.keep_messages || 16} 条
+                    </div>
+                  </div>
+                ))}
+                <button className="ef-btn small" onClick={async () => {
+                  const name = prompt('新 profile 名称（英文短名，例如 180-max）')
+                  if (!name) return
+                  await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Name: name, BaseURL: 'http://127.0.0.1:18320/180/v1',
+                      Model: 'qwen3.8-flash-next-iq3_xxs', ReasoningEffort: 'high', Tools: [], KeepMessages: 16 }) })
+                  refresh()
+                }}>＋ 新建 profile</button>
+              </div>
+            </aside>
+          ) : null}
         </main>
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>
           <span className="fig">{String(convs.length).padStart(2,'0')} / {String(archived.length).padStart(2,'0')}</span>
-          <span className="dots"><i /><i /><i /></span>
+          <button className="dots" onClick={() => setShowSet(true)} title="设置 / profiles">
+            <i /><i /><i />
+          </button>
         </aside>
       </div>
     </div>

@@ -357,3 +357,21 @@ body{background:var(--paper);color:var(--ink);
 .mact{opacity:0;cursor:pointer;font-size:.66rem;border:1px solid var(--line);padding:0 .3rem;color:var(--ink2)}
 .msg:hover .mact{opacity:1}
 .mact:hover{border-color:var(--sage-d);color:var(--sage-d)}
+
+/* 右栏三个点：设置入口 */
+.rail .dots{display:grid;gap:.35rem;background:none;border:0;padding:.3rem;cursor:pointer}
+.rail .dots i{width:4px;height:4px;background:var(--sage);display:block;opacity:.55}
+.rail .dots:hover i{opacity:1;background:var(--sage-d)}
+/* 设置面板 */
+.settings{position:absolute;right:64px;top:0;bottom:0;width:min(420px,80vw);background:var(--panel);
+  border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(20,26,25,.08);z-index:20;
+  display:flex;flex-direction:column}
+.set-hd{display:flex;justify-content:space-between;align-items:center;padding:.7rem .9rem;border-bottom:1px solid var(--line)}
+.set-body{overflow-y:auto;padding:.8rem .9rem;display:grid;gap:.8rem}
+.set-card{border:1px solid var(--line);padding:.7rem .8rem;background:#fff}
+.set-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.set-row .sp{flex:1}
+.set-f{display:grid;gap:.2rem;margin:.45rem 0;font-size:.72rem;color:var(--ink2)}
+.set-f input,.set-f select{border:1px solid var(--line);background:#fff;padding:.3rem .4rem;font:inherit;font-size:.78rem;color:var(--ink)}
+.set-meta{margin-top:.5rem;font-size:.7rem;color:var(--ink3)}
+.ef-btn.small{font-size:.72rem;padding:.2rem .5rem}

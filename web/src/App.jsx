@@ -63,7 +63,7 @@ export default function App() {
   const hDrag = useRef(null)
   const abortRef = useRef(null)
   const [aborted, setAborted] = useState(false)
-  const [showSet, setShowSet] = useState(false)
+  const [showSet, setShowSet] = useState(new URLSearchParams(location.search).has('settings'))
   const [editP, setEditP] = useState(null)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)

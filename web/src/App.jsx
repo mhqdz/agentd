@@ -115,6 +115,19 @@ export default function App() {
     window.addEventListener('mousemove', move); window.addEventListener('mouseup', up)
   }
 
+  // 插话：先中断当前生成（已生成内容保留），稍等落盘后立刻把新内容发出去
+  const interject = async () => {
+    const t = text.trim()
+    if (!t) return
+    abortRef.current?.abort()
+    abortRef.current = null
+    setBusy(false)
+    setStatus('已插话，正在追加…')
+    await new Promise(r => setTimeout(r, 350))
+    setText('')
+    sendText(t)
+  }
+
   // 停止生成：中断 fetch → 后端 r.Context() 被取消 → 上游请求结束
   const stop = () => {
     abortRef.current?.abort()
@@ -242,7 +255,12 @@ export default function App() {
 
   const send = async () => {
     const t = text.trim(); if (!t || busy) return
-    setText(''); setBusy(true); setStatus(''); setSecs(null); setAborted(false)
+    setText('')
+    sendText(t)
+  }
+
+  const sendText = async (t) => {
+    if (!t || busy) return; setBusy(true); setStatus(''); setSecs(null); setAborted(false)
     const ac = new AbortController()
     abortRef.current = ac
     setMsgs(m => [...m, { role: 'user', content: t, at: now() }])
@@ -446,9 +464,12 @@ export default function App() {
               placeholder="输入你的问题…" />
             <div className="row3">
               <span className="hint">Ctrl+Enter 发送　{convId ? '#' + convId.slice(0, 8) : '新会话'}</span>
-              {busy
-                ? <button className="send stop" onClick={stop}>停止 ■</button>
-                : <button className="send" onClick={send}>发送 ↗</button>}
+              {busy ? (
+                <>
+                  <button className="send" onClick={interject} disabled={!text.trim()}>插话 ↵</button>
+                  <button className="send stop" onClick={stop}>停止 ■</button>
+                </>
+              ) : <button className="send" onClick={send}>发送 ↗</button>}
             </div>
           </div>
           {showSet ? (

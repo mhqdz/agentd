@@ -505,3 +505,7 @@ body{background:var(--paper);color:var(--ink);
 .tool-desc:first-of-type{border-top:0}
 .tool-desc b{font-size:.76rem;color:var(--sage-d)}
 .tool-desc span{font-size:.7rem;line-height:1.6;color:var(--ink2)}
+
+/* 分区标题：模型配置 / 工具配置 同一套样式 */
+.set-section{font-size:.66rem;letter-spacing:.18em;color:var(--ink3);padding:.1rem 0 .1rem;
+  border-bottom:1px solid var(--line);margin:.2rem 0 -.2rem}

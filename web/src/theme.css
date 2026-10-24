@@ -406,3 +406,9 @@ body{background:var(--paper);color:var(--ink);
 .set-area{width:100%;min-height:320px;border:1px solid var(--line);background:#fff;padding:.5rem .6rem;
   font:inherit;font-size:.78rem;line-height:1.7;resize:vertical;outline:none}
 .set-area:focus{border-color:var(--sage-d)}
+
+/* 明确列顺序：列表永远在最左（1）→ 详细配置（2）→ 长文本编辑（3） */
+.set-cols{direction:ltr}
+.set-cols > .set-body:nth-child(1){order:1}
+.set-cols > .set-form{order:2}
+.set-cols > .set-editor{order:3}

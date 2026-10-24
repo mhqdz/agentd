@@ -477,3 +477,8 @@ body{background:var(--paper);color:var(--ink);
   padding:.85rem .9rem;font:inherit;font-size:.82rem;line-height:1.8;resize:none;outline:none}
 /* 表单列不再有标题行，首项上移，排版更紧凑 */
 .col-form .set-col-scroll{padding-top:.85rem}
+
+/* 系统提示行：与右侧列表卡片同款"信号色细框" */
+.set-long{border:1px solid var(--line);border-radius:0}
+.set-long.on{border-color:var(--ef-signal);box-shadow:inset 2px 0 0 var(--ef-signal)}
+.set-long .val{color:var(--ink2)}

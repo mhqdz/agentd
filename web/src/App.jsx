@@ -461,13 +461,13 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
-                      <div className="set-row" style={{ marginTop: '.5rem' }}>
-                        <span style={{ fontSize: '.72rem', color: 'var(--ink2)' }}>系统提示</span>
-                        <span className="sp" />
-                        <button className={'ef-btn small' + (editField === 'system' ? ' active' : '')}
-                          onClick={() => setEditField(editField === 'system' ? null : 'system')}>
-                        </button>
-                      </div>
+                      <label className="set-f"><span>系统提示</span>
+                        <div className={'set-long' + (editField === 'system' ? ' on' : '')}>
+                          <span className="val">{editP.system ? editP.system.replace(/\s+/g, ' ') : '（空）'}</span>
+                          <button className={'ef-btn small' + (editField === 'system' ? ' active' : '')}
+                            onClick={() => setEditField(editField === 'system' ? null : 'system')}>编辑</button>
+                        </div>
+                      </label>
                     </div>
                     <div className="set-col-foot">
                       <button className="ef-btn small" onClick={async () => {
@@ -495,7 +495,6 @@ export default function App() {
                       <div className={'set-card' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}>
                         <div className="set-row">
                           <b>{pr.name}</b>
-                          {pr.builtin ? <span className="ef-tag">内置</span> : null}
                           <span className="sp" />
                           <button className="ef-btn small" onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null) }}>编辑</button>
                         </div>

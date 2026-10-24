@@ -276,6 +276,7 @@ export default function App() {
         </div>
         <div className="grow" />
         <span className="status" style={{ fontSize: '.75rem', color: '#9fb3b0' }}><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
+        <button onClick={() => setShowSet(true)} title="设置 / profiles">设置</button>
         <button onClick={() => openConv(null)}>＋ 新建</button>
       </header>
 
@@ -458,8 +459,8 @@ export default function App() {
                   const name = prompt('新 profile 名称（英文短名，例如 180-max）')
                   if (!name) return
                   await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Name: name, BaseURL: 'http://127.0.0.1:18320/180/v1',
-                      Model: 'qwen3.8-flash-next-iq3_xxs', ReasoningEffort: 'high', Tools: [], KeepMessages: 16 }) })
+                    body: JSON.stringify({ name, base_url: 'http://127.0.0.1:18320/180/v1',
+                      model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: [], keep_messages: 16 }) })
                   refresh()
                 }}>＋ 新建 profile</button>
               </div>

@@ -72,6 +72,7 @@ export default function App() {
   const [colW, setColW] = useState(() => Number(localStorage.getItem('colW')) || 960)
   const colDrag = useRef(null)
   const stageRef = useRef(null)
+  const threadRef = useRef(null)
   const [inputH, setInputH] = useState(() => Number(localStorage.getItem('inputH')) || 92)
   const hDrag = useRef(null)
   const abortRef = useRef(null)
@@ -224,7 +225,13 @@ export default function App() {
   }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
   useEffect(() => { localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
-  useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }) }, [msgs, status])
+  // 自动跟随：仅当用户已在底部附近才滚到底；往上翻阅读历史时不打断
+  useEffect(() => {
+    const th = threadRef.current
+    if (!th) return
+    const nearBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 120
+    if (nearBottom) th.scrollTop = th.scrollHeight
+  }, [msgs, status])
 
   const openConv = async (id) => {
     setConvId(id)
@@ -344,7 +351,7 @@ export default function App() {
           onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}
           onWheel={onStageWheel}>
           <i className="guideline" aria-hidden="true" />
-          <div className="thread">
+          <div className="thread" ref={threadRef}>
             {msgs.length === 0 ? (
               <div className="col empty">
                 <div className="eyebrow">LOCAL AGENT CONSOLE</div>

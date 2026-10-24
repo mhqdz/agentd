@@ -65,6 +65,7 @@ export default function App() {
   const [aborted, setAborted] = useState(false)
   const [showSet, setShowSet] = useState(new URLSearchParams(location.search).has('settings'))
   const [editP, setEditP] = useState(null)
+  const [editField, setEditField] = useState(null)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -421,28 +422,28 @@ export default function App() {
             </div>
           </div>
           {showSet ? (
-            <aside className={'settings' + (editP ? ' two' : '')}>
+            <aside className={'settings' + (editP ? ' two' : '') + (editField ? ' three' : '')}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
-                <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null) }}>关闭 ✕</button>
+                <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null); setEditField(null) }}>关闭 ✕</button>
               </div>
-              <div className={'set-cols' + (editP ? ' two' : '')}>
+              <div className={'set-cols' + (editP ? ' two' : '') + (editField ? ' three' : '')}>
                 <div className="set-body">
                   {profiles.map(pr => (
-                    <div className="set-card" key={pr.name}>
+                    <div className={'set-card' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}>
                       <div className="set-row">
                         <b>{pr.name}</b>
                         {pr.builtin ? <span className="ef-tag">内置</span> : null}
                         <span className="sp" />
-                        <button className="ef-btn small" onClick={() => setEditP({ ...pr, tools: (pr.tools || []).join(',') })}>编辑</button>
+                        <button className="ef-btn small" onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null) }}>编辑</button>
                       </div>
                       <div className="set-meta">{pr.model || '（未设置模型）'}</div>
                     </div>
                   ))}
-                  <button className="ef-btn small" onClick={() => setEditP({
+                  <button className="ef-btn small" onClick={() => { setEditP({
                     _new: true, name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '',
                     model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: '', system: ''
-                  })}>＋ 新建 profile</button>
+                  }); setEditField(null) }}>＋ 新建 profile</button>
                 </div>
 
                 {editP ? (
@@ -451,7 +452,7 @@ export default function App() {
                       <div className="set-row"><b>{editP._new ? '新建 profile' : '编辑 ' + editP.name}</b></div>
                       {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
                         ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名'],
-                        ['tools', '工具（逗号分隔，如 bash,kb_search）'], ['system', '系统提示（可空）']].map(([k, label]) => (
+                        ['tools', '工具（逗号分隔）']].map(([k, label]) => (
                         <label className="set-f" key={k}><span>{label}</span>
                           <input value={editP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}
                             onChange={e => setEditP({ ...editP, [k]: e.target.value })} /></label>
@@ -460,23 +461,45 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
+                      {/* 长配置项：只显示一行省略 + 编辑按钮（点开第三列） */}
+                      <div className="set-f"><span>系统提示（长文本）</span>
+                        <div className="set-long">
+                          <span className="val">{editP.system ? editP.system.replace(/\s+/g, ' ') : '（空）'}</span>
+                          <button className="ef-btn small" onClick={() => setEditField('system')}>编辑</button>
+                        </div>
+                      </div>
                       <div className="set-row" style={{ marginTop: '.6rem' }}>
                         <button className="ef-btn small" onClick={async () => {
                           if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
                           const { _new, ...body } = editP
                           await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
-                          setEditP(null); refresh()
+                          setEditP(null); setEditField(null); refresh()
                         }}>保存</button>
                         {!editP._new && !editP.builtin ? (
                           <button className="ef-btn small" onClick={async () => {
                             if (!confirm('删除 ' + editP.name + '？')) return
                             await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
-                            setEditP(null); refresh()
+                            setEditP(null); setEditField(null); refresh()
                           }}>删除</button>
                         ) : null}
-                        <button className="ef-btn small" onClick={() => setEditP(null)}>取消</button>
+                        <button className="ef-btn small" onClick={() => { setEditP(null); setEditField(null) }}>取消</button>
                       </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {editField ? (
+                  <div className="set-body set-editor">
+                    <div className="set-card">
+                      <div className="set-row"><b>{editField === 'system' ? '编辑系统提示' : editField}</b>
+                        <span className="sp" />
+                        <button className="ef-btn small" onClick={() => setEditField(null)}>完成</button>
+                      </div>
+                      <textarea className="set-area" value={editP[editField] || ''}
+                        onChange={e => setEditP({ ...editP, [editField]: e.target.value })}
+                        placeholder="这里写完整的系统提示…" />
+                      <div className="set-meta">{(editP[editField] || '').length} 字</div>
                     </div>
                   </div>
                 ) : null}

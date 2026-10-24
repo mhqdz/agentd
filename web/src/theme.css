@@ -394,3 +394,15 @@ body{background:var(--paper);color:var(--ink);
 .set-cols{display:grid;grid-template-columns:1fr;gap:.8rem;padding:.8rem .9rem;overflow:auto;flex:1;align-content:start}
 .set-cols.two{grid-template-columns:minmax(240px,1fr) minmax(300px,1.15fr)}
 .set-cols .set-body{padding:0;overflow:visible;display:grid;gap:.8rem}
+
+/* 设置三列 */
+.settings.three{width:min(1250px,96vw)}
+.set-cols.three{grid-template-columns:minmax(200px,.9fr) minmax(260px,1fr) minmax(320px,1.4fr)}
+.set-card.on{border-color:var(--ef-signal);box-shadow:inset 2px 0 0 var(--ef-signal)}
+/* 长配置项：单行省略 + 编辑按钮 */
+.set-long{display:flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:#fff;padding:.22rem .3rem .22rem .45rem}
+.set-long .val{flex:1;min-width:0;font-size:.76rem;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 长文本编辑列 */
+.set-area{width:100%;min-height:320px;border:1px solid var(--line);background:#fff;padding:.5rem .6rem;
+  font:inherit;font-size:.78rem;line-height:1.7;resize:vertical;outline:none}
+.set-area:focus{border-color:var(--sage-d)}

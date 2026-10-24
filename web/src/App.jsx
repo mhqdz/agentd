@@ -435,7 +435,6 @@ export default function App() {
                 <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null); setEditField(null) }}>关闭 ✕</button>
               </div>
               <div className={'set-cols' + (editField ? ' three' : (editP ? ' two' : ''))}>
-                {/* ① 长文本编辑列 */}
                 {editField ? (
                   <div className="set-col col-editor">
                     <div className="set-col-scroll">
@@ -450,7 +449,6 @@ export default function App() {
                   </div>
                 ) : null}
 
-                {/* ② 详细配置列 */}
                 {editP ? (
                   <div className="set-col col-form">
                     <div className="set-col-scroll">
@@ -474,7 +472,6 @@ export default function App() {
                           {editField === 'system' ? '编辑中' : '编辑'}
                         </button>
                       </div>
-                      </div>
                     </div>
                     <div className="set-col-foot">
                       <button className="ef-btn small" onClick={async () => {
@@ -496,7 +493,6 @@ export default function App() {
                   </div>
                 ) : null}
 
-                {/* ③ 列表列 */}
                 <div className="set-col col-list">
                   <div className="set-col-scroll">
                     {profiles.map(pr => (

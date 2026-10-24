@@ -263,7 +263,11 @@ func (a *Agent) maybeSummarize(ctx context.Context, c *store.Conversation, keep 
 			sumProfile = p
 		}
 	}
-	sc := llm.New(sumProfile.BaseURL, a.cfg.APIKey)
+	sumKey := sumProfile.APIKey
+	if sumKey == "" {
+		sumKey = a.cfg.APIKey
+	}
+	sc := llm.New(sumProfile.BaseURL, sumKey)
 	out, err := sc.Chat(ctx, llm.ChatRequest{Model: sumProfile.Model, ReasoningEffort: sumProfile.ReasoningEffort,
 		Messages: []llm.Message{{Role: "user", Content: prompt}}})
 	if err != nil || strings.TrimSpace(out) == "" {

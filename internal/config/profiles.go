@@ -15,6 +15,7 @@ type Profile struct {
 	Name            string   `json:"name"`
 	BaseURL         string   `json:"base_url"`
 	Model           string   `json:"model"`
+	APIKey          string   `json:"api_key,omitempty"`          // 空=用全局 cfg.APIKey；云端填自己的 key
 	ReasoningEffort string   `json:"reasoning_effort,omitempty"` // none|low|medium|high
 	System          string   `json:"system"`
 	Tools           []string `json:"tools"`

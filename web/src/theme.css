@@ -375,3 +375,6 @@ body{background:var(--paper);color:var(--ink);
 .set-f input,.set-f select{border:1px solid var(--line);background:#fff;padding:.3rem .4rem;font:inherit;font-size:.78rem;color:var(--ink)}
 .set-meta{margin-top:.5rem;font-size:.7rem;color:var(--ink3)}
 .ef-btn.small{font-size:.72rem;padding:.2rem .5rem}
+
+/* 修 UI：ef-btn 自带的 ::before/::after 扫线在小按钮上像"进度条" */
+.ef-btn::before,.ef-btn::after{display:none !important;content:none !important}

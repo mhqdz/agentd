@@ -28,7 +28,11 @@ func New(cfg config.Config, st store.Store, profile config.Profile) *Agent {
 	if profile.BaseURL == "" {
 		profile.BaseURL = cfg.BaseURL
 	}
-	return &Agent{cfg: cfg, llm: llm.New(profile.BaseURL, cfg.APIKey), st: st, profile: profile}
+	key := profile.APIKey
+	if key == "" {
+		key = cfg.APIKey
+	}
+	return &Agent{cfg: cfg, llm: llm.New(profile.BaseURL, key), st: st, profile: profile}
 }
 
 func (a *Agent) Profile() config.Profile { return a.profile }

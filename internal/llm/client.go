@@ -55,7 +55,8 @@ type Client struct {
 }
 
 func New(baseURL, apiKey string) *Client {
-	return &Client{BaseURL: baseURL, APIKey: apiKey, HTTP: &http.Client{Timeout: 0}}
+	return &Client{BaseURL: baseURL, APIKey: apiKey, HTTP: &http.Client{Timeout: 0,
+		Transport: &http.Transport{DisableKeepAlives: true, DisableCompression: true}}}
 }
 
 func (c *Client) post(ctx context.Context, body any) (*http.Response, error) {
@@ -64,6 +65,9 @@ func (c *Client) post(ctx context.Context, body any) (*http.Response, error) {
 		return nil, err
 	}
 	req, err := http.NewRequestWithContext(ctx, "POST", strings.TrimRight(c.BaseURL, "/")+"/chat/completions", bytes.NewReader(b))
+	if req != nil {
+		req.Close = true // 每个请求独立连接：本机 python 代理不支持长连接复用
+	}
 	if err != nil {
 		return nil, err
 	}

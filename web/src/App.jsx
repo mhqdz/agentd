@@ -65,6 +65,7 @@ export default function App() {
   const [aborted, setAborted] = useState(false)
   const [showSet, setShowSet] = useState(new URLSearchParams(location.search).has('settings'))
   const [editP, setEditP] = useState(null)
+  const [toolList, setToolList] = useState([])
   const [editField, setEditField] = useState(null)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
@@ -192,6 +193,7 @@ export default function App() {
     setConvs(await api('/api/convs'))
     setArchived(await api('/api/convs?archived=1').catch(() => []))
     setProfiles(await api('/api/profiles'))
+    setToolList(await api('/api/tools').catch(() => []))
   }
   useEffect(() => {
     refresh().then(async () => {
@@ -451,8 +453,7 @@ export default function App() {
                   <div className="set-col col-form">
                     <div className="set-col-scroll">
                       {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
-                        ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名'],
-                        ['tools', '工具（逗号分隔）']].map(([k, label]) => (
+                        ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名']].map(([k, label]) => (
                         <label className="set-f" key={k}><span>{label}</span>
                           <input value={editP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}
                             onChange={e => setEditP({ ...editP, [k]: e.target.value })} /></label>
@@ -461,6 +462,23 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
+                      <div className="set-f"><span>工具（勾选启用）</span>
+                        <div className="tool-list">
+                          {(toolList.length ? toolList : [{ name: 'bash', description: '' }, { name: 'screenshot', description: '' }, { name: 'kb_search', description: '' }, { name: 'recall', description: '' }]).map(t => {
+                            const on = (editP.tools || '').split(',').map(x => x.trim()).filter(Boolean).includes(t.name)
+                            return (
+                              <label key={t.name} title={t.description || ''} className={'tool-item' + (on ? ' on' : '')}>
+                                <input type="checkbox" checked={on} onChange={e => {
+                                  const cur = (editP.tools || '').split(',').map(x => x.trim()).filter(Boolean)
+                                  const next = e.target.checked ? [...cur, t.name] : cur.filter(x => x !== t.name)
+                                  setEditP({ ...editP, tools: next.join(',') })
+                                }} />
+                                <span>{t.name}</span>
+                              </label>
+                            )
+                          })}
+                        </div>
+                      </div>
                       <div className="set-f"><span>系统提示</span></div>
                       <div className="set-row" style={{ alignItems: 'flex-start', marginTop: '.2rem' }}>
                         <div className="prompt-text">{editP.system || '（空）'}</div>

@@ -486,3 +486,10 @@ body{background:var(--paper);color:var(--ink);
 /* 系统提示全文：不省略、多行、无框 */
 .prompt-text{flex:1 1 auto;min-width:0;white-space:pre-wrap;word-break:break-word;
   font-size:.78rem;line-height:1.75;color:var(--ink2);max-height:18rem;overflow-y:auto}
+
+/* 工具勾选 */
+.tool-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.35rem;margin-top:.15rem}
+.tool-item{display:flex;align-items:center;gap:.35rem;border:1px solid var(--line);background:#fff;
+  padding:.28rem .4rem;font-size:.74rem;cursor:pointer;color:var(--ink2)}
+.tool-item.on{border-color:var(--ef-signal);color:var(--ink);box-shadow:inset 2px 0 0 var(--ef-signal)}
+.tool-item input{accent-color:var(--sage-d)}

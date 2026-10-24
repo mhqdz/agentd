@@ -20,6 +20,19 @@ function ProfileSeg({ profiles, value, onChange, small }) {
   )
 }
 
+function EditorCol({ value, onChange, onDone, placeholder }) {
+  return (
+    <div className="set-col col-editor">
+      <textarea className="set-area" value={value || ''} placeholder={placeholder}
+        onChange={e => onChange(e.target.value)} />
+      <div className="set-col-foot">
+        <span className="set-meta" style={{ marginRight: 'auto' }}>{(value || '').length} 字</span>
+        <button className="ef-btn small" onClick={onDone}>完成</button>
+      </div>
+    </div>
+  )
+}
+
 // 把回复按 markdown 标题切成"01 / 标题"编号段落；无标题则整段输出
 function Sections({ text }) {
   const lines = String(text || '').split('\n')
@@ -432,37 +445,26 @@ export default function App() {
             </div>
           </div>
           {showSet ? (
-            <aside className={'settings' + (editField ? ' three' : (editP ? ' two' : ''))}>
+            <aside className={'settings' + ((editField || toolEdit) ? ' three' : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
                 <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null); setEditField(null) }}>关闭 ✕</button>
               </div>
-              {toolEdit ? (
-                <div className="tool-edit">
-                  <div className="set-row"><b>编辑工具说明：{toolEdit.name}</b></div>
-                  <textarea className="set-area" value={toolEdit.description || ''}
-                    onChange={e => setToolEdit({ ...toolEdit, description: e.target.value })} />
-                  <div className="set-row" style={{ marginTop: '.5rem' }}>
-                    <button className="ef-btn small" onClick={async () => {
-                      await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ description: toolEdit.description }) })
-                      setToolEdit(null); refresh()
-                    }}>保存</button>
-                    <button className="ef-btn small" onClick={() => setToolEdit(null)}>取消</button>
-                  </div>
-                </div>
-              ) : null}
-              <div className={'set-cols' + (editField ? ' three' : (editP ? ' two' : ''))}>
-                {editField ? (
-                  <div className="set-col col-editor">
-                    <textarea className="set-area" value={editP[editField] || ''}
-                      onChange={e => setEditP({ ...editP, [editField]: e.target.value })}
-                      placeholder="这里写完整的系统提示…" />
-                    <div className="set-col-foot">
-                      <span className="set-meta" style={{ marginRight: 'auto' }}>{(editP[editField] || '').length} 字</span>
-                      <button className="ef-btn small" onClick={() => setEditField(null)}>完成</button>
-                    </div>
-                  </div>
+              <div className={'set-cols' + ((editField || toolEdit) ? ' three' : (editP ? ' two' : ''))}>
+                {(editField || toolEdit) ? (
+                  toolEdit ? (
+                    <EditorCol value={toolEdit.description} placeholder="工具说明（模型会看到这段文字）…"
+                      onChange={v => setToolEdit({ ...toolEdit, description: v })}
+                      onDone={async () => {
+                        await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ description: toolEdit.description }) })
+                        setToolEdit(null); refresh()
+                      }} />
+                  ) : (
+                    <EditorCol value={editP[editField]} placeholder="这里写完整的系统提示…"
+                      onChange={v => setEditP({ ...editP, [editField]: v })}
+                      onDone={() => setEditField(null)} />
+                  )
                 ) : null}
 
                 {editP ? (

@@ -499,3 +499,9 @@ body{background:var(--paper);color:var(--ink);
 .tool-item{justify-content:flex-start;gap:.45rem;min-width:0;padding:.3rem .45rem}
 .tool-item input{margin:0;flex:0 0 auto;width:14px;height:14px}
 .tool-item span{flex:1 1 auto;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* 工具说明条目 */
+.tool-desc{display:grid;gap:.1rem;padding:.4rem 0;border-top:1px solid var(--line)}
+.tool-desc:first-of-type{border-top:0}
+.tool-desc b{font-size:.76rem;color:var(--sage-d)}
+.tool-desc span{font-size:.7rem;line-height:1.6;color:var(--ink2)}

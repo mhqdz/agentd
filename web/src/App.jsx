@@ -508,6 +508,15 @@ export default function App() {
 
                 <div className="set-col col-list">
                   <div className="set-col-scroll">
+                    <div className="set-card">
+                      <div className="set-row"><b>工具</b><span className="sp" /><span className="set-meta" style={{ margin: 0 }}>{toolList.length} 个</span></div>
+                      {toolList.map(t => (
+                        <div className="tool-desc" key={t.name}>
+                          <b>{t.name}</b>
+                          <span>{t.description}</span>
+                        </div>
+                      ))}
+                    </div>
                     {profiles.map(pr => (
                       <div className={'set-card' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}>
                         <div className="set-row">

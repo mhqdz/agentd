@@ -288,7 +288,12 @@ export default function App() {
           }
           let d = {}; try { d = JSON.parse(data) } catch { }
           if (ev === 'meta') { cur = d.conv_id; setConvId(cur); if (d.title) setTitle(d.title) }
-          else if (ev === 'reasoning') { asst.reasoning += d.text || ''; push() }
+          else if (ev === 'reasoning') {
+            if (!asst._r0) asst._r0 = Date.now()
+            asst.reasoning += d.text || ''
+            asst.rsecs = (Date.now() - asst._r0) / 1000
+            push()
+          }
           else if (ev === 'delta') { asst.content += d.text || ''; push() }
           else if (ev === 'tool') { asst.tools.push(d); push() }
           else if (ev === 'error') { asst.content += '\n✗ ' + (d.error || ''); push() }
@@ -418,7 +423,7 @@ export default function App() {
                       </div>
                       {m.reasoning ? (
                         <details className="fold">
-                          <summary>思考过程 · {String(m.reasoning).length} 字</summary>
+                          <summary>思考过程 · {String(m.reasoning).length} 字{m.rsecs ? ' · ' + m.rsecs.toFixed(1) + 's' : ''}</summary>
                           <pre className="think">{m.reasoning}</pre>
                         </details>
                       ) : null}

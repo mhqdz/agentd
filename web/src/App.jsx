@@ -428,7 +428,7 @@ export default function App() {
                 <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null); setEditField(null) }}>关闭 ✕</button>
               </div>
               <div className={'set-cols' + (editP ? ' two' : '') + (editField ? ' three' : '')}>
-                <div className="set-body">
+                <div className="set-col col-list">
                   {profiles.map(pr => (
                     <div className={'set-card' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}>
                       <div className="set-row">
@@ -447,7 +447,7 @@ export default function App() {
                 </div>
 
                 {editP ? (
-                  <div className="set-body set-form">
+                  <div className="set-col col-form">
                     <div className="set-card">
                       <div className="set-row"><b>{editP._new ? '新建 profile' : '编辑 ' + editP.name}</b></div>
                       {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
@@ -490,7 +490,7 @@ export default function App() {
                 ) : null}
 
                 {editField ? (
-                  <div className="set-body set-editor">
+                  <div className="set-col col-editor">
                     <div className="set-card">
                       <div className="set-row"><b>{editField === 'system' ? '编辑系统提示' : editField}</b>
                         <span className="sp" />

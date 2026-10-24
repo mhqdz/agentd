@@ -481,9 +481,10 @@ export default function App() {
                       </div>
                       <div className="set-f"><span>系统提示</span></div>
                       <div className="set-row" style={{ alignItems: 'flex-start', marginTop: '.2rem' }}>
-                        <div className="prompt-text">{editP.system || '（空）'}</div>
-                        <button className="ef-btn small" style={{ flex: '0 0 auto' }}
-                          onClick={() => setEditField(editField === 'system' ? null : 'system')}>编辑</button>
+                        <div className="prompt-text" title="双击编辑"
+                          onDoubleClick={() => setEditField(editField === 'system' ? null : 'system')}>
+                          {editP.system || '（空）'}
+                        </div>
                       </div>
                     </div>
                     <div className="set-col-foot">
@@ -512,9 +513,8 @@ export default function App() {
                     {profiles.map(pr => (
                       <div className={'set-card' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}>
                         <div className="set-row">
-                          <b>{pr.name}</b>
-                          <span className="sp" />
-                          <button className="ef-btn small" onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null) }}>编辑</button>
+                          <b className="set-name" title="单击编辑"
+                            onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null) }}>{pr.name}</b>
                         </div>
                         <div className="set-meta">{pr.model || '（未设置模型）'}</div>
                       </div>

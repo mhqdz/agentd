@@ -509,3 +509,10 @@ body{background:var(--paper);color:var(--ink);
 /* 分区标题：模型配置 / 工具配置 同一套样式 */
 .set-section{font-size:.66rem;letter-spacing:.18em;color:var(--ink3);padding:.1rem 0 .1rem;
   border-bottom:1px solid var(--line);margin:.2rem 0 -.2rem}
+
+/* 触发方式替代按钮 */
+.set-name{cursor:pointer}
+.set-name:hover{color:var(--sage-d);text-decoration:underline;text-underline-offset:3px}
+.set-card:hover{border-color:var(--sage)}
+.prompt-text{cursor:text}
+.prompt-text:hover{color:var(--ink)}

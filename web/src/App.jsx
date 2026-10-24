@@ -115,17 +115,18 @@ export default function App() {
     window.addEventListener('mousemove', move); window.addEventListener('mouseup', up)
   }
 
-  // 插话：先中断当前生成（已生成内容保留），稍等落盘后立刻把新内容发出去
+  // 插话：把内容压进后端队列，模型在下一个工具轮次就能看到（不中断当前生成）
   const interject = async () => {
     const t = text.trim()
     if (!t) return
-    abortRef.current?.abort()
-    abortRef.current = null
-    setBusy(false)
-    setStatus('已插话，正在追加…')
-    await new Promise(r => setTimeout(r, 350))
+    if (!convId) { setStatus('这一轮还没拿到会话 id，稍等一下再插话'); return }
+    const r = await fetch('/api/conv/' + convId + '/interject', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: t }),
+    })
+    if (!r.ok) { setStatus('✗ 插话失败'); return }
     setText('')
-    sendText(t)
+    setMsgs(m => [...m, { role: 'user', content: t, at: now(), interject: true }])
+    setStatus('已插话：模型会在本轮处理它')
   }
 
   // 停止生成：中断 fetch → 后端 r.Context() 被取消 → 上游请求结束
@@ -291,6 +292,7 @@ export default function App() {
           else if (ev === 'delta') { asst.content += d.text || ''; push() }
           else if (ev === 'tool') { asst.tools.push(d); push() }
           else if (ev === 'error') { asst.content += '\n✗ ' + (d.error || ''); push() }
+          else if (ev === 'interject') { setStatus('模型已收到插话：' + (d.text || '').slice(0, 30)) }
           else if (ev === 'done') { setSecs(d.secs); setStatus(`完成 · ${(d.secs || 0).toFixed(1)}s`) }
         }
       }
@@ -407,6 +409,7 @@ export default function App() {
                       <div className="mhead">
                         <span className={'av' + (m.role === 'user' ? ' u' : m.role === 'tool' ? ' t' : '')}>{m.role === 'user' ? '用' : m.role === 'tool' ? 'T' : '◈'}</span>
                         <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? '工具' : 'Agent'}</b>
+                        {m.interject ? <span className="ef-tag">插话</span> : null}
                         {m.seq ? <span className="ef-tag">No.{String(m.seq).padStart(3, '0')}</span> : null}
                         <span className="ef-field">{m.at || ''}</span>
                         {m.role === 'assistant' && m.content ? (

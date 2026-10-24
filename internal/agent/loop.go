@@ -48,6 +48,18 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 	}
 
 	for round := 0; round < maxRounds; round++ {
+		// 中途插话：把用户新消息插进本轮上下文（模型这一轮就能看到）
+		if a.Drain != nil {
+			for _, t := range a.Drain() {
+				if strings.TrimSpace(t) == "" {
+					continue
+				}
+				c.Messages = append(c.Messages, store.Message{Role: "user", Content: t})
+				if a.OnInterject != nil {
+					a.OnInterject(t)
+				}
+			}
+		}
 		// 超阈值就先做一次摘要压缩（带检查点），再走轻量裁剪兜底
 		keep := a.profile.KeepMessages
 		if keep <= 0 {

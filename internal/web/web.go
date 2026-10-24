@@ -20,9 +20,11 @@ import (
 )
 
 type Server struct {
-	cfg config.Config
-	a   *agent.Agent
-	st  store.Store
+	interjectMu sync.Mutex
+	interject   map[string][]string
+	cfg         config.Config
+	a           *agent.Agent
+	st          store.Store
 }
 
 func New(cfg config.Config, a *agent.Agent, st store.Store) *Server {
@@ -122,9 +124,43 @@ func (s *Server) handleConvs(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, out)
 }
 
+func (s *Server) pushInterject(convID, text string) {
+	s.interjectMu.Lock()
+	defer s.interjectMu.Unlock()
+	if s.interject == nil {
+		s.interject = map[string][]string{}
+	}
+	s.interject[convID] = append(s.interject[convID], text)
+}
+
+func (s *Server) drainInterject(convID string) []string {
+	s.interjectMu.Lock()
+	defer s.interjectMu.Unlock()
+	q := s.interject[convID]
+	delete(s.interject, convID)
+	return q
+}
+
 // GET /api/conv/<id>
 func (s *Server) handleConv(w http.ResponseWriter, r *http.Request) {
 	raw := strings.TrimPrefix(r.URL.Path, "/api/conv/")
+	if strings.HasSuffix(raw, "/interject") {
+		if r.Method != http.MethodPost {
+			writeJSON(w, 405, map[string]string{"error": "POST only"})
+			return
+		}
+		id := strings.TrimSuffix(raw, "/interject")
+		var body struct {
+			Text string `json:"text"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || strings.TrimSpace(body.Text) == "" {
+			writeJSON(w, 400, map[string]string{"error": "需要 text"})
+			return
+		}
+		s.pushInterject(id, body.Text)
+		writeJSON(w, 200, map[string]any{"ok": true})
+		return
+	}
 	if strings.HasSuffix(raw, "/restore") && r.Method == http.MethodPost {
 		id := strings.TrimSuffix(raw, "/restore")
 		if err := s.st.Restore(id); err != nil {
@@ -197,6 +233,11 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	send("meta", map[string]string{"conv_id": c.ID, "title": c.Title})
+
+	// 中途插话：本请求期间可被 /api/conv/<id>/interject 追加
+	convID := c.ID
+	ag.Drain = func() []string { return s.drainInterject(convID) }
+	ag.OnInterject = func(t string) { send("interject", map[string]string{"text": t}) }
 
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()

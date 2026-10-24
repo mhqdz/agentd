@@ -15,10 +15,13 @@ import (
 )
 
 type Agent struct {
-	cfg     config.Config
-	llm     *llm.Client
-	st      store.Store
-	profile config.Profile
+	cfg config.Config
+	llm *llm.Client
+	// Drain：取出本轮期间用户插话（web 层提供）；OnInterject：把插话回显给前端
+	Drain       func() []string
+	OnInterject func(string)
+	st          store.Store
+	profile     config.Profile
 }
 
 func New(cfg config.Config, st store.Store, profile config.Profile) *Agent {

@@ -461,13 +461,12 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
-                      <label className="set-f"><span>系统提示</span>
-                        <div className={'set-long' + (editField === 'system' ? ' on' : '')}>
-                          <span className="val">{editP.system ? editP.system.replace(/\s+/g, ' ') : '（空）'}</span>
-                          <button className={'ef-btn small' + (editField === 'system' ? ' active' : '')}
-                            onClick={() => setEditField(editField === 'system' ? null : 'system')}>编辑</button>
-                        </div>
-                      </label>
+                      <div className="set-f"><span>系统提示</span></div>
+                      <div className="set-row" style={{ alignItems: 'flex-start', marginTop: '.2rem' }}>
+                        <div className="prompt-text">{editP.system || '（空）'}</div>
+                        <button className="ef-btn small" style={{ flex: '0 0 auto' }}
+                          onClick={() => setEditField(editField === 'system' ? null : 'system')}>编辑</button>
+                      </div>
                     </div>
                     <div className="set-col-foot">
                       <button className="ef-btn small" onClick={async () => {

@@ -470,3 +470,10 @@ body{background:var(--paper);color:var(--ink);
 /* 编辑按钮展开时保持"按下"状态 */
 .ef-btn.active{background:var(--ef-signal);color:var(--on-signal,#08201d);border-color:var(--ef-signal)}
 .ef-btn.active::before,.ef-btn.active::after{display:none}
+
+/* 编辑列：大框本身就是文本域 */
+.col-editor{padding:0}
+.col-editor .set-area{flex:1 1 auto;min-height:0;width:100%;border:0;background:#fff;
+  padding:.85rem .9rem;font:inherit;font-size:.82rem;line-height:1.8;resize:none;outline:none}
+/* 表单列不再有标题行，首项上移，排版更紧凑 */
+.col-form .set-col-scroll{padding-top:.85rem}

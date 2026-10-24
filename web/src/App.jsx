@@ -429,12 +429,12 @@ export default function App() {
             </div>
           </div>
           {showSet ? (
-            <aside className={'settings' + (editP ? ' two' : '') + (editField ? ' three' : '')}>
+            <aside className={'settings' + (editField ? ' three' : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
                 <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null); setEditField(null) }}>关闭 ✕</button>
               </div>
-              <div className={'set-cols' + (editP ? ' two' : '') + (editField ? ' three' : '')}>
+              <div className={'set-cols' + (editField ? ' three' : (editP ? ' two' : ''))}>
                 {/* ① 长文本编辑列 */}
                 {editField ? (
                   <div className="set-col col-editor">

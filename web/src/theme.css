@@ -378,3 +378,7 @@ body{background:var(--paper);color:var(--ink);
 
 /* 修 UI：ef-btn 自带的 ::before/::after 扫线在小按钮上像"进度条" */
 .ef-btn::before,.ef-btn::after{display:none !important;content:none !important}
+
+/* 保留 ef-btn 的扫线动画，但把它限制在按钮内部（之前 z-index:-1 + 无 overflow 会跑到外面像进度条 ✗） */
+.ef-btn{position:relative;overflow:hidden;isolation:isolate}
+.ef-btn::before,.ef-btn::after{display:block !important;content:'' !important}

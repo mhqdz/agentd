@@ -439,7 +439,6 @@ export default function App() {
                 {editField ? (
                   <div className="set-col col-editor">
                     <div className="set-col-scroll">
-                      <div className="set-row"><b>{editField === 'system' ? '系统提示' : editField}</b></div>
                       <textarea className="set-area" value={editP[editField] || ''}
                         onChange={e => setEditP({ ...editP, [editField]: e.target.value })}
                         placeholder="这里写完整的系统提示…" />
@@ -467,11 +466,14 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
-                      <div className="set-f"><span>系统提示（长文本）</span>
-                        <div className="set-long">
-                          <span className="val">{editP.system ? editP.system.replace(/\s+/g, ' ') : '（空）'}</span>
-                          <button className="ef-btn small" onClick={() => setEditField('system')}>编辑</button>
-                        </div>
+                      <div className="set-row" style={{ marginTop: '.5rem' }}>
+                        <span style={{ fontSize: '.72rem', color: 'var(--ink2)' }}>系统提示</span>
+                        <span className="sp" />
+                        <button className={'ef-btn small' + (editField === 'system' ? ' active' : '')}
+                          onClick={() => setEditField(editField === 'system' ? null : 'system')}>
+                          {editField === 'system' ? '编辑中' : '编辑'}
+                        </button>
+                      </div>
                       </div>
                     </div>
                     <div className="set-col-foot">

@@ -466,3 +466,7 @@ body{background:var(--paper);color:var(--ink);
 .set-cols{flex:1 1 auto;min-height:0;height:auto;
   grid-auto-rows:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 .set-col{height:auto;min-height:0}
+
+/* 编辑按钮展开时保持"按下"状态 */
+.ef-btn.active{background:var(--ef-signal);color:var(--on-signal,#08201d);border-color:var(--ef-signal)}
+.ef-btn.active::before,.ef-btn.active::after{display:none}

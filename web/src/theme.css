@@ -412,3 +412,8 @@ body{background:var(--paper);color:var(--ink);
 .set-cols > .set-body:nth-child(1){order:1}
 .set-cols > .set-form{order:2}
 .set-cols > .set-editor{order:3}
+
+/* 列序反转：长文本编辑 | 详细配置 | 列表（列表贴最右） */
+.set-cols > .set-body:nth-child(1){order:3}
+.set-cols > .set-form{order:2}
+.set-cols > .set-editor{order:1}

@@ -437,11 +437,9 @@ export default function App() {
               <div className={'set-cols' + (editField ? ' three' : (editP ? ' two' : ''))}>
                 {editField ? (
                   <div className="set-col col-editor">
-                    <div className="set-col-scroll">
-                      <textarea className="set-area" value={editP[editField] || ''}
-                        onChange={e => setEditP({ ...editP, [editField]: e.target.value })}
-                        placeholder="这里写完整的系统提示…" />
-                    </div>
+                    <textarea className="set-area" value={editP[editField] || ''}
+                      onChange={e => setEditP({ ...editP, [editField]: e.target.value })}
+                      placeholder="这里写完整的系统提示…" />
                     <div className="set-col-foot">
                       <span className="set-meta" style={{ marginRight: 'auto' }}>{(editP[editField] || '').length} 字</span>
                       <button className="ef-btn small" onClick={() => setEditField(null)}>完成</button>
@@ -452,7 +450,6 @@ export default function App() {
                 {editP ? (
                   <div className="set-col col-form">
                     <div className="set-col-scroll">
-                      <div className="set-row"><b>{editP._new ? '新建 profile' : '编辑 ' + editP.name}</b></div>
                       {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
                         ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名'],
                         ['tools', '工具（逗号分隔）']].map(([k, label]) => (
@@ -469,7 +466,6 @@ export default function App() {
                         <span className="sp" />
                         <button className={'ef-btn small' + (editField === 'system' ? ' active' : '')}
                           onClick={() => setEditField(editField === 'system' ? null : 'system')}>
-                          {editField === 'system' ? '编辑中' : '编辑'}
                         </button>
                       </div>
                     </div>

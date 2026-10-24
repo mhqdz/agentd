@@ -445,12 +445,12 @@ export default function App() {
             </div>
           </div>
           {showSet ? (
-            <aside className={'settings' + ((editField || toolEdit) ? ' three' : (editP ? ' two' : ''))}>
+            <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
                 <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null); setEditField(null) }}>关闭 ✕</button>
               </div>
-              <div className={'set-cols' + ((editField || toolEdit) ? ' three' : (editP ? ' two' : ''))}>
+              <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
                 {(editField || toolEdit) ? (
                   toolEdit ? (
                     <EditorCol value={toolEdit.description} placeholder="工具说明（模型会看到这段文字）…"

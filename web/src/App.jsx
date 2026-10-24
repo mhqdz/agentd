@@ -194,9 +194,16 @@ export default function App() {
     setProfiles(await api('/api/profiles'))
   }
   useEffect(() => {
-    refresh().then(() => {
-      const c = new URLSearchParams(location.search).get('conv')   // 支持 ?conv=<id> 深链，也方便截图验证
+    refresh().then(async () => {
+      const q = new URLSearchParams(location.search)
+      const c = q.get('conv')                                     // ?conv=<id> 深链
       if (c) openConv(c)
+      const pn = q.get('profile')                                 // ?settings=1&profile=9-exec 直接打开编辑
+      if (pn) {
+        const list = await api('/api/profiles')
+        const pr = (list || []).find(x => x.name === pn)
+        if (pr) setEditP({ ...pr, tools: (pr.tools || []).join(',') })
+      }
     })
   }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])

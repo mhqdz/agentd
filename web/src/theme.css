@@ -433,3 +433,13 @@ body{background:var(--paper);color:var(--ink);
 .set-cols > .col-list{order:3}
 /* 旧类名不再使用 */
 .set-body{display:none}
+
+/* 修：长配置项把按钮挤出去（flex/grid 子项默认 min-width:auto ✗） */
+.set-card{min-width:0;overflow:hidden}
+.set-f{min-width:0;grid-template-columns:minmax(0,1fr)}
+.set-f input,.set-f select{min-width:0;width:100%}
+.set-long{min-width:0;overflow:hidden}
+.set-long .val{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.set-long button{flex:0 0 auto}
+/* 表单列稍宽，留出按钮空间 */
+.set-cols.two{grid-template-columns:minmax(380px,1.1fr) minmax(240px,.9fr)}

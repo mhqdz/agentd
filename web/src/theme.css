@@ -382,3 +382,9 @@ body{background:var(--paper);color:var(--ink);
 /* 保留 ef-btn 的扫线动画，但把它限制在按钮内部（之前 z-index:-1 + 无 overflow 会跑到外面像进度条 ✗） */
 .ef-btn{position:relative;overflow:hidden;isolation:isolate}
 .ef-btn::before,.ef-btn::after{display:block !important;content:'' !important}
+
+/* 设置面板：改为固定覆盖层，脱离 .stage 的层叠/绝对定位上下文 */
+.settings{position:fixed !important;right:0;top:0;bottom:0;left:auto !important;width:min(440px,88vw);
+  background:#fff;border-left:1px solid var(--line);box-shadow:-12px 0 32px rgba(20,26,25,.14);
+  z-index:999;display:flex;flex-direction:column}
+.settings .set-hd,.settings .set-body{color:var(--ink)}

@@ -277,7 +277,7 @@ export default function App() {
         </div>
         <div className="grow" />
         <span className="status" style={{ fontSize: '.75rem', color: '#9fb3b0' }}><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
-        <button onClick={() => setShowSet(true)} title="设置 / profiles">设置</button>
+        <button onClick={() => setShowSet(true)}>设置</button>
         <button onClick={() => openConv(null)}>＋ 新建</button>
       </header>
 
@@ -484,7 +484,7 @@ export default function App() {
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>
           <span className="fig">{String(convs.length).padStart(2,'0')} / {String(archived.length).padStart(2,'0')}</span>
-          <button className="dots" onClick={() => setShowSet(true)} title="设置 / profiles">
+          <button className="dots" onClick={() => setShowSet(true)}>
             <i /><i /><i />
           </button>
         </aside>

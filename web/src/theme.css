@@ -519,3 +519,8 @@ body{background:var(--paper);color:var(--ink);
 
 .set-card-click{cursor:pointer}
 .tool-desc span{cursor:text}
+
+.set-card-click{cursor:pointer}
+.tool-edit{position:absolute;right:16px;top:64px;width:min(520px,80vw);z-index:30;background:#fff;
+  border:1px solid var(--line);box-shadow:0 12px 32px rgba(20,26,25,.16);padding:.8rem}
+.tool-edit .set-area{min-height:160px}

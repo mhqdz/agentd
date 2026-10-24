@@ -66,6 +66,7 @@ export default function App() {
   const [showSet, setShowSet] = useState(new URLSearchParams(location.search).has('settings'))
   const [editP, setEditP] = useState(null)
   const [toolList, setToolList] = useState([])
+  const [toolEdit, setToolEdit] = useState(null)
   const [editField, setEditField] = useState(null)
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
@@ -436,6 +437,21 @@ export default function App() {
                 <span className="eb">SETTINGS / PROFILES</span>
                 <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null); setEditField(null) }}>关闭 ✕</button>
               </div>
+              {toolEdit ? (
+                <div className="tool-edit">
+                  <div className="set-row"><b>编辑工具说明：{toolEdit.name}</b></div>
+                  <textarea className="set-area" value={toolEdit.description || ''}
+                    onChange={e => setToolEdit({ ...toolEdit, description: e.target.value })} />
+                  <div className="set-row" style={{ marginTop: '.5rem' }}>
+                    <button className="ef-btn small" onClick={async () => {
+                      await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ description: toolEdit.description }) })
+                      setToolEdit(null); refresh()
+                    }}>保存</button>
+                    <button className="ef-btn small" onClick={() => setToolEdit(null)}>取消</button>
+                  </div>
+                </div>
+              ) : null}
               <div className={'set-cols' + (editField ? ' three' : (editP ? ' two' : ''))}>
                 {editField ? (
                   <div className="set-col col-editor">
@@ -511,7 +527,8 @@ export default function App() {
                   <div className="set-col-scroll">
                     <div className="set-section">模型配置</div>
                     {profiles.map(pr => (
-                      <div className={'set-card' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}>
+                      <div className={'set-card set-card-click' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}>
+                        onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null); setToolEdit(null) }}
                         <div className="set-row">
                           <b className="set-name" title="单击编辑"
                             onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null) }}>{pr.name}</b>
@@ -524,7 +541,8 @@ export default function App() {
                       {toolList.map(t => (
                         <div className="tool-desc" key={t.name}>
                           <b>{t.name}</b>
-                          <span>{t.description}</span>
+                          <span title="双击编辑说明" style={{ cursor: 'text' }}
+                            onDoubleClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditField(null) }}>{t.description}</span>
                         </div>
                       ))}
                     </div>

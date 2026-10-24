@@ -460,3 +460,9 @@ body{background:var(--paper);color:var(--ink);
 /* 统一顶部留白，三列同高 */
 .set-cols{padding:.8rem .9rem;align-items:stretch}
 .set-col{height:100%}
+
+/* 让三列框撑满面板高度：grid 行高必须由容器决定，而不是内容 */
+.settings{display:flex;flex-direction:column}
+.set-cols{flex:1 1 auto;min-height:0;height:auto;
+  grid-auto-rows:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.set-col{height:auto;min-height:0}

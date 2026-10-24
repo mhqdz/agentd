@@ -46,6 +46,29 @@ func (s *Server) Handler() http.Handler {
 		sort.Slice(out, func(i, j int) bool { return out[i]["name"].(string) < out[j]["name"].(string) })
 		writeJSON(w, 200, out)
 	})
+	mux.HandleFunc("/api/tools/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPut {
+			writeJSON(w, 405, map[string]string{"error": "PUT only"})
+			return
+		}
+		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
+		var body struct {
+			Description string `json:"description"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		if _, ok := tools.Registry()[name]; !ok {
+			writeJSON(w, 404, map[string]string{"error": "没有这个工具"})
+			return
+		}
+		if err := tools.SaveOverride(name, body.Description); err != nil {
+			writeJSON(w, 500, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]any{"ok": true})
+	})
 	mux.HandleFunc("/api/profiles", s.handleProfiles)
 	mux.HandleFunc("/api/profiles/", s.handleProfileItem)
 	mux.HandleFunc("/", s.handleStatic)

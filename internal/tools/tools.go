@@ -59,6 +59,7 @@ func Registry() map[string]*Spec {
 	} {
 		m[s.Name] = s
 	}
+	applyOverrides(m)
 	return m
 }
 

@@ -516,3 +516,6 @@ body{background:var(--paper);color:var(--ink);
 .set-card:hover{border-color:var(--sage)}
 .prompt-text{cursor:text}
 .prompt-text:hover{color:var(--ink)}
+
+.set-card-click{cursor:pointer}
+.tool-desc span{cursor:text}

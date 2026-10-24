@@ -493,3 +493,9 @@ body{background:var(--paper);color:var(--ink);
   padding:.28rem .4rem;font-size:.74rem;cursor:pointer;color:var(--ink2)}
 .tool-item.on{border-color:var(--ef-signal);color:var(--ink);box-shadow:inset 2px 0 0 var(--ef-signal)}
 .tool-item input{accent-color:var(--sage-d)}
+
+/* 工具勾选：等宽两列，勾选框左对齐 */
+.tool-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tool-item{justify-content:flex-start;gap:.45rem;min-width:0;padding:.3rem .45rem}
+.tool-item input{margin:0;flex:0 0 auto;width:14px;height:14px}
+.tool-item span{flex:1 1 auto;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

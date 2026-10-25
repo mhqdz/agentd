@@ -12,7 +12,9 @@
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%;margin:0}
-body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",system-ui,sans-serif;font-feature-settings:"tnum" 1}
+body{background:var(--paper);color:var(--ink);
+  font:14px/1.7 "Maple Mono NF CN","Maple Mono NF","Noto Sans SC",ui-monospace,system-ui,sans-serif;
+  font-feature-settings:"tnum" 1}
 .eb{display:block;font-size:.62rem;letter-spacing:.24em;color:var(--ink3);text-transform:uppercase}
 
 /* 壳 */

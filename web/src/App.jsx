@@ -909,7 +909,7 @@ export default function App() {
               const base = peek.idx >= 0 ? peek.idx : curIdx()
               const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
               if (next !== base) {
-                setPeek({ open: true, idx: next })
+                setPeek(p => ({ ...p, idx: next }))
                 scrollToMsg(next)          // 同时滚动页面 → 分子随之更新 ✓
               }
             }}>
@@ -934,7 +934,7 @@ export default function App() {
                 const base = peek.idx >= 0 ? peek.idx : curIdx()
                 const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
                 if (next !== base) {
-                  setPeek({ open: true, idx: next })
+                  setPeek(p => ({ ...p, idx: next }))
                   scrollToMsg(next)        // 滚动页面 ✓
                 }
               }}>

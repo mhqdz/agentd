@@ -925,7 +925,7 @@ export default function App() {
                 className={'peek-row' + ((peek.idx < 0 ? curIdx() : peek.idx) === i ? ' on' : '')}
                 onClick={() => { scrollToMsg(i); setPeek({ open: false, idx: -1 }) }}
                 onMouseEnter={() => setPeek(p => ({ ...p, open: true, idx: i }))}>
-                <span className="peek-no">{String(m.seq || i + 1).padStart(3, '0')}</span>
+                <span className="peek-no">{String(i + 1).padStart(3, '0')}</span>
                 <span className="peek-tx">{String(m.content || m.role || '').replace(/\s+/g, ' ').slice(0, 18)}</span>
               </button>
             ))}

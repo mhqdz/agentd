@@ -230,3 +230,15 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .col-editor .card-bd{padding:0;display:block;overflow-y:auto}
 .col-editor textarea{height:auto;min-height:0;width:100%;border:0;background:transparent;
   padding:.7rem .85rem;font:inherit;font-size:.8rem;line-height:1.8;resize:none;outline:none;overflow:hidden}
+
+/* ── 统一"配置行"：1 级（模型/工具）与 2 级摘要共用同一套 ── */
+.list-row,.tool-desc{display:grid;grid-template-columns:1fr;gap:.15rem;
+  padding:.5rem 0;border-top:1px solid var(--line);cursor:pointer;min-width:0}
+.list-row:first-child,.tool-desc:first-child{border-top:0}
+.list-row b,.tool-desc b{font-size:.82rem;font-weight:600;color:var(--ink);min-width:0}
+.list-row:hover b,.list-row.on b{color:var(--sage-d)}
+.list-row.new{color:var(--sage-d)}
+.list-row .set-meta,.tool-desc span{font-size:.72rem;line-height:1.65;color:var(--ink2);
+  min-width:0;white-space:normal;word-break:break-word}
+/* 摘要/说明超出时滚动，而不是裁掉 */
+.prompt-text{display:block;-webkit-line-clamp:none;max-height:10rem;overflow-y:auto}

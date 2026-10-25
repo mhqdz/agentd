@@ -481,3 +481,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 数字块悬停：文字保持深色（原悬停被继承成白色 ✗） */
 .drawer-figs a:hover b,.drawer-figs a:hover span{color:var(--c7)}
 .drawer-figs a.on b,.drawer-figs a.on span{color:var(--c7)}
+
+/* 会话行只保留一条指示：去掉自加的左侧 border，只留 endfield 的 ::before 色条 */
+.drawer .ef-record{border-left:0;padding-left:.35rem}
+.drawer .ef-record:hover,.drawer .ef-record.on{padding-left:.6rem;background:rgba(58,65,66,.05)}
+.drawer .ef-record.on{background:rgba(153,170,173,.18)}

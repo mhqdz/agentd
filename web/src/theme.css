@@ -709,5 +709,5 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .new-conv svg{width:18px;height:18px;
   transition:transform .3s cubic-bezier(.2,.8,.2,1)}
 .drawer .new-conv:hover{background:rgba(58,65,66,.07);color:var(--c7)}
-.drawer .new-conv:hover svg{transform:rotate(45deg)   /* 45° → 变成 × */}
+.drawer .new-conv:hover svg{transform:rotate(22.5deg)}
 .drawer .new-conv:active{background:rgba(58,65,66,.12)}

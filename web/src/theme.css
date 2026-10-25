@@ -552,3 +552,6 @@ body{background:var(--paper);color:var(--ink);
   background:none !important;clip-path:none !important;color:#fff;font-size:.85rem;line-height:1}
 .send.stop::after{content:"" !important;display:block !important;width:7px !important;height:7px !important;
   background:#fff !important;clip-path:none !important}
+
+/* 中断按钮：圆形（发送/插话保持切角方块） */
+.send.stop{border-radius:50% !important;clip-path:none !important}

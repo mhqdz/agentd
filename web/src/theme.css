@@ -720,3 +720,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .ef-record .act:hover{color:var(--c7)}
 .drawer .ef-record:hover .act{display:flex}
 .drawer .ef-record:hover .count{visibility:hidden}
+
+/* 归档/恢复图标：略大一点，悬停用中灰青 */
+.drawer .ef-record .act svg{width:15px;height:15px}
+.drawer .ef-record .act:hover{color:var(--c7)}

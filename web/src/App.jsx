@@ -585,6 +585,7 @@ export default function App() {
         <aside className={'drawer' + (sideOpen ? '' : ' hide')}
           style={{ width: sideW, flexBasis: sideW }}
           onMouseDown={e => {
+          <span className="edge" onMouseDown={startDrag} aria-hidden="true" />
             const r = e.currentTarget.getBoundingClientRect()
             if (sideOpen && Math.abs(e.clientX - r.right) <= 6) startDrag(e)
           }}>

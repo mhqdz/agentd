@@ -583,7 +583,11 @@ export default function App() {
 
       <div className="work" style={{ '--sidew': (sideOpen ? sideW : 0) + 'px' }}>
         <aside className={'drawer' + (sideOpen ? '' : ' hide')}
-          style={{ width: sideW, flexBasis: sideW }}>
+          style={{ width: sideW, flexBasis: sideW }}
+          onMouseDown={e => {
+            const r = e.currentTarget.getBoundingClientRect()
+            if (sideOpen && Math.abs(e.clientX - r.right) <= 6) startDrag(e)
+          }}>
           <div className="ef-figs drawer-figs">
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}
                title="只看会话"><FigCell value={convs.length} /><span>会话</span></a>
@@ -628,7 +632,6 @@ export default function App() {
               strokeLinecap="square" strokeLinejoin="miter" />
           </svg>
         </button>
-        {sideOpen ? <div className="split" onMouseDown={startDrag} title="拖动调整左侧面板宽度" /> : null}
 
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
           onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>

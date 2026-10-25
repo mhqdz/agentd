@@ -183,9 +183,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 @media (max-width:760px){ .drawer{position:absolute;z-index:9;height:100%} .rail{display:none} }
 
 /* ── 补充：JSX 仍在用、重写时漏掉的类 ───────────── */
-.split{flex:0 0 7px;cursor:col-resize;position:relative;background:transparent;z-index:5}
-.split::before{content:"";position:absolute;left:3px;top:0;bottom:0;width:1px;
-  background:linear-gradient(180deg,transparent,var(--line) 12%,var(--line) 88%,transparent)}
 .tools .ok{color:var(--sage-d);font-size:.8rem}
 .set-col-foot{padding:.5rem .85rem;border-top:1px solid var(--line);display:flex;gap:.5rem}
 .ef-btn.active{background:var(--signal);color:var(--on-signal);border-color:var(--signal)}
@@ -678,3 +675,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 缩略图弹窗：竖直中心对齐 36/36 所在位置 */
 .peek{transform:translateY(-50%)}
+
+/* 抽屉右缘 6px 作为拖拽热区（命中在下方 JS 里判断，无额外元素/说明文字）*/
+.drawer{cursor:default}

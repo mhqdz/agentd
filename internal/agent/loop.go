@@ -114,6 +114,13 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				return nil
 			}, &calls)
 		if err != nil {
+			// 意外中断（用户停止 / 网络断 / 上游报错）：先保住已生成的内容，再上抛错误
+			if strings.TrimSpace(content.String()) != "" || reasoning.Len() > 0 {
+				c.Messages = append(c.Messages, store.Message{
+					Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(),
+				})
+				_ = a.st.Save(c)
+			}
 			return err
 		}
 		if len(calls) == 0 {

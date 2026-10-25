@@ -327,7 +327,7 @@ export default function App() {
     } catch (e) {
       if (e.name === 'AbortError') setStatus('已停止')
       else setStatus('✗ ' + e.message + '（可重试）')
-    } finally { abortRef.current = null; setBusy(false) }
+    } finally { abortRef.current = null; setBusy(false); refresh() }   // 中断/报错也刷新列表，避免会话"看不见"
   }
 
   const act = async (kind, id, e) => {

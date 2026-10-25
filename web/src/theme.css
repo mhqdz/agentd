@@ -638,3 +638,10 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 轮次数字横排（不竖排），间距收紧 */
 .rail .rail-mid .fig{writing-mode:horizontal-tb;letter-spacing:.12em;font-size:.72rem;color:var(--c6)}
 .rail .rail-mid{display:flex;flex-direction:column;align-items:center;gap:.1rem}
+
+/* 右栏顶部进度条：横向，占栏宽 */
+.rail .rail-top{display:block;width:100%;padding:0 .55rem;box-sizing:border-box}
+.rail .rail-top .rail-bar{display:block;width:100%;height:2px;background:var(--c3);position:relative}
+.rail .rail-top .rail-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--c6);transition:width .25s ease}
+/* 右栏数字：横排、靠上 */
+.rail .rail-mid{align-items:center;gap:.2rem}

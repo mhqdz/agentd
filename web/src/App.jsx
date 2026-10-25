@@ -334,11 +334,12 @@ export default function App() {
   const onThreadScroll = () => {
     const box = threadRef.current
     if (!box) return
-    const top = box.getBoundingClientRect().top + 40
+    const top = box.getBoundingClientRect().top
+    const bottom = top + box.clientHeight
     let seq = 0
     box.querySelectorAll('[data-seq]').forEach(el => {
       const r = el.getBoundingClientRect()
-      if (r.bottom > top && !seq) seq = Number(el.dataset.seq) || 0
+      if (r.top < bottom) seq = Number(el.dataset.seq) || seq   // 依次覆盖 → 最后一条可见 ✓
     })
     setReadingSeq(seq)
   }
@@ -870,11 +871,13 @@ export default function App() {
         </main>
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>
-          <span className="rail-mid">
-            <span className="fig">{String(roundNow).padStart(2,'0')} / {roundMax ? String(roundMax).padStart(2,'0') : '∞'}</span>
-            <span className="rail-bar" title="本轮工具轮次 / 上限">
+          <span className="rail-top">
+            <span className="rail-bar" title="阅读位置 / 总轮次">
               <i style={{ width: roundMax ? Math.min(100, roundNow / roundMax * 100) + '%' : '0%' }} />
             </span>
+          </span>
+          <span className="rail-mid">
+            <span className="fig">{String(roundNow).padStart(2,'0')} / {roundMax ? String(roundMax).padStart(2,'0') : '∞'}</span>
             <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
           </span>
           <div className="rail-acts">

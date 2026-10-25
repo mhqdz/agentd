@@ -301,6 +301,18 @@ export default function App() {
       if (!resp.ok) { setSyncing(false); setStatus('已同步'); return }
       const reader = resp.body.getReader(); const dec = new TextDecoder()
       let buf = ''
+      // 看门狗：8 秒没有任何帧且已经不在运行 → 认为结束，避免"正在接上…"卡死
+      let lastFrame = Date.now()
+      const guard = setInterval(async () => {
+        if (Date.now() - lastFrame < 8000) return
+        const r2 = await api('/api/running').catch(() => [])
+        if (!(r2 || []).includes(String(id))) {
+          clearInterval(guard)
+          const cc = await api('/api/conv/' + id).catch(() => null)
+          if (cc) setMsgs(normalize(cc.messages || []))
+          setSyncing(false); setStatus('已同步'); refresh()
+        }
+      }, 2000)
       for (;;) {
         const { value, done } = await reader.read(); if (done) break
         buf += dec.decode(value, { stream: true })
@@ -313,12 +325,14 @@ export default function App() {
             else if (line.startsWith('data: ')) data = line.slice(6)
           }
           let d = {}; try { d = JSON.parse(data) } catch { }
+          if (ev) lastFrame = Date.now()
           if (ev === 'reasoning') { live.reasoning += d.text || ''; push() }
           else if (ev === 'delta') { live.content += d.text || ''; push() }
           else if (ev === 'tool') { live.tools.push(d); push() }
           else if (ev === 'done') { /* 结束时统一重载 */}
         }
       }
+      clearInterval(guard)
       const cc = await api('/api/conv/' + id).catch(() => null)
       if (cc) setMsgs(normalize(cc.messages || []))
       setSyncing(false); setStatus('已同步'); refresh()

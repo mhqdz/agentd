@@ -592,3 +592,11 @@ body{background:var(--paper);color:var(--ink);
   background:#fff;border:1px solid rgba(20,26,25,.18);transition:left .12s,background .12s,border-color .12s}
 .sw input:checked+i{background:var(--ef-signal);border-color:var(--ef-signal)}
 .sw input:checked+i::after{left:19px;background:#08201d;border-color:#08201d}
+
+/* 常规配置开关：原生方形复选框 + 强调色（skill：方的、按得动） */
+.swbox{appearance:none;-webkit-appearance:none;width:18px;height:18px;flex:0 0 auto;margin:0;cursor:pointer;
+  border:1px solid var(--line);background:#fff;position:relative;transition:background .12s,border-color .12s}
+.swbox:hover{border-color:var(--sage)}
+.swbox:checked{background:var(--ef-signal);border-color:var(--ef-signal)}
+.swbox:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;
+  border-right:2px solid #08201d;border-bottom:2px solid #08201d;transform:rotate(40deg)}

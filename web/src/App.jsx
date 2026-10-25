@@ -164,14 +164,11 @@ export default function App() {
   }
 
   // 滚轮：在输入区/状态栏上滚动也归给会话区（否则滚轮在这里"失灵"）
-  const onStageWheel = (e) => {
-    if (setOpenRef.current) return                   // 设置打开时完全不接管滚轮 ✓
+  // 只在输入区/状态栏上帮会话滚（不挂在 .stage 上，避免误伤设置面板等子层 ✓）
+  const onComposerWheel = (e) => {
     const th = stageRef.current?.querySelector('.thread')
     if (!th) return
-    if (e.target.closest('.thread')) return          // 会话区内部走原生滚动
-    if (e.target.closest('.settings')) return        // 设置面板内部自己滚 ✓
-    if (e.target.closest('.set-scrim')) return       // 遮罩吞掉滚轮 ✓
-    th.scrollTop += e.deltaY                          // 输入区上滚 → 滚动会话
+    th.scrollTop += e.deltaY
   }
 
   // 取装饰线的实际横坐标（.col 左缘再往左 1.4rem）
@@ -470,8 +467,7 @@ export default function App() {
         {sideOpen ? <div className="split" onMouseDown={startDrag} title="拖动调整左侧面板宽度" /> : null}
 
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
-          onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}
-          onWheel={onStageWheel}>
+          onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>
           <i className="guideline" aria-hidden="true" />
           <div className="thread" ref={threadRef}>
             {msgs.length === 0 ? (
@@ -549,8 +545,8 @@ export default function App() {
               </div>
             )}
           </div>
-          <div className="status">{status}</div>
-          <div className="composer">
+          <div className="status" onWheel={onComposerWheel}>{status}</div>
+          <div className="composer" onWheel={onComposerWheel}>
             <div className="row1">
               <span className="eb" style={{ display: 'inline', letterSpacing: '.14em' }}>PROFILE</span>
               <label className="pick">

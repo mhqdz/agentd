@@ -689,7 +689,17 @@ export default function App() {
 
                 {editP ? (
                   <div className="set-col col-form">
-                    <div className="set-section">{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</div>
+                    <div className="set-section" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+                      <span>{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span>
+                      <span style={{ flex: 1 }} />
+                      {!editP._new && !editP.builtin ? (
+                        <button className="ef-btn small" onClick={async () => {
+                          if (!confirm('删除 ' + editP.name + '？')) return
+                          await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
+                          setEditP(null); setEditField(null); refresh()
+                        }}>删除</button>
+                      ) : null}
+                    </div>
                     <div className="set-col-scroll">
                       {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
                         ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名']].map(([k, label]) => (
@@ -726,15 +736,6 @@ export default function App() {
                         </div>
                       </div>
                     </div>
-                    {!editP._new && !editP.builtin ? (
-                      <div className="set-col-foot">
-                        <button className="ef-btn small" onClick={async () => {
-                          if (!confirm('删除 ' + editP.name + '？')) return
-                          await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
-                          setEditP(null); setEditField(null); refresh()
-                        }}>删除</button>
-                      </div>
-                    ) : null}
                   </div>
                 ) : null}
 

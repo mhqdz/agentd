@@ -543,3 +543,6 @@ body{background:var(--paper);color:var(--ink);
 /* 发送按钮：去掉内部白色方块，整体变窄 */
 .send::after{display:none !important;content:none !important;width:0;height:0;background:none}
 .send{width:2rem;min-width:2rem;height:2.2rem}
+
+/* 无文字按钮：更矮一些（接近方形） */
+.send{width:1.75rem;min-width:1.75rem;height:1.75rem}

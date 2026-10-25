@@ -49,12 +49,7 @@ function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
         onChange={e => onChange(e.target.value)} />
       <div className="set-col-foot">
         <span className="set-meta" style={{ marginRight: 'auto' }}>{(value || '').length} 字</span>
-        {onCancel ? (
-          <>
-            <button className="ef-btn small" onClick={onCancel}>取消</button>
-            <button className="ef-btn small" onClick={onDone}>保存</button>
-          </>
-        ) : <button className="ef-btn small" onClick={onDone}>完成</button>}
+
       </div>
     </div>
   )
@@ -113,6 +108,14 @@ export default function App() {
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
+
+  // 快照去掉内部标记 _new，避免"一打开就算脏"✗
+  const snapOf = (p) => { if (!p) return ''; const { _new, ...rest } = p; return JSON.stringify(rest) }
+  const formDirty = !!editP && snapOf(editP) !== editSnap
+  const editorDirty = (editField || toolEdit)
+    ? ((editField ? (editP?.[editField] || '') : (toolEdit?.description || '')) !== (editOriginal || ''))
+    : false
+  const anyDirty = formDirty || editorDirty
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -611,7 +614,33 @@ export default function App() {
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
-                <button className="ef-btn small" onClick={() => { setShowSet(false); setEditP(null); setEditField(null) }}>关闭 ✕</button>
+                {anyDirty ? (
+                  <>
+                    <button className="ef-btn small" onClick={() => {
+                      if (editorDirty) {
+                        if (editField) setEditP({ ...editP, [editField]: editOriginal })
+                        else setToolEdit({ ...toolEdit, description: editOriginal })
+                      } else {
+                        const s0 = JSON.parse(editSnap || '{}'); setEditP(s0)
+                      }
+                    }}>取消</button>
+                    <button className="ef-btn small" onClick={async () => {
+                      if (editorDirty) {
+                        if (toolEdit) {
+                          await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ description: toolEdit.description }) })
+                          setEditOriginal(toolEdit.description || ''); refresh()
+                        } else { setEditOriginal(editP?.[editField] || '') }
+                      } else {
+                        if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
+                        const { _new, ...body } = editP
+                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
+                        setEditSnap(snapOf(editP)); refresh()
+                      }
+                    }}>保存</button>
+                  </>
+                ) : null}
               </div>
               <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
                 {(editField || toolEdit) ? (
@@ -671,25 +700,13 @@ export default function App() {
                       </div>
                     </div>
                     <div className="set-col-foot">
-                      {JSON.stringify({ ...editP, _new: 0 }) !== editSnap ? (
-                      <button className="ef-btn small" onClick={async () => {
-                        if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
-                        const { _new, ...body } = editP
-                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
-                        setEditP(null); setEditField(null); refresh()
-                      }}>保存</button>
-                      ) : null}
                       {!editP._new && !editP.builtin ? (
                         <button className="ef-btn small" onClick={async () => {
                           if (!confirm('删除 ' + editP.name + '？')) return
                           await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
                           setEditP(null); setEditField(null); refresh()
                         }}>删除</button>
-                      ) : null}
-                      {JSON.stringify({ ...editP, _new: 0 }) !== editSnap
-                        ? <button className="ef-btn small" onClick={() => { const s0 = JSON.parse(editSnap || '{}'); setEditP(s0); setEditField(null) }}>取消</button>
-                        : <button className="ef-btn small" onClick={() => { setEditP(null); setEditField(null) }}>关闭</button>}
+                      ) : <span className="set-meta">在空白处点击逐级退出</span>}
                     </div>
                   </div>
                 ) : null}
@@ -726,7 +743,7 @@ export default function App() {
                     <div className="set-card">
                       {profiles.map(pr => (
                         <div className={'list-row col' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
-                          onClick={() => { const v = { ...pr, tools: (pr.tools || []).join(',') }; setEditP(v); setEditSnap(JSON.stringify(v)); setEditField(null); setToolEdit(null) }}>
+                          onClick={() => { const v = { ...pr, tools: (pr.tools || []).join(',') }; setEditP(v); setEditSnap(snapOf(v)); setEditField(null); setToolEdit(null) }}>
                           <b>{pr.name}</b>
                           <span className="set-meta" style={{ margin: 0 }}>{pr.model || '（未设置模型）'}</span>
                         </div>

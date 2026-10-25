@@ -347,3 +347,13 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .rail .plus{display:block;width:18px;height:18px;color:var(--sage);
   transition:color .12s, transform .12s}
 .rail .dots:hover .plus{color:var(--sage-d);transform:translateY(-1px)}
+
+/* 侧栏折叠钮：贴在侧栏右缘、竖直居中；折叠后贴在左缘并翻转朝向 */
+.work{position:relative}
+.side-toggle{position:absolute;top:50%;left:calc(var(--sidew,250px) - 12px);transform:translateY(-50%);
+  z-index:20;width:24px;height:52px;display:grid;place-items:center;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line);border-right:0;color:var(--ink3);
+  transition:left .18s ease,color .12s,border-color .12s}
+.side-toggle svg{width:12px;height:12px}
+.side-toggle.closed{left:0;border-right:1px solid var(--line);border-left:0}
+.side-toggle:hover{color:var(--sage-d);border-color:var(--sage)}

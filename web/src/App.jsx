@@ -469,7 +469,6 @@ export default function App() {
     <div className="app">
       {showSet ? <div className="set-scrim" onClick={() => closeOne()} /> : null}
       <header className="cmd">
-        <button onClick={() => setSideOpen(!sideOpen)} title="折叠/展开侧栏">{sideOpen ? '«' : '»'}</button>
         <div className="brand">
           <span className="seal">A</span>
           <div><b>Agent</b><small>EXECUTE · CREATE</small></div>
@@ -486,7 +485,7 @@ export default function App() {
         <button onClick={() => openConv(null)}>＋ 新建</button>
       </header>
 
-      <div className="work">
+      <div className="work" style={{ '--sidew': (sideOpen ? sideW : 0) + 'px' }}>
         <aside className={'drawer' + (sideOpen ? '' : ' hide')}
           style={{ width: sideW, flexBasis: sideW }}>
           <div className="ef-figs drawer-figs">
@@ -519,6 +518,15 @@ export default function App() {
           </div>
           <div className="foot">WORKSPACE / AGENT</div>
         </aside>
+        <button className={'side-toggle' + (sideOpen ? ' open' : ' closed')}
+          onClick={() => setSideOpen(!sideOpen)}
+          title={sideOpen ? '折叠侧栏' : '展开侧栏'}
+          aria-label={sideOpen ? '折叠侧栏' : '展开侧栏'}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d={sideOpen ? 'M15 5 L8 12 L15 19' : 'M9 5 L16 12 L9 19'}
+              fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter" />
+          </svg>
+        </button>
         {sideOpen ? <div className="split" onMouseDown={startDrag} title="拖动调整左侧面板宽度" /> : null}
 
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}

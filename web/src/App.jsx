@@ -191,6 +191,7 @@ export default function App() {
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
   const [msgs, setMsgs] = useState([])
+  const visible = msgs.filter(m => m.role !== 'tool')   // 工具结果不计入轮次 ✓
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [syncing, setSyncing] = useState(false)
@@ -376,6 +377,9 @@ export default function App() {
     suppressTimer.current = setTimeout(() => { suppressPeekClose.current = false }, 600)
     el.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }
+
+  const roundMax = visible.length
+  const roundNow = readingIdx || visible.length
 
   const closeOne = async () => {
     const open = editField || toolEdit
@@ -570,11 +574,6 @@ export default function App() {
   const list = tab === 'archive' ? archived : convs
   const cur = profiles.find(p => p.name === profile)
   // 轮次进度：本轮工具轮次 / 本会话落库的最大 seq（也即已记录的轮次）
-  // 只算"人看得见"的消息：工具结果(role=tool)不计入轮次 ✓ 纯前端可做
-  const visible = msgs.filter(m => m.role !== 'tool')
-  const roundMax = visible.length
-  const roundNow = readingIdx || visible.length
-
   return (
     <div className="app">
       <div className="topbar" aria-hidden="true">

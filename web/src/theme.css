@@ -637,3 +637,7 @@ body{background:var(--paper);color:var(--ink);
 .set-col{height:auto !important;min-height:0}
 .set-col-scroll{overflow:visible !important;flex:0 0 auto}
 .set-cols{overflow-y:auto !important;align-items:start !important}
+
+/* 设置开启时的透明遮罩：吃掉点击与滚轮，不影响底层会话 */
+.set-scrim{position:fixed;inset:0;z-index:998;background:transparent;cursor:default}
+.settings{z-index:999}

@@ -168,6 +168,7 @@ export default function App() {
     if (!th) return
     if (e.target.closest('.thread')) return          // 会话区内部走原生滚动
     if (e.target.closest('.settings')) return        // 设置面板内部自己滚 ✓
+    if (e.target.closest('.set-scrim')) return       // 遮罩层吞掉滚轮 ✓
     th.scrollTop += e.deltaY                          // 输入区上滚 → 滚动会话
   }
 
@@ -578,6 +579,7 @@ export default function App() {
             </div>
           </div>
           {showSet ? (
+            <div className="set-scrim" onClick={() => { setShowSet(false); setEditP(null); setEditField(null); setToolEdit(null) }} />
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>

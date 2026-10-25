@@ -736,3 +736,9 @@ body{background:var(--paper);color:var(--ink);
 .card-bd,.set-col-scroll{
   flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;max-height:none !important}
 .col-editor .set-area{max-height:none !important;overflow-y:auto !important}
+
+/* 最终上限（覆盖所有历史 max-height 规则） */
+.settings{max-height:100vh !important;overflow:hidden !important}
+.set-cols{max-height:calc(100vh - 46px) !important;overflow:auto !important}
+.set-col,.card{max-height:calc(100vh - 70px) !important;overflow:hidden !important}
+.set-col-scroll{max-height:none !important;overflow-y:auto !important}

@@ -487,7 +487,7 @@ export default function App() {
                title="只看会话"><b>{String(convs.length).padStart(2, '0')}</b><span>会话</span></a>
             <a className={tab === 'archive' ? 'on' : ''} onClick={() => setTab('archive')}
                title="只看归档"><b>{String(archived.length).padStart(2, '0')}</b><span>归档</span></a>
-            <a title="当前会话消息数"><b>{String(msgs.length).padStart(2, '0')}</b><span>本轮</span></a>
+            <a title="当前会话最后一条消息的落库序号"><b>{String(msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0).padStart(2, '0')}</b><span>本轮</span></a>
           </div>
           <div className="list" style={{ padding: '0 .5rem' }}>
             {list.length === 0 ? (

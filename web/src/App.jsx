@@ -637,8 +637,8 @@ export default function App() {
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
                 {anyDirty ? (
-                  <span className="set-actions">
-                    <button className="ef-btn small" onClick={() => {
+                  <span className="card-actions">
+                    <button className="btn" onClick={() => {
                       if (editorDirty) {
                         if (editField) setEditP({ ...editP, [editField]: editOriginal })
                         else setToolEdit({ ...toolEdit, description: editOriginal })
@@ -648,7 +648,7 @@ export default function App() {
                         setSettings(JSON.parse(setSnap || '{}'))
                       }
                     }}>取消</button>
-                    <button className="ef-btn small" onClick={async () => {
+                    <button className="btn" onClick={async () => {
                       if (editorDirty) {
                         if (toolEdit) {
                           await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
@@ -693,7 +693,7 @@ export default function App() {
                       <span>{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span>
                       <span style={{ flex: 1 }} />
                       {!editP._new && !editP.builtin ? (
-                        <button className="ef-btn small" onClick={async () => {
+                        <button className="btn" onClick={async () => {
                           if (!confirm('删除 ' + editP.name + '？')) return
                           await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
                           setEditP(null); setEditField(null); refresh()
@@ -703,20 +703,20 @@ export default function App() {
                     <div className="card-bd">
                       {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
                         ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名']].map(([k, label]) => (
-                        <label className="set-f" key={k}><span>{label}</span>
+                        <label className="field" key={k}><span>{label}</span>
                           <input value={editP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}
                             onChange={e => setEditP({ ...editP, [k]: e.target.value })} /></label>
                       ))}
-                      <label className="set-f"><span>思考强度</span>
+                      <label className="field"><span>思考强度</span>
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
-                      <div className="set-f"><span>工具（勾选启用）</span>
-                        <div className="tool-list">
+                      <div className="field"><span>工具（勾选启用）</span>
+                        <div className="choices">
                           {toolList.map(t => {
                             const on = (editP.tools || '').split(',').map(x => x.trim()).filter(Boolean).includes(t.name)
                             return (
-                              <label key={t.name} title={t.description || ''} className={'tool-item' + (on ? ' on' : '')}>
+                              <label key={t.name} title={t.description || ''} className={'choice' + (on ? ' on' : '')}>
                                 <input type="checkbox" checked={on} onChange={e => {
                                   const cur = (editP.tools || '').split(',').map(x => x.trim()).filter(Boolean)
                                   const next = e.target.checked ? [...cur, t.name] : cur.filter(x => x !== t.name)
@@ -748,7 +748,7 @@ export default function App() {
                       </div>
                       <div className="set-meta">开启该项以避免工具循环调用</div>
                       {settings.tool_rounds_enabled ? (
-                        <label className="set-f" style={{ marginTop: '.5rem' }}><span>轮次上限</span>
+                        <label className="field" style={{ marginTop: '.5rem' }}><span>轮次上限</span>
                           <input type="number" min="1" max="1000" value={settings.tool_rounds || 8}
                             onChange={e => setSettings({ ...settings, tool_rounds: Number(e.target.value) || 8 })} /></label>
                       ) : null}

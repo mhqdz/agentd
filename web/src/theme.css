@@ -301,3 +301,35 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* “＋ 新建 profile” 作为可点击子项：与其它 item 同构，仅用信号色区分动作 */
 .card .item.item-new{padding:.5rem 0}
 .card .item.item-new>.item-title{font-weight:600;color:var(--sage-d)}
+
+/* ═══ 卡片内剩余部件（统一命名 + 终末地风格）══════════════
+   .field        表单字段：标签（宽体小字）+ 控件（方角、白底细边）
+   .choices      选项组（两列等宽）
+   .choice       单个可选项：方框 + 勾选，选中时信号色左条 + 描边
+   .btn          卡片按钮：方角、细边、悬停填充；主动作用 .btn.primary
+   .card-actions 卡片标题右侧的动作组                                     */
+
+.card .field{display:grid;grid-template-columns:minmax(0,1fr);gap:.25rem;min-width:0}
+.card .field>.field-label{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3)}
+.card .field input,.card .field select{width:100%;min-width:0;border:1px solid var(--line);background:#fff;
+  color:var(--ink);font:inherit;font-size:.8rem;padding:.35rem .45rem;border-radius:0}
+.card .field input:hover,.card .field select:hover{border-color:var(--sage)}
+.card .field input:focus,.card .field select:focus{outline:none;border-color:var(--ink);
+  box-shadow:0 0 0 2px rgba(111,167,156,.35)}
+
+.card .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}
+.card .choice{display:flex;align-items:center;gap:.45rem;min-width:0;border:1px solid var(--line);
+  background:#fff;padding:.32rem .45rem;font-size:.76rem;color:var(--ink2);cursor:pointer;
+  transition:border-color .12s,box-shadow .12s}
+.card .choice:hover{border-color:var(--sage)}
+.card .choice.on{border-color:var(--signal);color:var(--ink);box-shadow:inset 2px 0 0 var(--signal)}
+.card .choice input{margin:0;width:14px;height:14px;accent-color:var(--sage-d)}
+.card .choice span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.card-actions{display:flex;align-items:center;gap:.5rem}
+.card .btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:.74rem;
+  padding:.28rem .6rem;cursor:pointer;border-radius:0;
+  clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%)}   /* 切角 = 可点击 ✓ */
+.card .btn:hover{border-color:var(--sage-d);color:var(--sage-d)}
+.card .btn.primary{background:var(--signal);border-color:var(--signal);color:var(--on-signal)}
+.card-hd .btn{padding:.2rem .5rem}

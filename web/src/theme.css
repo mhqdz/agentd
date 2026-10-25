@@ -645,3 +645,10 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .rail .rail-top .rail-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--c6);transition:width .25s ease}
 /* 右栏数字：横排、靠上 */
 .rail .rail-mid{align-items:center;gap:.2rem}
+
+/* ═══ 页面顶部进度条（代替上边框）═══
+   固定在视口最上方，2px，阅读进度 = 当前阅读位置 / 总轮次 */
+.topbar{position:fixed;top:0;left:0;right:0;height:2px;z-index:1000;
+  background:var(--c3);pointer-events:none}
+.topbar i{display:block;height:100%;width:0;background:var(--c6);
+  transition:width .25s cubic-bezier(.2,.8,.2,1)}

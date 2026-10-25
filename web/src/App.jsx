@@ -542,6 +542,9 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="topbar" aria-hidden="true">
+        <i style={{ width: roundMax ? Math.min(100, roundNow / roundMax * 100) + '%' : '0%' }} />
+      </div>
       {showSet ? <div className="set-scrim" onClick={() => closeOne()} /> : null}
 
       <div className="work" style={{ '--sidew': (sideOpen ? sideW : 0) + 'px' }}>
@@ -870,11 +873,6 @@ export default function App() {
           ) : null}
         </main>
         <aside className="rail">
-          <span className="rail-top">
-            <span className="rail-bar" title="阅读位置 / 总轮次">
-              <i style={{ width: roundMax ? Math.min(100, roundNow / roundMax * 100) + '%' : '0%' }} />
-            </span>
-          </span>
           <span className="vt">AGENT EXECUTE · CREATE</span>          <span className="rail-mid">
             <span className="fig">{String(roundNow).padStart(2,'0')} / {roundMax ? String(roundMax).padStart(2,'0') : '∞'}</span>
             <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>

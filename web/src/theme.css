@@ -567,8 +567,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 悬停：数字自身周围出现浅色底（不是整格底色）*/
 .drawer-figs a .nfwrap{padding:.06rem .18rem;transition:background .18s ease,box-shadow .18s ease}
-.drawer-figs a:hover .nfwrap{background:rgba(243,245,245,.55);box-shadow:inset 0 0 0 1px rgba(58,65,66,.18)}
-.drawer-figs a:active .nfwrap{background:rgba(243,245,245,.8)}
 
 /* ═══ 悬停高亮块：从左侧滑入，铺在数字背后 ═══ */
 .drawer-figs a{overflow:hidden}
@@ -582,20 +580,13 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a .nfwrap{position:relative;z-index:1}
 /* 去掉上一版的"数字周围浅色块"，只保留滑入高亮 */
 .drawer-figs a .nfwrap{padding:0}
-.drawer-figs a:hover .nfwrap{background:transparent;box-shadow:none}
-.drawer-figs a:active .nfwrap{background:transparent}
 
 /* A：数字自身周围再叠一层浅色小底（与 C 的滑入高亮共存）*/
 .drawer-figs a .nfwrap{
   padding:.04rem .2rem;
   transition:background .2s ease,box-shadow .2s ease;
   background:transparent;box-shadow:inset 0 0 0 1px transparent}
-.drawer-figs a:hover .nfwrap{
-  background:rgba(243,245,245,.6);
-  box-shadow:inset 0 0 0 1px rgba(58,65,66,.22)}
-.drawer-figs a:active .nfwrap{
-  background:rgba(243,245,245,.85);
-  box-shadow:inset 0 0 0 1px rgba(58,65,66,.35)}
 
 /* 只保留 C（左侧滑入高亮）；移除 A 的数字周围浅底与细框 */
-.drawer-figs a .nfwrap{padding:0;background:transparent;box-shadow:none}
+
+.drawer-figs a .nfwrap{padding:0}

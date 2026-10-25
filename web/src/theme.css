@@ -695,3 +695,10 @@ body{background:var(--paper);color:var(--ink);
   max-height:100vh !important;overflow:hidden !important;
   box-shadow:-12px 8px 32px rgba(20,26,25,.14)}
 .set-cols{max-height:calc(100vh - 46px) !important;overflow-y:auto !important}
+
+/* 背景属于每张卡片本身：面板/列容器一律透明，卡片各自带底、边框、投影 */
+.settings{background:transparent !important;border:none !important;box-shadow:none !important}
+.set-cols{background:transparent !important}
+.set-hd{background:transparent !important;border-bottom:none !important;padding-left:.2rem}
+.set-col{background:#fff !important;border:1px solid var(--line) !important;
+  box-shadow:0 6px 18px rgba(20,26,25,.08)}

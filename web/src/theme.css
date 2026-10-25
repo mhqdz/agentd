@@ -629,3 +629,13 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .side-toggle.collapsed .st-rail{
   background:var(--c-on-accent);opacity:1;transform:scaleY(1)}
 .side-toggle:focus-visible{box-shadow:0 0 0 2px var(--c-accent)}
+
+/* 折叠后悬停：回到灰青（不再是黄）*/
+.side-toggle.collapsed:hover{background:var(--c6);color:var(--c1);border-color:var(--c6)}
+.side-toggle.collapsed:hover .st-rail{background:var(--c1)}
+
+/* 指示条：移到右侧，改用色阶颜色（不再用近黑）*/
+.side-toggle .st-rail{left:auto;right:0;width:2px;background:var(--c5)}
+.side-toggle:hover .st-rail{background:var(--c6)}
+.side-toggle.collapsed .st-rail{background:var(--c6)}
+.side-toggle.collapsed:hover .st-rail{background:var(--c1)}

@@ -665,3 +665,17 @@ body{background:var(--paper);color:var(--ink);
 .set-col{height:auto !important;min-height:0;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column}
 .set-col-scroll{overflow:visible !important;flex:0 0 auto}
 .col-list{max-height:100%}
+
+/* ===== 权威规则：卡片固定 400px，面板宽度自适应卡片数 ===== */
+.settings,.settings.two,.settings.two:not(.three),.settings.three{
+  width:fit-content !important;max-width:96vw !important}
+.set-cols,.set-cols.two,.set-cols.three,.set-cols.two:not(.three){
+  display:flex !important;grid-template-columns:none !important;flex-wrap:nowrap !important;
+  gap:.9rem !important;justify-content:flex-end !important;align-items:flex-start !important;
+  overflow:auto !important;height:auto !important;min-height:0 !important;padding:.8rem .9rem !important}
+.set-col,.set-col.col-list,.set-col.col-form,.set-col.col-editor{
+  flex:0 0 400px !important;width:400px !important;max-width:400px !important;
+  height:auto !important;min-height:0 !important}
+@media (max-width:900px){
+  .set-col,.set-col.col-list,.set-col.col-form,.set-col.col-editor{flex:0 0 100% !important;width:100% !important;max-width:100% !important}
+}

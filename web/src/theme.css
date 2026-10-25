@@ -706,3 +706,6 @@ body{background:var(--paper);color:var(--ink);
 /* 卡片标题与"常规配置"同款：小字 + 下划线，贴在卡片顶部 */
 .set-col > .set-section{margin:0;padding:.55rem .85rem .5rem;border-bottom:1px solid var(--line);
   font-size:.66rem;letter-spacing:.18em;color:var(--ink3)}
+
+/* 文本卡：高度随内容，不再内部溢出滚动 */
+.col-editor .set-area{height:auto !important;min-height:120px !important;max-height:none !important;overflow:hidden !important;resize:none}

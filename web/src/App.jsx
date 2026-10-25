@@ -43,9 +43,16 @@ function normalize(arr) {
 }
 
 function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
+  const ta = useRef(null)
+  useEffect(() => {
+    const el = ta.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = (el.scrollHeight + 2) + 'px'   // 随内容长高 ✓
+  }, [value])
   return (
     <div className="set-col col-editor">
-      <textarea className="set-area" value={value || ''} placeholder={placeholder}
+      <textarea ref={ta} className="set-area" value={value || ''} placeholder={placeholder}
         onChange={e => onChange(e.target.value)} />
       <div className="set-col-foot">
         <span className="set-meta" style={{ marginRight: 'auto' }}>{(value || '').length} 字</span>

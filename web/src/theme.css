@@ -609,7 +609,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* ═══ 对比色（终末地标志黄）：色阶第 8 色，只用于"看这里/可操作"的强调 ═══
    #FFFA00 来自 endfield skill 的 --ef-signal（THE yellow） */
 :root{
-  --c-signal:#FFFA00;
+  --c-signal:#FFF7A8;
   --c-on-signal:#161616;
   --ef-signal:var(--c-signal);      /* 让 endfield 组件也跟随 ✓ */
   --ef-on-signal:var(--c-on-signal);
@@ -619,3 +619,11 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .side-toggle:hover{background:var(--c-signal);color:var(--c-on-signal);border-color:var(--c-signal)}
 .side-toggle:hover .st-rail{background:var(--c-on-signal);opacity:1;transform:scaleY(1)}
 .side-toggle:focus-visible{box-shadow:0 0 0 2px var(--c-signal)}
+
+/* 折叠状态下一直保持浅黄（不只是悬停）*/
+.side-toggle.collapsed{
+  background:var(--c-signal);
+  border-color:var(--c-signal);
+  color:var(--c-on-signal)}
+.side-toggle.collapsed .st-rail{background:var(--c-on-signal);opacity:1;transform:scaleY(1)}
+.side-toggle.collapsed:hover{background:var(--c-signal);color:var(--c-on-signal)}

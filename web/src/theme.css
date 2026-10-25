@@ -489,3 +489,25 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 用户消息卡：去掉上边框（只留左侧竖线 + 底边 + 右边）*/
 .msg.user{border-top:0}
+
+/* ── Markdown 正文 ─────────────────────────────── */
+.prose.md{padding:0;background:none;border:0;white-space:normal}
+.prose.md>*:first-child{margin-top:0}
+.prose.md>*:last-child{margin-bottom:0}
+.prose.md p{margin:.55em 0;line-height:1.8}
+.prose.md h1,.prose.md h2,.prose.md h3,.prose.md h4{margin:.9em 0 .4em;line-height:1.4;font-weight:700;color:var(--c7)}
+.prose.md h2{font-size:1.05rem;letter-spacing:.02em}
+.prose.md h3{font-size:.98rem}
+.prose.md ul,.prose.md ol{margin:.5em 0;padding-left:1.3em}
+.prose.md li{margin:.18em 0;line-height:1.75}
+.prose.md code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;
+  background:var(--c2);color:var(--c7);padding:.08em .3em;border:1px solid var(--c3)}
+.prose.md pre{margin:.6em 0;padding:.6em .7em;background:var(--c1);border:1px solid var(--c3);
+  overflow:auto;max-height:22rem}
+.prose.md pre code{background:none;border:0;padding:0;font-size:.84em;line-height:1.7}
+.prose.md blockquote{margin:.6em 0;padding:.1em .8em;border-left:2px solid var(--c4);color:var(--c5)}
+.prose.md hr{border:0;border-top:1px solid var(--c3);margin:.9em 0}
+.prose.md a{color:var(--c6);text-decoration:none;border-bottom:1px solid var(--c4)}
+.prose.md table{border-collapse:collapse;margin:.6em 0;font-size:.86rem}
+.prose.md th,.prose.md td{border:1px solid var(--c3);padding:.28em .5em;text-align:left}
+.prose.md th{background:var(--c2);font-weight:600}

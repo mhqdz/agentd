@@ -1,4 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
+
+marked.setOptions({ gfm: true, breaks: true })
+
+// Markdown 渲染（模型输出不可信 → 一律过 DOMPurify）
+function Md({ text }) {
+  const html = useMemo(() => DOMPurify.sanitize(marked.parse(String(text || ''))), [text])
+  return <div className="prose ef-prose md" dangerouslySetInnerHTML={{ __html: html }} />
+}
 
 const api = (p, opt) => fetch(p, opt).then(r => r.json())
 const pad = n => String(n).padStart(2, '0')
@@ -70,7 +80,7 @@ function Sections({ text }) {
   const flush = () => {
     if (buf.length) {
       const body = buf.join('\n').trim()
-      if (body) out.push(<pre className="prose ef-prose" key={'b' + out.length}>{body}</pre>)
+      if (body) out.push(<Md text={body} key={'b' + out.length} />)
       buf = []
     }
   }
@@ -86,7 +96,7 @@ function Sections({ text }) {
     } else buf.push(raw)
   }
   flush()
-  if (out.length === 0) return <pre className="prose ef-prose">{text}</pre>
+  if (out.length === 0) return <Md text={text} />
   return <>{out}</>
 }
 

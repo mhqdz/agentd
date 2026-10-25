@@ -559,3 +559,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a:hover{background:var(--c5)}
 .drawer-figs a::after{height:3px;background:var(--c7);opacity:.85}
 .drawer-figs a:active{transform:scale(.985)}
+
+/* 入场动画：与 number-flow 并存（外层播放，不重挂载内层）*/
+@keyframes figIn{0%{opacity:0;transform:translateY(6px)}60%{opacity:1}100%{opacity:1;transform:none}}
+.drawer-figs a .nfwrap{display:inline-block}
+.drawer-figs a .nfwrap.figIn{animation:figIn .5s cubic-bezier(.2,.8,.2,1) both}

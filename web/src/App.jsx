@@ -27,6 +27,29 @@ function Roll({ value, digits = 2 }) {
   )
 }
 
+// 数字格：number-flow 管逐位滚动；外层 figIn 管入场
+// 关键在于**不重挂载**（重挂载会让 number-flow 丢失旧值 → 不滚）
+// 用 class 重播动画（remove → 强制回流 → add）
+function FigCell({ value }) {
+  const box = useRef(null)
+  const prev = useRef(value)
+  useEffect(() => {
+    if (prev.current === value) return
+    const el = box.current
+    if (el) {
+      el.classList.remove('figIn')
+      void el.offsetWidth
+      el.classList.add('figIn')
+    }
+    prev.current = value
+  }, [value])
+  return (
+    <span className="nfwrap" ref={box}>
+      <NumberFlow className="nf" value={value} format={{ minimumIntegerDigits: 2 }} />
+    </span>
+  )
+}
+
 // Markdown 渲染（模型输出不可信 → 一律过 DOMPurify）
 function Md({ text }) {
   const html = useMemo(() => DOMPurify.sanitize(marked.parse(String(text || ''))), [text])
@@ -507,10 +530,10 @@ export default function App() {
           style={{ width: sideW, flexBasis: sideW }}>
           <div className="ef-figs drawer-figs">
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}
-               title="只看会话"><NumberFlow className="nf" value={convs.length} format={{ minimumIntegerDigits: 2 }} /><span>会话</span></a>
+               title="只看会话"><FigCell value={convs.length} /><span>会话</span></a>
             <a className={tab === 'archive' ? 'on' : ''} onClick={() => setTab('archive')}
-               title="只看归档"><NumberFlow className="nf" value={archived.length} format={{ minimumIntegerDigits: 2 }} /><span>归档</span></a>
-            <a title="当前会话最后一条消息的落库序号"><NumberFlow className="nf" value={msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0} format={{ minimumIntegerDigits: 2 }} /><span>本轮</span></a>
+               title="只看归档"><FigCell value={archived.length} /><span>归档</span></a>
+            <a title="当前会话最后一条消息的落库序号"><FigCell value={msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0} /><span>本轮</span></a>
           </div>
           <div className="list" style={{ padding: '0 .5rem' }}>
             {list.length === 0 ? (

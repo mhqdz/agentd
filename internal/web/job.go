@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -10,9 +11,10 @@ import (
 
 // job 保存一轮生成的 SSE 帧，供前端断点续传（刷新后逐字接上）。
 type job struct {
-	mu   sync.Mutex
-	buf  []string
-	done bool
+	mu       sync.Mutex
+	buf      []string
+	done     bool
+	expireAt time.Time // 结束后保留缓冲的时间；零值=不释放
 }
 
 func (s *Server) job(convID string) *job {
@@ -31,9 +33,19 @@ func (s *Server) job(convID string) *job {
 
 func (j *job) reset() { j.mu.Lock(); j.buf = nil; j.done = false; j.mu.Unlock() }
 
-func (j *job) emit(f string) { j.mu.Lock(); j.buf = append(j.buf, f); j.mu.Unlock() }
+func (j *job) emit(f string) {
+	j.mu.Lock()
+	j.buf = append(j.buf, f)
+	j.expireAt = time.Time{} // 有新帧 → 暂停倒计时 ✓
+	j.mu.Unlock()
+}
 
-func (j *job) finish() { j.mu.Lock(); j.done = true; j.mu.Unlock() }
+func (j *job) finish() {
+	j.mu.Lock()
+	j.done = true
+	j.expireAt = time.Now().Add(jobTTL()) // 完成后开始倒计时 ✓
+	j.mu.Unlock()
+}
 
 func (j *job) snapshot(from int) ([]string, bool) {
 	j.mu.Lock()
@@ -101,4 +113,45 @@ func (s *Server) streamFrom(w http.ResponseWriter, r *http.Request, convID strin
 		case <-time.After(100 * time.Millisecond):
 		}
 	}
+}
+
+// jobTTL：完成后缓冲保留多久（默认 5 分钟，AGENTD_JOB_TTL 可覆盖，支持 30s/2m）
+func jobTTL() time.Duration {
+	if v := os.Getenv("AGENTD_JOB_TTL"); v != "" {
+		if d, err := time.ParseDuration(v); err == nil && d > 0 {
+			return d
+		}
+	}
+	return 5 * time.Minute
+}
+
+// sweepJobs：释放到期缓冲；运行中的轮次永不释放。
+func (s *Server) sweepJobs() {
+	now := time.Now()
+	s.jobMu.Lock()
+	defer s.jobMu.Unlock()
+	for id, j := range s.jobs {
+		s.convMu.Lock()
+		running := s.convCancel[id] != nil
+		s.convMu.Unlock()
+		if running {
+			continue
+		}
+		j.mu.Lock()
+		exp := !j.expireAt.IsZero() && now.After(j.expireAt)
+		j.mu.Unlock()
+		if exp {
+			delete(s.jobs, id)
+		}
+	}
+}
+
+// RunJobSweeper：每 20 秒清一次，随进程生命周期。
+func (s *Server) RunJobSweeper() {
+	go func() {
+		for {
+			time.Sleep(20 * time.Second)
+			s.sweepJobs()
+		}
+	}()
 }

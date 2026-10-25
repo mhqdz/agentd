@@ -32,7 +32,9 @@ type Server struct {
 }
 
 func New(cfg config.Config, a *agent.Agent, st store.Store) *Server {
-	return &Server{cfg: cfg, a: a, st: st}
+	s := &Server{cfg: cfg, a: a, st: st}
+	s.RunJobSweeper()
+	return s
 }
 
 func (s *Server) Handler() http.Handler {

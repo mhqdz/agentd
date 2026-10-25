@@ -595,7 +595,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   transition:left .22s cubic-bezier(.2,.8,.2,1),width .16s ease,
              background .16s ease,color .16s ease,border-color .16s ease}
 .side-toggle.collapsed{left:0;border-right:1px solid var(--c3);border-left:0}
-.side-toggle:hover{background:var(--c2);color:var(--c7);border-color:var(--c4);width:30px}
 .side-toggle:active{transform:translateY(-50%) scale(.97)}
 .side-toggle:focus-visible{box-shadow:0 0 0 2px var(--c4)}
 .st-icon{width:14px;height:14px;
@@ -609,21 +608,24 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* ═══ 对比色（终末地标志黄）：色阶第 8 色，只用于"看这里/可操作"的强调 ═══
    #FFFA00 来自 endfield skill 的 --ef-signal（THE yellow） */
 :root{
-  --c-signal:#FFF7A8;
+  --c-signal:#FFF7A8;   /* 旧的对比色（可留作别用）*/
+  --c-accent:#FFF7A8;    /* 新增：把手的强调色 */
+  --c-on-accent:#161616;
   --c-on-signal:#161616;
-  --ef-signal:var(--c-signal);      /* 让 endfield 组件也跟随 ✓ */
-  --ef-on-signal:var(--c-on-signal);
+  --ef-signal:var(--c4);   /* 恢复：endfield 组件仍用灰青 ✓ */
+  --ef-on-signal:var(--c1);
 }
 
 /* 折叠把手：悬停/聚焦用黄；指针滑出后回到中性色 */
-.side-toggle:hover{background:var(--c-signal);color:var(--c-on-signal);border-color:var(--c-signal)}
-.side-toggle:hover .st-rail{background:var(--c-on-signal);opacity:1;transform:scaleY(1)}
-.side-toggle:focus-visible{box-shadow:0 0 0 2px var(--c-signal)}
 
 /* 折叠状态下一直保持浅黄（不只是悬停）*/
-.side-toggle.collapsed{
-  background:var(--c-signal);
-  border-color:var(--c-signal);
-  color:var(--c-on-signal)}
-.side-toggle.collapsed .st-rail{background:var(--c-on-signal);opacity:1;transform:scaleY(1)}
-.side-toggle.collapsed:hover{background:var(--c-signal);color:var(--c-on-signal)}
+
+/* 把手的强调色（独立变量 --c-accent，与 endfield 的信号色互不影响）*/
+.side-toggle:hover,
+.side-toggle.collapsed,
+.side-toggle.collapsed:hover{
+  background:var(--c-accent);color:var(--c-on-accent);border-color:var(--c-accent)}
+.side-toggle:hover .st-rail,
+.side-toggle.collapsed .st-rail{
+  background:var(--c-on-accent);opacity:1;transform:scaleY(1)}
+.side-toggle:focus-visible{box-shadow:0 0 0 2px var(--c-accent)}

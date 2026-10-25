@@ -352,9 +352,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .foot-btn:hover{border-color:var(--sage);color:#fff}
 .drawer .foot-mark{width:100%;font-size:.56rem;letter-spacing:.2em;color:var(--side-dim)}
 
-/* ── 左侧栏改浅色（抽屉底色/文字/分隔线），数字块 08/00/05 保持原深色 ── */
-.drawer{background:linear-gradient(180deg,var(--c1),var(--c2));
-  color:var(--ink);border-right:1px solid var(--line)}
 .drawer .ef-tag{background:var(--c2);color:var(--ink2)}
 .drawer .ef-field{color:var(--ink3)}
 .drawer li .act{border-color:var(--line);color:var(--ink2)}

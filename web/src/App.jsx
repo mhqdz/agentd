@@ -377,7 +377,7 @@ export default function App() {
                 {list.map((c, i) => (
                   <li key={c.ID}>
                     <a className={'ef-record' + (c.ID === convId ? ' on' : '')} onClick={() => openConv(c.ID)}>
-                      <span className="ef-tag" title={c.ID}>No.{c.ID}</span>
+                      <span className="ef-tag" title={c.ID}>No.{String(c.ID).padStart(4, '0')}</span>
                       <time className="ef-field">{(c.UpdatedAt || '').slice(5, 10).replace('-', '.')}</time>
                       <span className="name ef-read">{c.Title || '(无标题)'}</span>
                       <span className="ef-field">{c.N}</span>

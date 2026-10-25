@@ -383,5 +383,5 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .rail{position:relative}
 .rail .rail-mid{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:0;width:auto}
 .rail .rail-mid .fig{margin:0}
-.rail .rail-mid .rail-status{position:absolute;left:50%;bottom:5.2rem;transform:translateX(-50%);
+.rail .rail-mid .rail-status{position:absolute;left:50%;bottom:7rem;transform:translateX(-50%);
   margin:0;white-space:nowrap}

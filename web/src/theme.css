@@ -721,3 +721,18 @@ body{background:var(--paper);color:var(--ink);
 
 /* 2 级卡：内容区有上限并内部滚动（与 3 级卡一致），删除按钮在卡内 */
 .col-form .set-col-scroll{max-height:calc(100vh - 170px) !important;overflow-y:auto !important}
+
+/* ── 统一卡片基类：宽/高上限/边框/标题一致，层级只负责位置 ── */
+.card,.set-col{
+  width:var(--card-w,400px) !important;max-width:var(--card-w,400px) !important;
+  height:fit-content !important;max-height:calc(100vh - 120px) !important;
+  display:flex !important;flex-direction:column !important;overflow:hidden !important;
+  background:#fff !important;border:1px solid var(--line) !important;
+  box-shadow:0 6px 18px rgba(20,26,25,.08) !important}
+.card-hd,.set-col>.set-section{
+  flex:0 0 auto;margin:0 !important;padding:.55rem .85rem .5rem !important;
+  border-bottom:1px solid var(--line) !important;
+  font-size:.66rem !important;letter-spacing:.18em !important;color:var(--ink3) !important}
+.card-bd,.set-col-scroll{
+  flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;max-height:none !important}
+.col-editor .set-area{max-height:none !important;overflow-y:auto !important}

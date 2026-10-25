@@ -685,3 +685,7 @@ body{background:var(--paper);color:var(--ink);
   height:fit-content !important;align-self:flex-start !important;max-height:none !important}
 /* 文本编辑卡：高度随内容（最少 120px），不占满整列 */
 .col-editor .set-area{height:auto;min-height:120px;max-height:60vh}
+
+/* 面板底色改为纸色：让"卡片"成为唯一白块 → 高矮一眼可辨（之前面板白底 + 卡片白底 = 连成一片 ✗） */
+.settings{background:var(--paper) !important}
+.set-col{background:#fff !important}

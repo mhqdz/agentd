@@ -815,45 +815,24 @@ export default function App() {
                   <div className="card-hd">
                     <span>{'工具配置 · ' + toolCfg.name}</span>
                     <span style={{ flex: 1 }} />
-                    <button className="btn" onClick={() => setToolCfg(null)}>取消</button>
-                    <button className="btn primary" onClick={async () => {
-                      await fetch('/api/tools/' + toolCfg.name, {
-                        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ description: toolCfg.description, enabled: toolCfg.enabled, subtools: toolCfg.subtools })
-                      })
-                      setToolCfg(null); refresh()
-                    }}>保存</button>
+                    <button className="btn" onClick={() => setToolCfg(null)}>关闭</button>
                   </div>
                   <div className="card-bd">
-                    <div className="item static">
-                      <span className="item-title">触发方式</span>
-                      <button type="button" role="switch" aria-checked={!!toolCfg.enabled}
-                        className={'tg' + (toolCfg.enabled ? ' on' : '')}
-                        onClick={() => setToolCfg({ ...toolCfg, enabled: !toolCfg.enabled })}><b /></button>
-                    </div>
-                    <div className="set-meta">{toolCfg.enabled ? '自动：模型可自行调用' : '关闭：不暴露给模型'}</div>
-
                     <div className="item" onClick={() => { setEditOriginal(toolCfg.description || ''); setToolEdit({ name: toolCfg.name, description: toolCfg.description }); setEditField(null) }}>
                       <span className="item-title">说明</span>
                       <span className="item-desc">{toolCfg.description || '（空）'}</span>
                     </div>
-
-                    <div className="set-section">子工具</div>
-                    {(toolCfg.subtools || []).map((st, i) => (
-                      <div className="item sub" key={i}>
-                        <input className="sub-name" value={st.name} placeholder="名称"
-                          onChange={e => { const a = [...toolCfg.subtools]; a[i] = { ...st, name: e.target.value }; setToolCfg({ ...toolCfg, subtools: a }) }} />
-                        <button type="button" role="switch" aria-checked={!!st.enabled}
-                          className={'tg' + (st.enabled ? ' on' : '')}
-                          onClick={() => { const a = [...toolCfg.subtools]; a[i] = { ...st, enabled: !st.enabled }; setToolCfg({ ...toolCfg, subtools: a }) }}><b /></button>
-                        <input className="sub-desc" value={st.description} placeholder="说明"
-                          onChange={e => { const a = [...toolCfg.subtools]; a[i] = { ...st, description: e.target.value }; setToolCfg({ ...toolCfg, subtools: a }) }} />
-                        <button className="btn" onClick={() => setToolCfg({ ...toolCfg, subtools: toolCfg.subtools.filter((_, k) => k !== i) })}>删除</button>
-                      </div>
-                    ))}
-                    <div className="item item-new" onClick={() => setToolCfg({ ...toolCfg, subtools: [...(toolCfg.subtools || []), { name: '', description: '', enabled: true }] })}>
-                      <span className="item-title">＋ 添加子工具</span>
+                    <div className="set-section">启用情况</div>
+                    <div className="item static">
+                      <span className="item-title">由 profile 决定</span>
                     </div>
+                    <div className="set-meta">
+                      {(() => {
+                        const on = (profiles || []).filter(pr => (pr.tools || []).includes(toolCfg.name)).map(pr => pr.name)
+                        return on.length ? '在 ' + on.join('、') + ' 中启用' : '当前没有任何 profile 启用它'
+                      })()}
+                    </div>
+                    <div className="set-meta">要改可用性：打开对应模型的「工具」勾选</div>
                   </div>
                 </div>
               ) : null}

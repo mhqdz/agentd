@@ -463,3 +463,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   --ef-hatch:rgba(153,170,173,.35);
   --ef-contour:rgba(153,170,173,.35);
 }
+
+/* 会话行的伪元素色条：显式指到色阶（endfield 默认可能回落到深色 ✗） */
+.drawer .ef-record::before{background:var(--c4);border:0}
+.drawer .ef-record::after{background:transparent}

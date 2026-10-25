@@ -543,3 +543,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 单数字翻入：容器不裁切，避免重影 */
 .drawer-figs a .rw{overflow:visible;height:auto}
+
+/* 数字变化：整块轻微上浮淡入（简单可靠，不再拆位）*/
+@keyframes figPop{from{opacity:.0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.drawer-figs a b{display:block;font-size:1.45rem;line-height:1.1;font-weight:800;color:var(--c7);
+  animation:figPop .22s cubic-bezier(.2,.8,.2,1) both}

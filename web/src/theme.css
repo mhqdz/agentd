@@ -665,3 +665,14 @@ body{background:var(--paper);color:var(--ink);
 .set-col{height:auto !important;min-height:0;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column}
 .set-col-scroll{overflow:visible !important;flex:0 0 auto}
 .col-list{max-height:100%}
+
+/* 卡片固定宽度：新增一列时旧卡片宽度不变 ✓ */
+.set-cols{justify-content:end;overflow-x:auto}
+.set-cols.two:not(.three){grid-template-columns:repeat(2,380px) !important}
+.set-cols.three{grid-template-columns:repeat(3,380px) !important}
+.settings.two:not(.three){width:calc(2*380px + 0.9rem + 1.8rem)}
+.settings.three{width:calc(3*380px + 2*0.9rem + 1.8rem)}
+@media (max-width:900px){
+  .settings.two:not(.three),.settings.three{width:min(96vw,420px)}
+  .set-cols.two:not(.three),.set-cols.three{grid-template-columns:minmax(0,1fr) !important}
+}

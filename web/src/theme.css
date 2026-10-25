@@ -501,7 +501,16 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .ef-record>span.ef-field{grid-area:count;justify-self:end;font-size:.68rem;color:var(--ink3)}
 
 /* 列宽随抽屉宽度自适应：编号/计数改为内容宽度，标题吃满剩余 */
-.drawer .ef-record{grid-template-columns:max-content minmax(0,1fr) max-content;column-gap:.5rem}
+.drawer .ef-record{
+  display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;
+  grid-template-areas:"no name count" "date name count";
+  column-gap:.5rem;row-gap:0;align-items:center;
+  padding:.55rem .35rem;min-height:2.6rem;color:var(--ink);cursor:pointer;
+  transition:background .12s ease,padding-left .12s ease}
+.drawer .ef-record .ef-tag{grid-area:no;justify-self:end}
+.drawer .ef-record time.ef-field{grid-area:date;justify-self:end;text-align:right}
+.drawer .ef-record .name{grid-area:name;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drawer .ef-record>span.ef-field{grid-area:count;justify-self:end}
 .drawer .ef-record .ef-tag{font-size:.58rem;padding:0 .2rem}
 .drawer .ef-record time.ef-field{font-size:.6rem}
 .drawer .ef-record>span.ef-field{font-size:.64rem}

@@ -521,8 +521,8 @@ export default function App() {
 
   const list = tab === 'archive' ? archived : convs
   const cur = profiles.find(p => p.name === profile)
-  // 轮次进度：当前回复已用的工具轮次 / 设置里的上限
-  const roundMax = settings.tool_rounds_enabled ? (settings.tool_rounds || 0) : 0
+  // 轮次进度：本轮工具轮次 / 本会话落库的最大 seq（也即已记录的轮次）
+  const roundMax = msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0
   const roundNow = (() => {
     for (let i = msgs.length - 1; i >= 0; i--) {
       const m = msgs[i]

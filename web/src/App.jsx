@@ -728,12 +728,9 @@ export default function App() {
                           })}
                         </div>
                       </div>
-                      <div className="set-f" style={{ marginTop: '.5rem' }}>
-                        <span>系统提示（双击编辑）</span>
-                        <div className="prompt-text" title="双击编辑"
-                          onDoubleClick={() => { if (editField !== 'system') { setEditOriginal(editP.system || ''); setEditField('system') } }}>
-                          {editP.system || '（空）'}
-                        </div>
+                      <div className="item" onClick={() => { setEditOriginal(editP.system || ''); setEditField('system'); setToolEdit(null) }}>
+                        <span className="item-title">系统提示</span>
+                        <span className="item-desc">{editP.system || '（空）'}</span>
                       </div>
                     </div>
                   </div>

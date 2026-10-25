@@ -895,6 +895,29 @@ export default function App() {
             </aside>
           ) : null}
         </main>
+        {peek.open && peekRows.length ? (
+          <div className="peek"
+            onMouseEnter={() => setPeek(p => ({ ...p, open: true }))}
+            onMouseLeave={() => setPeek({ open: false, idx: -1 })}
+            onWheel={e => {
+              e.preventDefault()
+              setPeek(p => {
+                const base = p.idx >= 0 ? p.idx : curIdx()
+                const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
+                return { open: true, idx: next }
+              })
+            }}>
+            {peekRows.map(({ i, m }) => (
+              <button key={i}
+                className={'peek-row' + ((peek.idx < 0 ? curIdx() : peek.idx) === i ? ' on' : '')}
+                onClick={() => { scrollToMsg(i); setPeek({ open: false, idx: -1 }) }}
+                onMouseEnter={() => setPeek(p => ({ ...p, open: true, idx: i }))}>
+                <span className="peek-no">{String(m.seq || i + 1).padStart(3, '0')}</span>
+                <span className="peek-tx">{String(m.content || m.role || '').replace(/\s+/g, ' ').slice(0, 18)}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>          <span className="rail-mid">
             <span className="fig" style={{ cursor: 'pointer' }}

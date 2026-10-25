@@ -590,3 +590,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 只保留 C（左侧滑入高亮）；移除 A 的数字周围浅底与细框 */
 
 .drawer-figs a .nfwrap{padding:0}
+
+/* 数字块：容器无底色、无缝；分隔线由子元素右边框提供（最后一块无）*/
+.drawer-figs{gap:0;background:transparent;border:0}
+.drawer-figs a{border-right:1px solid var(--c3)}
+.drawer-figs a:last-child{border-right:0}

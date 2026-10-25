@@ -490,10 +490,16 @@ export default function App() {
             </div>
             <i className="resizer" onMouseDown={startResize} title="拖动调整输入框高度" />
             <textarea value={text} style={{ height: inputH + 'px' }} onChange={e => setText(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send() }}
+              onKeyDown={e => {
+                if (e.key !== 'Enter' || e.shiftKey || e.nativeEvent.isComposing) return   // Shift+Enter 换行 ✓
+                e.preventDefault()
+                if (!busy) send()
+                else if (text.trim()) interject()
+                else stop()
+              }}
               placeholder="输入你的问题…" />
             <div className="row3">
-              <span className="hint">Ctrl+Enter 发送　{convId ? '#' + convId.slice(0, 8) : '新会话'}</span>
+              <span className="hint">Enter 发送 · Shift+Enter 换行　{convId ? '#' + convId.slice(0, 8) : '新会话'}</span>
               {busy ? (
                 text.trim()
                   ? <button className="send interject" onClick={interject} aria-label="插话" title="插话" />

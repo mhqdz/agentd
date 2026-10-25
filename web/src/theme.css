@@ -549,24 +549,11 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a b{display:block;font-size:1.45rem;line-height:1.1;font-weight:800;color:var(--c7);
   animation:figPop .22s cubic-bezier(.2,.8,.2,1) both}
 
-/* ═══ 日历式翻数（px 版）═══
-   每位固定 36px 高，滚动用 -36px 位移，不再用 em */
-.drawer-figs a .roll{display:inline-flex;height:36px;line-height:36px;
-  font-size:1.45rem;font-weight:800;color:var(--c7);font-variant-numeric:tabular-nums}
-.drawer-figs a .rc{display:inline-block;height:36px;overflow:hidden;text-align:center;min-width:.62em}
-.drawer-figs a .rdg{display:block;height:36px}
-.drawer-figs a .rstr{display:block}
-.drawer-figs a .rstr>span{display:block;height:36px}
-.drawer-figs a .rstr.up{animation:rollUpPx .45s cubic-bezier(.2,.8,.2,1) both}
-.drawer-figs a .rstr.down{animation:rollDownPx .45s cubic-bezier(.2,.8,.2,1) both}
-@keyframes rollUpPx{from{transform:translateY(0)}to{transform:translateY(-36px)}}
-@keyframes rollDownPx{from{transform:translateY(-36px)}to{transform:translateY(0)}}
-
-/* 翻入：单数字，0.45s，位移小、不裁切 */
-.drawer-figs a .rc{display:inline-block;overflow:visible;min-width:.62em;text-align:center}
-.drawer-figs a .rdg{display:inline-block;line-height:36px;height:36px}
-.drawer-figs a .flip{animation-duration:.45s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
-.drawer-figs a .flip.up{animation-name:flipUp}
-.drawer-figs a .flip.down{animation-name:flipDown}
-@keyframes flipUp{from{opacity:.15;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes flipDown{from{opacity:.15;transform:translateY(-12px)}to{opacity:1;transform:none}}
+/* ═══ 数字翻动 v2：静态数字 + 覆盖层滚出（不参与布局）═══ */
+.drawer-figs a .roll{position:relative;display:inline-block;font-size:1.45rem;line-height:1.1;font-weight:800;color:var(--c7)}
+.drawer-figs a .tick{position:absolute;left:0;top:0;right:0;pointer-events:none;color:var(--c7);
+  animation-duration:.45s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
+.drawer-figs a .tick.up{animation-name:tickUp}
+.drawer-figs a .tick.down{animation-name:tickDown}
+@keyframes tickUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-70%)}}
+@keyframes tickDown{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(70%)}}

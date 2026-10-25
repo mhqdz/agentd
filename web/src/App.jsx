@@ -4,22 +4,40 @@ import DOMPurify from 'dompurify'
 
 marked.setOptions({ gfm: true, breaks: true })
 
-// （旧的 Roll 实现已替换）
+// 日历式翻数：数字变化时逐位滚动（+1 向上，-1 向下）
+function Roll({ value, digits = 2 }) {
+  const txt = String(value ?? 0).padStart(digits, '0')
+  const prevRef = useRef(txt)
+  const prev = prevRef.current.length === txt.length ? prevRef.current : txt
+  const changed = Number(txt) !== Number(prev)
+  const up = Number(txt) > Number(prev)
+  useEffect(() => { prevRef.current = txt }, [txt])
+  return (
+    <b className="roll">
+      {txt.split('').map((d, i) => {
+        if (!changed || prev[i] === d) return <span className="rw" key={'s' + i + d}>{d}</span>
+        return (
+          <span className="rw" key={'r' + i + txt}>
+            <span className={'rd ' + (up ? 'up' : 'down')}><i>{d}</i></span>
+          </span>
+        )
+      })}
+    </b>
+  )
+}
+
+// 数字翻动（v2）：静态显示新值，旧值作为绝对定位覆盖层滚出 → 不影响布局与字号
 function Roll({ value, digits = 2 }) {
   const txt = String(value ?? 0).padStart(digits, '0')
   const prevRef = useRef(txt)
   const prev = prevRef.current.length === txt.length ? prevRef.current : txt
   useEffect(() => { prevRef.current = txt }, [txt])
+  const changed = prev !== txt
   const up = Number(txt) > Number(prev)
   return (
     <b className="roll">
-      {txt.split('').map((d, i) => (
-        <span className="rc" key={i}>
-          {prev[i] === d
-            ? <span className="rdg">{d}</span>
-            : <span className={'rdg flip ' + (up ? 'up' : 'down')} key={txt + i}>{d}</span>}
-        </span>
-      ))}
+      {txt}
+      {changed ? <span className={'tick ' + (up ? 'up' : 'down')}>{prev}</span> : null}
     </b>
   )
 }

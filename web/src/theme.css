@@ -609,3 +609,13 @@ body{background:var(--paper);color:var(--ink);
 .tg.on{background:var(--ef-signal);border-color:var(--ef-signal)}
 .tg.on b{transform:translateX(18px);background:#08201d;border-color:#08201d}
 .tg:focus-visible{outline:2px solid var(--sage-d);outline-offset:2px}
+
+/* 列表列统一成"一张卡 + 分隔行"（与工具配置同风格） */
+.list-row{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 0;border-top:1px solid var(--line);cursor:pointer}
+.list-row:first-child{border-top:0}
+.list-row:hover b{color:var(--sage-d)}
+.list-row.on b{color:var(--sage-d)}
+.list-row b{font-size:.82rem}
+.list-row .set-meta{font-size:.7rem}
+.set-card .tool-desc{border-top:1px solid var(--line)}
+.set-card .tool-desc:first-child{border-top:0}

@@ -468,21 +468,6 @@ export default function App() {
   return (
     <div className="app">
       {showSet ? <div className="set-scrim" onClick={() => closeOne()} /> : null}
-      <header className="cmd">
-        <div className="brand">
-          <span className="seal">A</span>
-          <div><b>Agent</b><small>EXECUTE · CREATE</small></div>
-        </div>
-        <div className="figs">
-          <div className="fig"><b>{convs.length}</b><span>SESSIONS</span></div>
-          <div className="fig"><b>{archived.length}</b><span>ARCHIVE</span></div>
-          <div className="fig"><b>{(cur?.reasoning_effort || '—').toUpperCase()}</b><span>EFFORT</span></div>
-          <div className="fig"><b>{secs ? secs.toFixed(1) + 's' : '—'}</b><span>LAST RUN</span></div>
-        </div>
-        <div className="grow" />
-        <button onClick={() => setShowSet(true)}>设置</button>
-        <button onClick={() => openConv(null)}>＋ 新建</button>
-      </header>
 
       <div className="work" style={{ '--sidew': (sideOpen ? sideW : 0) + 'px' }}>
         <aside className={'drawer' + (sideOpen ? '' : ' hide')}
@@ -515,7 +500,11 @@ export default function App() {
               </ol>
             )}
           </div>
-          <div className="foot">WORKSPACE / AGENT</div>
+          <div className="foot">
+            <button className="foot-btn" onClick={() => openConv(null)} title="新会话">＋ 新会话</button>
+            <button className="foot-btn" onClick={() => setShowSet(true)} title="设置">设置</button>
+            <span className="foot-mark">WORKSPACE / AGENT</span>
+          </div>
         </aside>
         <button className={'side-toggle' + (sideOpen ? ' open' : ' closed')}
           onClick={() => setSideOpen(!sideOpen)}

@@ -22,19 +22,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 顶栏 */
 .cmd{display:flex;align-items:center;gap:1rem;padding:.55rem 1rem;flex:0 0 auto;overflow:hidden;
   background:linear-gradient(180deg,#22332f,#182523);color:var(--side-fg)}
-.cmd>*{flex:0 0 auto;white-space:nowrap}
-.cmd .grow{flex:1 1 auto;min-width:1rem}
-.cmd button{background:transparent;color:var(--side-fg);border:1px solid #2a3a38;padding:.28rem .55rem;font:inherit;font-size:.78rem;cursor:pointer}
-.cmd button:hover{border-color:var(--sage);color:#fff}
-.cmd .brand{display:flex;align-items:center;gap:.55rem}
-.cmd .brand b{font-size:1.02rem;letter-spacing:.06em}
-.cmd .brand small{display:block;font-size:.56rem;letter-spacing:.24em;color:var(--side-dim)}
-.cmd .seal{width:1.6rem;height:1.6rem;display:grid;place-items:center;background:var(--sage);color:#0f1716;
-  font-weight:800;font-size:.85rem;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
-.cmd .status{font-size:.75rem;color:#9fb3b0}
-.cmd .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--sage);display:inline-block;margin-right:.4rem;vertical-align:middle}
-.cmd .dot.busy{background:#e8ff3a;animation:pulse 1.1s infinite}
-.cmd .figs,.cmd .fig{display:none}
 @keyframes pulse{50%{opacity:.25}}
 
 /* 抽屉 */
@@ -385,3 +372,10 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .rail .rail-mid .fig{margin:0}
 .rail .rail-mid .rail-status{position:absolute;left:50%;bottom:9rem;transform:translateX(-50%);
   margin:0;white-space:nowrap}
+
+/* 抽屉底部动作（原顶栏的"新会话/设置"迁到这里，窄屏也能用） */
+.drawer .foot{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.drawer .foot-btn{background:transparent;color:var(--side-fg);border:1px solid #2a3a38;
+  padding:.22rem .45rem;font:inherit;font-size:.66rem;cursor:pointer}
+.drawer .foot-btn:hover{border-color:var(--sage);color:#fff}
+.drawer .foot-mark{width:100%;font-size:.56rem;letter-spacing:.2em;color:var(--side-dim)}

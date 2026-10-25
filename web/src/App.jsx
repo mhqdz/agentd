@@ -153,6 +153,7 @@ export default function App() {
 
   // 停止生成：中断 fetch → 后端 r.Context() 被取消 → 上游请求结束
   const stop = () => {
+    if (convId) fetch('/api/conv/' + convId + '/stop', { method: 'POST' }).catch(() => {})
     abortRef.current?.abort()
     abortRef.current = null
     setAborted(true)
@@ -274,6 +275,17 @@ export default function App() {
     if (!id) { setMsgs([]); setTitle('新会话'); return }
     const c = await api('/api/conv/' + id)
     setMsgs(normalize(c.messages || [])); setTitle(c.title || '会话')
+    // 后台仍在跑？轮询直到结束（刷新页面后能"接上"）
+    const running = await api('/api/running').catch(() => [])
+    if ((running || []).includes(String(id))) {
+      setBusy(true); setStatus('后台运行中，正在同步…')
+      const timer = setInterval(async () => {
+        const cc = await api('/api/conv/' + id).catch(() => null)
+        if (cc) { setMsgs(normalize(cc.messages || [])) }
+        const r2 = await api('/api/running').catch(() => [])
+        if (!(r2 || []).includes(String(id))) { clearInterval(timer); setBusy(false); setStatus('已同步'); refresh() }
+      }, 1500)
+    }
   }
 
   const send = async () => {

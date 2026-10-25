@@ -20,6 +20,8 @@ import (
 )
 
 type Server struct {
+	convMu      sync.Mutex
+	convCancel  map[string]context.CancelFunc
 	interjectMu sync.Mutex
 	interject   map[string][]string
 	cfg         config.Config
@@ -39,6 +41,16 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/api/convs", s.handleConvs)
 	mux.HandleFunc("/api/conv/", s.handleConv)
 	mux.HandleFunc("/api/chat", s.handleChat)
+	mux.HandleFunc("/api/running", func(w http.ResponseWriter, r *http.Request) {
+		s.convMu.Lock()
+		ids := make([]string, 0, len(s.convCancel))
+		for id := range s.convCancel {
+			ids = append(ids, id)
+		}
+		s.convMu.Unlock()
+		sort.Strings(ids)
+		writeJSON(w, 200, ids)
+	})
 	mux.HandleFunc("/api/tools", func(w http.ResponseWriter, r *http.Request) {
 		reg := tools.Registry()
 		out := make([]map[string]any, 0, len(reg))
@@ -144,6 +156,23 @@ func (s *Server) drainInterject(convID string) []string {
 // GET /api/conv/<id>
 func (s *Server) handleConv(w http.ResponseWriter, r *http.Request) {
 	raw := strings.TrimPrefix(r.URL.Path, "/api/conv/")
+	if strings.HasSuffix(raw, "/stop") {
+		if r.Method != http.MethodPost {
+			writeJSON(w, 405, map[string]string{"error": "POST only"})
+			return
+		}
+		id := strings.TrimSuffix(raw, "/stop")
+		s.convMu.Lock()
+		cancel := s.convCancel[id]
+		s.convMu.Unlock()
+		if cancel == nil {
+			writeJSON(w, 404, map[string]string{"error": "这一轮已经结束"})
+			return
+		}
+		cancel()
+		writeJSON(w, 200, map[string]any{"ok": true, "stopped": id})
+		return
+	}
 	if strings.HasSuffix(raw, "/interject") {
 		if r.Method != http.MethodPost {
 			writeJSON(w, 405, map[string]string{"error": "POST only"})
@@ -241,8 +270,19 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	ag.Drain = func() []string { return s.drainInterject(convID) }
 	ag.OnInterject = func(t string) { send("interject", map[string]string{"text": t}) }
 
-	ctx, cancel := context.WithCancel(r.Context())
-	defer cancel()
+	// 后台任务：**不绑 r.Context()** —— 浏览器刷新/断开不会中断这一轮
+	ctx, cancel := context.WithCancel(context.Background())
+	s.convMu.Lock()
+	if s.convCancel == nil {
+		s.convCancel = map[string]context.CancelFunc{}
+	}
+	s.convCancel[convID] = cancel
+	s.convMu.Unlock()
+	defer func() {
+		s.convMu.Lock()
+		delete(s.convCancel, convID)
+		s.convMu.Unlock()
+	}()
 	start := time.Now()
 	err = ag.SendWithTools(ctx, c, in.Text,
 		func(content, reasoning string) {

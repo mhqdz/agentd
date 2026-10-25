@@ -180,6 +180,7 @@ export default function App() {
   const [toolList, setToolList] = useState([])
   const [settings, setSettings] = useState({ tool_rounds_enabled: true, tool_rounds: 8 })
   const [toolEdit, setToolEdit] = useState(null)
+  const [toolCfg, setToolCfg] = useState(null)   // 工具配置卡（开关/子工具）
   const [expandedTool, setExpandedTool] = useState(null)
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
   const [readingIdx, setReadingIdx] = useState(0)
@@ -809,6 +810,53 @@ export default function App() {
                   </span>
                 ) : null}
               </div>
+              {toolCfg ? (
+                <div className="card col-tool">
+                  <div className="card-hd">
+                    <span>{'工具配置 · ' + toolCfg.name}</span>
+                    <span style={{ flex: 1 }} />
+                    <button className="btn" onClick={() => setToolCfg(null)}>取消</button>
+                    <button className="btn primary" onClick={async () => {
+                      await fetch('/api/tools/' + toolCfg.name, {
+                        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ description: toolCfg.description, enabled: toolCfg.enabled, subtools: toolCfg.subtools })
+                      })
+                      setToolCfg(null); refresh()
+                    }}>保存</button>
+                  </div>
+                  <div className="card-bd">
+                    <div className="item static">
+                      <span className="item-title">触发方式</span>
+                      <button type="button" role="switch" aria-checked={!!toolCfg.enabled}
+                        className={'tg' + (toolCfg.enabled ? ' on' : '')}
+                        onClick={() => setToolCfg({ ...toolCfg, enabled: !toolCfg.enabled })}><b /></button>
+                    </div>
+                    <div className="set-meta">{toolCfg.enabled ? '自动：模型可自行调用' : '关闭：不暴露给模型'}</div>
+
+                    <div className="item" onClick={() => { setEditOriginal(toolCfg.description || ''); setToolEdit({ name: toolCfg.name, description: toolCfg.description }); setEditField(null) }}>
+                      <span className="item-title">说明</span>
+                      <span className="item-desc">{toolCfg.description || '（空）'}</span>
+                    </div>
+
+                    <div className="set-section">子工具</div>
+                    {(toolCfg.subtools || []).map((st, i) => (
+                      <div className="item sub" key={i}>
+                        <input className="sub-name" value={st.name} placeholder="名称"
+                          onChange={e => { const a = [...toolCfg.subtools]; a[i] = { ...st, name: e.target.value }; setToolCfg({ ...toolCfg, subtools: a }) }} />
+                        <button type="button" role="switch" aria-checked={!!st.enabled}
+                          className={'tg' + (st.enabled ? ' on' : '')}
+                          onClick={() => { const a = [...toolCfg.subtools]; a[i] = { ...st, enabled: !st.enabled }; setToolCfg({ ...toolCfg, subtools: a }) }}><b /></button>
+                        <input className="sub-desc" value={st.description} placeholder="说明"
+                          onChange={e => { const a = [...toolCfg.subtools]; a[i] = { ...st, description: e.target.value }; setToolCfg({ ...toolCfg, subtools: a }) }} />
+                        <button className="btn" onClick={() => setToolCfg({ ...toolCfg, subtools: toolCfg.subtools.filter((_, k) => k !== i) })}>删除</button>
+                      </div>
+                    ))}
+                    <div className="item item-new" onClick={() => setToolCfg({ ...toolCfg, subtools: [...(toolCfg.subtools || []), { name: '', description: '', enabled: true }] })}>
+                      <span className="item-title">＋ 添加子工具</span>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
               <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
                 {(editField || toolEdit) ? (
                   <div className="card col-editor">
@@ -936,7 +984,7 @@ export default function App() {
                     <div className="set-card">
                       {toolList.map(t => (
                         <div className="item" key={t.name}
-                          onClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditOriginal(t.description || ''); setEditField(null) }}>
+                          onClick={() => { setToolCfg({ ...t, enabled: t.enabled !== false, subtools: t.subtools || [] }); setToolEdit(null); setEditField(null) }}>
                           <b className="item-title">{t.name}</b>
                           <span className="item-desc">{t.description}</span>
                         </div>

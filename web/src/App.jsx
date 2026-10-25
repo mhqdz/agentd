@@ -20,6 +20,28 @@ function ProfileSeg({ profiles, value, onChange, small }) {
   )
 }
 
+// 历史消息归一：把 assistant.tool_calls 与其后的 tool 结果合成 tools 数组，
+// 这样刷新后"思考过程"和"工具调用记录"不会消失（之前只存在于流式时的前端状态 ✗）
+function normalize(arr) {
+  const out = []
+  const used = new Set()
+  for (const m of arr) {
+    if (m.role === 'assistant' && (m.tool_calls || []).length) {
+      const tools = (m.tool_calls || []).map(tc => {
+        const res = arr.find(x => x.role === 'tool' && x.tool_call_id === tc.id)
+        if (res) used.add(res)
+        const text = res ? (typeof res.tool_result === 'string' ? res.tool_result : (res.content || '')) : ''
+        return { name: tc.function?.name, args: tc.function?.arguments, text, image: res?.images?.[0] }
+      })
+      out.push({ ...m, tools })
+      continue
+    }
+    if (m.role === 'tool' && used.has(m)) continue
+    out.push(m)
+  }
+  return out
+}
+
 function EditorCol({ value, onChange, onDone, placeholder }) {
   return (
     <div className="set-col col-editor">
@@ -251,7 +273,7 @@ export default function App() {
     setConvId(id)
     if (!id) { setMsgs([]); setTitle('新会话'); return }
     const c = await api('/api/conv/' + id)
-    setMsgs(c.messages || []); setTitle(c.title || '会话')
+    setMsgs(normalize(c.messages || [])); setTitle(c.title || '会话')
   }
 
   const send = async () => {

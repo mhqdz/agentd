@@ -724,3 +724,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 归档/恢复图标：略大一点，悬停用中灰青 */
 .drawer .ef-record .act svg{width:15px;height:15px}
 .drawer .ef-record .act:hover{color:var(--c7)}
+
+/* 归档按钮垂直居中于行（占两行高度区域）*/
+.drawer .ef-record .act{align-self:center;justify-self:end;line-height:0}
+.drawer .ef-record:hover .act{display:inline-grid;place-items:center}
+.drawer .ef-record .act svg{display:block}

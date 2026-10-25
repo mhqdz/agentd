@@ -561,3 +561,12 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a .rstr.down{animation:rollDownPx .45s cubic-bezier(.2,.8,.2,1) both}
 @keyframes rollUpPx{from{transform:translateY(0)}to{transform:translateY(-36px)}}
 @keyframes rollDownPx{from{transform:translateY(-36px)}to{transform:translateY(0)}}
+
+/* 翻入：单数字，0.45s，位移小、不裁切 */
+.drawer-figs a .rc{display:inline-block;overflow:visible;min-width:.62em;text-align:center}
+.drawer-figs a .rdg{display:inline-block;line-height:36px;height:36px}
+.drawer-figs a .flip{animation-duration:.45s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
+.drawer-figs a .flip.up{animation-name:flipUp}
+.drawer-figs a .flip.down{animation-name:flipDown}
+@keyframes flipUp{from{opacity:.15;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes flipDown{from{opacity:.15;transform:translateY(-12px)}to{opacity:1;transform:none}}

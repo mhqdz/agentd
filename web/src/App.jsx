@@ -804,8 +804,10 @@ export default function App() {
         </main>
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>
-          <span className="fig">{String(convs.length).padStart(2,'0')} / {String(archived.length).padStart(2,'0')}</span>
-          <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
+          <span className="rail-mid">
+            <span className="fig">{String(convs.length).padStart(2,'0')} / {String(archived.length).padStart(2,'0')}</span>
+            <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
+          </span>
           <div className="rail-acts">
             <button className="dots" onClick={() => openConv(null)} aria-label="新会话" title="新会话">
               <svg className="plus" viewBox="0 0 24 24" aria-hidden="true">

@@ -266,3 +266,27 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .tool-desc span,.list-row .set-meta{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
   overflow:hidden;user-select:none;cursor:inherit}
 .tool-desc.exp span,.list-row.exp .set-meta{display:-webkit-box;-webkit-line-clamp:3}
+
+/* ── 卡片内部命名（统一从这里控制，页面里不再单写）────────────────
+   .card                  卡片容器
+   .card > .card-hd       卡片标题（+ 下划线）
+   .card > .card-bd       内容区（唯一滚动容器）
+   .item                  一行配置项（可点击）
+   .item.static           只读项（不响应点击）
+   .item > .item-title    项标题（粗体，主色）
+   .item > .item-desc     项简介（次要色，3 行限高，不可选中）
+   .card-button           卡片内的按钮/开关                               */
+.card .item{display:grid;grid-template-columns:1fr auto;gap:.15rem .6rem;align-items:center;
+  padding:.5rem 0;border-top:1px solid var(--line);cursor:pointer;min-width:0;
+  transition:background .12s ease}
+.card .item:first-child{border-top:0}
+.card .item:hover{background:rgba(111,167,156,.07)}
+.card .item.static{cursor:default}
+.card .item.static:hover{background:transparent}
+.card .item>.item-title{grid-column:1;font-size:.82rem;font-weight:600;line-height:1.45;color:var(--ink);min-width:0}
+.card .item:hover>.item-title{color:var(--sage-d)}
+.card .item>.item-desc{grid-column:1 / -1;font-size:.72rem;line-height:1.65;color:var(--ink2);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  user-select:none;min-width:0}
+.card .item-new{color:var(--sage-d)}
+.card .card-button{justify-self:end}

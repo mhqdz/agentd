@@ -743,8 +743,8 @@ export default function App() {
                   <div className="card-bd">
                     <div className="set-section">常规配置</div>
                     <div className="set-card">
-                      <div className="set-row">
-                        <span style={{ fontSize: '.8rem' }}>工具调用轮次上限</span>
+                      <div className="item static">
+                        <span className="item-title">工具调用轮次上限</span>
                         <span className="sp" />
                         <button type="button" role="switch" aria-checked={!!settings.tool_rounds_enabled}
                           className={'tg' + (settings.tool_rounds_enabled ? ' on' : '')}
@@ -761,13 +761,13 @@ export default function App() {
                     <div className="set-section">模型配置</div>
                     <div className="set-card">
                       {profiles.map(pr => (
-                        <div className={'list-row col' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
+                        <div className={'item col' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
                           onClick={() => { const v = { ...pr, tools: (pr.tools || []).join(',') }; setEditP(v); setEditSnap(snapOf(v)); setEditField(null); setToolEdit(null) }}>
-                          <b>{pr.name}</b>
-                          <span className="set-meta">{pr.model || '（未设置模型）'}</span>
+                          <b className="item-title">{pr.name}</b>
+                          <span className="item-desc">{pr.model || '（未设置模型）'}</span>
                         </div>
                       ))}
-                      <div className="list-row new" onClick={() => {
+                      <div className="item item-new" onClick={() => {
                         const v = { _new: true, name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '',
                           model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: '', system: '' }
                         setEditP(v); setEditSnap(''); setEditField(null); setToolEdit(null)
@@ -777,10 +777,10 @@ export default function App() {
                     <div className="set-section">工具配置</div>
                     <div className="set-card">
                       {toolList.map(t => (
-                        <div className="tool-desc" key={t.name}
+                        <div className="item" key={t.name}
                           onClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditOriginal(t.description || ''); setEditField(null) }}>
-                          <b>{t.name}</b>
-                          <span>{t.description}</span>
+                          <b className="item-title">{t.name}</b>
+                          <span className="item-desc">{t.description}</span>
                         </div>
                       ))}
                     </div>

@@ -362,3 +362,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .side-toggle{background:var(--side);color:var(--side-fg);border:1px solid #2a3a38;border-right:0}
 .side-toggle.closed{border-right:1px solid #2a3a38;border-left:0}
 .side-toggle:hover{color:var(--signal);border-color:var(--sage);background:var(--side2)}
+
+/* 右栏状态：紧跟 08 / 00 下方，竖排文字块里横排小字 */
+.rail .rail-status{display:flex;align-items:center;gap:.35rem;font-size:.6rem;letter-spacing:.16em;color:var(--ink3)}
+.rail .rail-status .dot{width:.4rem;height:.4rem;border-radius:50%;background:var(--sage);display:inline-block}
+.rail .rail-status .dot.busy{background:#e8ff3a;animation:pulse 1.1s infinite}

@@ -663,3 +663,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .new-conv svg{width:16px;height:16px}
 .new-conv:hover{background:var(--c4);border-color:var(--c4);color:var(--c7)}
 .new-conv:active{transform:scale(.97)}
+
+/* ＋ 按钮加强可见性（c4 底 + c7 图标）*/
+.new-conv{background:var(--c4);border-color:var(--c4);color:var(--c7);
+  width:36px;height:36px;left:18px;bottom:18px;box-shadow:0 4px 10px rgba(58,65,66,.16)}
+.new-conv:hover{background:var(--c5);border-color:var(--c5);color:var(--c1)}

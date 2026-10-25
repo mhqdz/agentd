@@ -689,10 +689,9 @@ export default function App() {
                     <div className="set-section">模型配置</div>
                     <div className="set-card">
                       {profiles.map(pr => (
-                        <div className={'list-row' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
+                        <div className={'list-row col' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
                           onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null); setToolEdit(null) }}>
                           <b>{pr.name}</b>
-                          <span className="sp" />
                           <span className="set-meta" style={{ margin: 0 }}>{pr.model || '（未设置模型）'}</span>
                         </div>
                       ))}

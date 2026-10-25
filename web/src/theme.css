@@ -629,3 +629,11 @@ body{background:var(--paper);color:var(--ink);
 .list-row b{font-size:.82rem}
 .set-card .tool-desc{border-top:1px solid var(--line)}
 .set-card .tool-desc:first-child{border-top:0}
+
+/* 模型配置行：名称一行、底模一行（与工具配置同结构，颜色不变） */
+.list-row.col{display:grid;grid-template-columns:1fr;gap:.1rem;align-items:start}
+.list-row.col .set-meta{font-size:.7rem;color:var(--ink3)}
+/* 整栏滚动：列随内容增高，由 .set-cols 统一滚动 */
+.set-col{height:auto !important;min-height:0}
+.set-col-scroll{overflow:visible !important;flex:0 0 auto}
+.set-cols{overflow-y:auto !important;align-items:start !important}

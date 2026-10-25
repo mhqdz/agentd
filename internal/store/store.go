@@ -47,6 +47,7 @@ type Store interface {
 	List() ([]*Conversation, error)
 	ListArchived() ([]*Conversation, error)
 	Archive(id string) error
+	ArchiveInactiveBefore(t time.Time) (int, error)
 	Restore(id string) error
 	Delete(id string, hard bool) error
 	NextID() string
@@ -144,6 +145,23 @@ func (s *JSONStore) ListArchived() ([]*Conversation, error) {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].UpdatedAt.After(out[j].UpdatedAt) })
 	return out, nil
+}
+
+// ArchiveInactiveBefore：JSON 实现（按 UpdatedAt 判断）
+func (s *JSONStore) ArchiveInactiveBefore(t time.Time) (int, error) {
+	list, err := s.List()
+	if err != nil {
+		return 0, err
+	}
+	n := 0
+	for _, c := range list {
+		if c.UpdatedAt.Before(t) {
+			if err := s.Archive(c.ID); err == nil {
+				n++
+			}
+		}
+	}
+	return n, nil
 }
 
 func (s *JSONStore) Archive(id string) error {

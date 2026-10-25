@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sort"
 	"sync"
 
@@ -34,6 +35,7 @@ type Server struct {
 func New(cfg config.Config, a *agent.Agent, st store.Store) *Server {
 	s := &Server{cfg: cfg, a: a, st: st}
 	s.RunJobSweeper()
+	s.RunAutoArchive()
 	return s
 }
 
@@ -484,4 +486,24 @@ func (s *Server) handleProfileItem(w http.ResponseWriter, r *http.Request) {
 	default:
 		writeJSON(w, 405, map[string]string{"error": "GET/DELETE only"})
 	}
+}
+
+// RunAutoArchive：按设置把长期不活跃的会话自动归档（启动时一次，之后每小时一次）
+func (s *Server) RunAutoArchive() {
+	go func() {
+		tick := func() {
+			st := config.LoadSettings()
+			if !st.AutoArchiveEnabled || st.AutoArchiveDays <= 0 {
+				return
+			}
+			before := time.Now().Add(-time.Duration(st.AutoArchiveDays) * 24 * time.Hour)
+			if n, err := s.st.ArchiveInactiveBefore(before); err == nil && n > 0 {
+				log.Printf("自动归档：%d 个会话（超过 %d 天未活跃）", n, st.AutoArchiveDays)
+			}
+		}
+		tick()
+		for range time.Tick(time.Hour) {
+			tick()
+		}
+	}()
 }

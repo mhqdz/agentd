@@ -10,6 +10,9 @@ import (
 type Settings struct {
 	ToolRoundsEnabled bool `json:"tool_rounds_enabled"` // 是否限制工具轮次
 	ToolRounds        int  `json:"tool_rounds"`         // 限制值（默认 8）
+
+	AutoArchiveEnabled bool `json:"auto_archive_enabled"` // 是否自动归档长期不活跃会话
+	AutoArchiveDays    int  `json:"auto_archive_days"`    // 超过多少天未活跃则归档（默认 30）
 }
 
 func settingsPath() string {
@@ -18,13 +21,16 @@ func settingsPath() string {
 }
 
 func LoadSettings() Settings {
-	s := Settings{ToolRoundsEnabled: true, ToolRounds: 8}
+	s := Settings{ToolRoundsEnabled: true, ToolRounds: 8, AutoArchiveEnabled: true, AutoArchiveDays: 30}
 	b, err := os.ReadFile(settingsPath())
 	if err == nil {
 		_ = json.Unmarshal(b, &s)
 	}
 	if s.ToolRounds <= 0 {
 		s.ToolRounds = 8
+	}
+	if s.AutoArchiveDays <= 0 {
+		s.AutoArchiveDays = 30
 	}
 	return s
 }

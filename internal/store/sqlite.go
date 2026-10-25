@@ -212,6 +212,17 @@ func (s *SQLiteStore) list(archived int) ([]*Conversation, error) {
 func (s *SQLiteStore) List() ([]*Conversation, error)         { return s.list(0) }
 func (s *SQLiteStore) ListArchived() ([]*Conversation, error) { return s.list(1) }
 
+// ArchiveInactiveBefore 把 updated_at 早于 t 的会话批量标记为归档，返回影响条数
+func (s *SQLiteStore) ArchiveInactiveBefore(t time.Time) (int, error) {
+	res, err := s.db.Exec(`UPDATE conversations SET archived=1 WHERE archived=0 AND updated_at < ?`,
+		t.UTC().Format(time.RFC3339Nano))
+	if err != nil {
+		return 0, err
+	}
+	n, _ := res.RowsAffected()
+	return int(n), nil
+}
+
 func (s *SQLiteStore) Archive(id string) error {
 	_, err := s.db.Exec(`UPDATE conversations SET archived=1 WHERE id=?`, id)
 	return err

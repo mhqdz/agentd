@@ -60,6 +60,18 @@ const api = (p, opt) => fetch(p, opt).then(r => r.json())
 const pad = n => String(n).padStart(2, '0')
 const now = () => new Date().toTimeString().slice(0, 5)
 
+// 最后活跃时间：今天显示 HH:MM，否则 MM.DD
+const fmtActive = (iso) => {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (isNaN(d)) return String(iso).slice(5, 10).replace('-', '.')
+  const t = new Date()
+  const sameDay = d.toDateString() === t.toDateString()
+  const pad = n => String(n).padStart(2, '0')
+  return sameDay ? pad(d.getHours()) + ':' + pad(d.getMinutes())
+                 : pad(d.getMonth() + 1) + '.' + pad(d.getDate())
+}
+
 
 
 function ProfileSeg({ profiles, value, onChange, small }) {
@@ -602,7 +614,7 @@ export default function App() {
                   <li key={c.ID}>
                     <a className={'ef-record' + (c.ID === convId ? ' on' : '')} onClick={() => openConv(c.ID)}>
                       <span className="ef-tag" title={c.ID}>No.{String(c.ID).padStart(4, '0')}</span>
-                      <time className="ef-field">{(c.UpdatedAt || '').slice(5, 10).replace('-', '.')}</time>
+                      <time className="ef-field" title="最后活跃">{fmtActive(c.UpdatedAt)}</time>
                       <span className="name ef-read">{c.Title || '(无标题)'}</span>
                         <span className="ef-field count">{c.N}</span>
                         <button className="act" title={tab === 'archive' ? '恢复' : '归档'}
@@ -886,6 +898,21 @@ export default function App() {
                         <label className="field" style={{ marginTop: '.5rem' }}><span>轮次上限</span>
                           <input type="number" min="1" max="1000" value={settings.tool_rounds || 8}
                             onChange={e => setSettings({ ...settings, tool_rounds: Number(e.target.value) || 8 })} /></label>
+                      ) : null}
+                    </div>
+
+                    <div className="set-card">
+                      <div className="item static">
+                        <span className="item-title">自动归档</span>
+                        <button type="button" role="switch" aria-checked={!!settings.auto_archive_enabled}
+                          className={'tg' + (settings.auto_archive_enabled ? ' on' : '')}
+                          onClick={() => setSettings({ ...settings, auto_archive_enabled: !settings.auto_archive_enabled })}><b /></button>
+                      </div>
+                      <div className="set-meta">超过设定天数未活跃的会话自动归入归档</div>
+                      {settings.auto_archive_enabled ? (
+                        <label className="field" style={{ marginTop: '.5rem' }}><span>未活跃天数</span>
+                          <input type="number" min="1" max="3650" value={settings.auto_archive_days || 30}
+                            onChange={e => setSettings({ ...settings, auto_archive_days: Number(e.target.value) || 30 })} /></label>
                       ) : null}
                     </div>
 

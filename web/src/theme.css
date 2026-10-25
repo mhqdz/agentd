@@ -548,3 +548,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 @keyframes figPop{from{opacity:.0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .drawer-figs a b{display:block;font-size:1.45rem;line-height:1.1;font-weight:800;color:var(--c7);
   animation:figPop .6s cubic-bezier(.2,.8,.2,1) both}
+
+/* 数字翻动：交给 number-flow（现成实现），样式仍由这里统一 */
+.drawer-figs a .nf{display:inline-block;font-size:1.45rem;line-height:1.1;font-weight:800;
+  color:var(--c7);font-variant-numeric:tabular-nums}
+.drawer-figs a .nf::part(digit){font-variant-numeric:tabular-nums}

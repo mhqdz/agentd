@@ -324,18 +324,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 侧栏折叠钮：贴在侧栏右缘、竖直居中；折叠后贴在左缘并翻转朝向 */
 .work{position:relative}
-.side-toggle{position:absolute;top:50%;left:calc(var(--sidew,250px) - 12px);transform:translateY(-50%);
-  z-index:20;width:24px;height:52px;display:grid;place-items:center;cursor:pointer;
-  background:var(--panel);border:1px solid var(--line);border-right:0;color:var(--ink3);
-  transition:left .18s ease,color .12s,border-color .12s}
-.side-toggle svg{width:12px;height:12px}
-.side-toggle.closed{left:0;border-right:1px solid var(--line);border-left:0}
-.side-toggle:hover{color:var(--sage-d);border-color:var(--sage)}
-
-/* 折叠钮贴合侧栏深色：深底浅字，悬停信号色（不再白底 ✗） */
-.side-toggle{background:var(--c2);color:var(--c7);border:1px solid var(--c3);border-right:0}
-.side-toggle.closed{border-right:1px solid var(--c3);border-left:0}
-.side-toggle:hover{color:var(--signal);border-color:var(--sage);background:var(--side2)}
 
 /* 右栏状态：紧跟 08 / 00 下方，竖排文字块里横排小字 */
 .rail .rail-status{display:flex;align-items:center;gap:.35rem;font-size:.6rem;letter-spacing:.16em;color:var(--ink3)}
@@ -425,8 +413,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a b{color:var(--c7)}
 .drawer-figs a span{color:var(--c6)}
 .drawer .ef-tag{background:var(--c4);color:var(--c7)}
-.side-toggle{background:var(--c2);color:var(--c7);border-color:var(--c3)}
-.side-toggle:hover{color:var(--c7);border-color:var(--c4);background:var(--c3)}
 .drawer .foot-btn{color:var(--c2);border-color:var(--c6)}
 .drawer .foot-btn:hover{color:#fff;border-color:var(--c4)}
 .send.stop{background:var(--c5)}
@@ -595,3 +581,27 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs{gap:0;background:transparent;border:0}
 .drawer-figs a{border-right:1px solid var(--c3)}
 .drawer-figs a:last-child{border-right:0}
+
+/* ═══ 侧栏折叠把手（重写：单一图标 + 旋转过渡）═══
+   造型：贴侧栏右缘的竖向薄片，竖直居中
+   状态：展开=‹ / 折叠=›（图标旋转 180°）
+   动效：位置 0.22s 跟随抽屉；悬停底色/描边/宽度过渡；左侧 2px 指示条伸展 */
+.side-toggle{
+  position:absolute;top:50%;left:calc(var(--sidew,250px) - 14px);
+  transform:translateY(-50%);z-index:20;
+  width:28px;height:56px;padding:0;display:grid;place-items:center;
+  background:var(--c1);border:1px solid var(--c3);border-right:0;color:var(--c5);
+  cursor:pointer;outline:none;
+  transition:left .22s cubic-bezier(.2,.8,.2,1),width .16s ease,
+             background .16s ease,color .16s ease,border-color .16s ease}
+.side-toggle.collapsed{left:0;border-right:1px solid var(--c3);border-left:0}
+.side-toggle:hover{background:var(--c2);color:var(--c7);border-color:var(--c4);width:30px}
+.side-toggle:active{transform:translateY(-50%) scale(.97)}
+.side-toggle:focus-visible{box-shadow:0 0 0 2px var(--c4)}
+.st-icon{width:14px;height:14px;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.side-toggle.collapsed .st-icon{transform:rotate(180deg)}
+.st-rail{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c4);
+  opacity:.55;transform:scaleY(.3);transform-origin:center;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),opacity .16s,background .16s}
+.side-toggle:hover .st-rail{transform:scaleY(1);opacity:1;background:var(--c6)}

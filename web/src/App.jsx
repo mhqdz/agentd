@@ -562,13 +562,15 @@ export default function App() {
             <span className="foot-mark">WORKSPACE / AGENT</span>
           </div>
         </aside>
-        <button className={'side-toggle' + (sideOpen ? ' open' : ' closed')}
+        <button className={'side-toggle' + (sideOpen ? '' : ' collapsed')}
           onClick={() => setSideOpen(!sideOpen)}
           title={sideOpen ? '折叠侧栏' : '展开侧栏'}
-          aria-label={sideOpen ? '折叠侧栏' : '展开侧栏'}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d={sideOpen ? 'M15 5 L8 12 L15 19' : 'M9 5 L16 12 L9 19'}
-              fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter" />
+          aria-label={sideOpen ? '折叠侧栏' : '展开侧栏'}
+          aria-expanded={sideOpen}>
+          <span className="st-rail" aria-hidden="true" />
+          <svg className="st-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 6 8 12l6 6" fill="none" stroke="currentColor" strokeWidth="1.8"
+              strokeLinecap="square" strokeLinejoin="miter" />
           </svg>
         </button>
         {sideOpen ? <div className="split" onMouseDown={startDrag} title="拖动调整左侧面板宽度" /> : null}

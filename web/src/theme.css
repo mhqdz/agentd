@@ -600,9 +600,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .st-icon{width:14px;height:14px;
   transition:transform .22s cubic-bezier(.2,.8,.2,1)}
 .side-toggle.collapsed .st-icon{transform:rotate(180deg)}
-.st-rail{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c4);
-  opacity:.55;transform:scaleY(.3);transform-origin:center;
-  transition:transform .22s cubic-bezier(.2,.8,.2,1),opacity .16s,background .16s}
 
 /* ═══ 对比色（终末地标志黄）：色阶第 8 色，只用于"看这里/可操作"的强调 ═══
    #FFFA00 来自 endfield skill 的 --ef-signal（THE yellow） */

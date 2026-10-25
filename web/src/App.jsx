@@ -334,7 +334,11 @@ export default function App() {
             else if (line.startsWith('data: ')) data = line.slice(6)
           }
           let d = {}; try { d = JSON.parse(data) } catch { }
-          if (ev === 'meta') { cur = d.conv_id; setConvId(cur); if (d.title) setTitle(d.title) }
+          if (ev === 'meta') {
+            cur = d.conv_id; setConvId(cur)
+            if (cur) history.replaceState(null, '', '?conv=' + cur)   // A：新会话也写进 URL
+            if (d.title) setTitle(d.title)
+          }
           else if (ev === 'reasoning') {
             if (!asst._r0) asst._r0 = Date.now()
             asst.reasoning += d.text || ''

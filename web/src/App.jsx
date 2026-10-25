@@ -614,7 +614,15 @@ export default function App() {
               </ol>
             )}
           </div>
-<div className="foot"><span className="foot-mark">WORKSPACE / AGENT</span></div>
+          <div className="drawer-foot">
+            <button className="new-conv" onClick={() => openConv(null)} title="新会话" aria-label="新会话">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" />
+              </svg>
+            </button>
+            <button className="foot-btn wide-hide" onClick={() => setShowSet(true)} title="设置">设置</button>
+            <span className="foot-mark">WORKSPACE / AGENT</span>
+          </div>
         </aside>
         <button className={'side-toggle' + (sideOpen ? '' : ' collapsed')}
           onClick={() => setSideOpen(!sideOpen)}
@@ -627,11 +635,6 @@ export default function App() {
           </svg>
         </button>
 
-        <button className="new-conv" onClick={() => openConv(null)} title="新会话" aria-label="新会话">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" />
-          </svg>
-        </button>
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
           onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>
           <i className="guideline" aria-hidden="true" />

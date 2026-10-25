@@ -658,3 +658,16 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 会话区滚动条：完全隐藏（仍可滚动/可拖动）*/
 .thread{scrollbar-width:none;-ms-overflow-style:none}
 .thread::-webkit-scrollbar{width:0;height:0;display:none}
+
+/* ═══ 缩略图导航（悬停 36/36 时出现在右栏左侧）═══ */
+.peek{position:fixed;right:60px;top:50%;transform:translateY(-50%);z-index:900;
+  display:flex;flex-direction:column;gap:1px;padding:.35rem;
+  background:var(--c1);border:1px solid var(--c3);box-shadow:0 6px 18px rgba(58,65,66,.14)}
+.peek-row{display:flex;align-items:baseline;gap:.5rem;width:220px;padding:.35rem .45rem;
+  background:transparent;border:0;text-align:left;cursor:pointer;
+  transition:background .12s ease}
+.peek-row:hover,.peek-row.on{background:var(--c4)}
+.peek-row.on{box-shadow:inset 2px 0 0 var(--c6)}
+.peek-no{font-size:.62rem;letter-spacing:.06em;color:var(--c6);font-variant-numeric:tabular-nums}
+.peek-tx{font-size:.72rem;color:var(--c5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peek-row:hover .peek-tx,.peek-row.on .peek-tx{color:var(--c7)}

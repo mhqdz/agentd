@@ -171,6 +171,7 @@ export default function App() {
   const [expandedTool, setExpandedTool] = useState(null)
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
   const [readingSeq, setReadingSeq] = useState(0)
+  const [peek, setPeek] = useState({ open: false, idx: -1 })
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
@@ -342,6 +343,28 @@ export default function App() {
       if (r.top < bottom) seq = Number(el.dataset.seq) || seq   // 依次覆盖 → 最后一条可见 ✓
     })
     setReadingSeq(seq)
+  }
+
+
+  // 缩略图导航：悬停 36/36 → 右侧栏左侧弹出 5 条，中心对应当前阅读位置
+  const idxOfSeq = (seq) => msgs.findIndex(m => (m.seq || 0) === seq)
+  const curIdx = () => {
+    const i = idxOfSeq(readingSeq)
+    return i >= 0 ? i : msgs.length - 1
+  }
+  const peekRows = (() => {
+    if (!peek.open || !msgs.length) return []
+    const center = peek.idx >= 0 ? peek.idx : curIdx()
+    const out = []
+    for (let d = -2; d <= 2; d++) {
+      const i = center + d
+      if (i >= 0 && i < msgs.length) out.push({ i, m: msgs[i] })
+    }
+    return out
+  })()
+  const scrollToMsg = (i) => {
+    const el = document.querySelectorAll('[data-seq]')[i]
+    if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }
 
   const closeOne = async () => {
@@ -874,7 +897,19 @@ export default function App() {
         </main>
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>          <span className="rail-mid">
-            <span className="fig">{String(roundNow).padStart(2,'0')} / {roundMax ? String(roundMax).padStart(2,'0') : '∞'}</span>
+            <span className="fig" style={{ cursor: 'pointer' }}
+              onMouseEnter={() => setPeek({ open: true, idx: curIdx() })}
+              onMouseLeave={() => setPeek({ open: false, idx: -1 })}
+              onWheel={e => {
+                e.preventDefault()
+                setPeek(p => {
+                  const base = p.idx >= 0 ? p.idx : curIdx()
+                  const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
+                  return { open: true, idx: next }
+                })
+              }}>
+              {String(roundNow).padStart(2,'0')} / {roundMax ? String(roundMax).padStart(2,'0') : '∞'}
+            </span>
             <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
           </span>
           <div className="rail-acts">

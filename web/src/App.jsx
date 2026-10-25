@@ -5,19 +5,23 @@ import DOMPurify from 'dompurify'
 marked.setOptions({ gfm: true, breaks: true })
 
 // 日历式翻数：数字变化时逐位滚动（+1 向上，-1 向下）
-
-// 数字翻动（v2）：静态显示新值，旧值作为绝对定位覆盖层滚出 → 不影响布局与字号
 function Roll({ value, digits = 2 }) {
   const txt = String(value ?? 0).padStart(digits, '0')
   const prevRef = useRef(txt)
   const prev = prevRef.current.length === txt.length ? prevRef.current : txt
-  useEffect(() => { prevRef.current = txt }, [txt])
-  const changed = prev !== txt
+  const changed = Number(txt) !== Number(prev)
   const up = Number(txt) > Number(prev)
+  useEffect(() => { prevRef.current = txt }, [txt])
   return (
     <b className="roll">
-      {txt}
-      {changed ? <span className={'tick ' + (up ? 'up' : 'down')}>{prev}</span> : null}
+      {txt.split('').map((d, i) => {
+        if (!changed || prev[i] === d) return <span className="rw" key={'s' + i + d}>{d}</span>
+        return (
+          <span className="rw" key={'r' + i + txt}>
+            <span className={'rd ' + (up ? 'up' : 'down')}><i>{d}</i></span>
+          </span>
+        )
+      })}
     </b>
   )
 }
@@ -502,10 +506,10 @@ export default function App() {
           style={{ width: sideW, flexBasis: sideW }}>
           <div className="ef-figs drawer-figs">
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}
-               title="只看会话"><Roll value={convs.length} /><span>会话</span></a>
+               title="只看会话"><b key={'c' + convs.length}>{String(convs.length).padStart(2, '0')}</b><span>会话</span></a>
             <a className={tab === 'archive' ? 'on' : ''} onClick={() => setTab('archive')}
-               title="只看归档"><Roll value={archived.length} /><span>归档</span></a>
-            <a title="当前会话最后一条消息的落库序号"><Roll value={msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0} /><span>本轮</span></a>
+               title="只看归档"><b key={'a' + archived.length}>{String(archived.length).padStart(2, '0')}</b><span>归档</span></a>
+            <a title="当前会话最后一条消息的落库序号"><b key={'r' + (msgs.length ? msgs[msgs.length - 1].seq : 0)}>{String(msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0).padStart(2, '0')}</b><span>本轮</span></a>
           </div>
           <div className="list" style={{ padding: '0 .5rem' }}>
             {list.length === 0 ? (

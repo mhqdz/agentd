@@ -265,6 +265,13 @@ export default function App() {
   }
 
   // 逐级退出：编辑器 → 详情 → 设置；有改动先问是否保存
+  // 文本域随内容长高（写 CSS 变量，避免被 !important 压掉）
+  const autoGrow = (el) => {
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.setProperty('--h', (el.scrollHeight + 2) + 'px')
+  }
+
   const closeOne = async () => {
     const open = editField || toolEdit
     if (open) {
@@ -308,6 +315,10 @@ export default function App() {
     })
   }, [])
   useEffect(() => { setOpenRef.current = showSet }, [showSet])
+  useEffect(() => {
+    const el = document.querySelector('.col-editor .set-area')
+    if (el) setTimeout(() => autoGrow(el), 0)
+  }, [editField, toolEdit])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
   useEffect(() => { localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
   // 自动跟随：仅当用户已在底部附近才滚到底；往上翻阅读历史时不打断
@@ -664,6 +675,7 @@ export default function App() {
                   <div className="set-col col-editor">
                     <div className="set-section">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
                     <textarea className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
+                      onInput={e => autoGrow(e.target)}
                       placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
                       onChange={e => {
                         if (toolEdit) setToolEdit({ ...toolEdit, description: e.target.value })

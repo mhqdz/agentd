@@ -684,7 +684,6 @@ body{background:var(--paper);color:var(--ink);
 .set-col,.set-col.col-list,.set-col.col-form,.set-col.col-editor{
   height:fit-content !important;align-self:flex-start !important;max-height:none !important}
 /* 文本编辑卡：高度随内容（最少 120px），不占满整列 */
-.col-editor .set-area{height:auto;min-height:120px;max-height:60vh}
 
 /* 面板底色改为纸色：让"卡片"成为唯一白块 → 高矮一眼可辨（之前面板白底 + 卡片白底 = 连成一片 ✗） */
 .settings{background:var(--paper) !important}
@@ -708,12 +707,10 @@ body{background:var(--paper);color:var(--ink);
   font-size:.66rem;letter-spacing:.18em;color:var(--ink3)}
 
 /* 文本卡：高度随内容，不再内部溢出滚动 */
-.col-editor .set-area{height:auto !important;min-height:120px !important;max-height:none !important;overflow:hidden !important;resize:none}
 
 /* 文本卡：脱离 flex 拉伸，纯块级随内容长高 */
 .col-editor{display:block !important;max-height:none !important;overflow:visible !important}
-.col-editor .set-area{display:block !important;width:100% !important;box-sizing:border-box;
-  height:auto !important;max-height:none !important;overflow:hidden !important;flex:none !important}
+
 .set-col{max-height:none !important}
 
 /* 文本域高度由 JS 写入 --h（!important 会压过内联 height ✗，变量不会 ✓） */

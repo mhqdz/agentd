@@ -529,3 +529,13 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   background:var(--c5);transform:scaleX(0);transform-origin:left;transition:transform .22s ease}
 .drawer-figs a:hover::after{transform:scaleX(1)}
 .drawer-figs a:active{animation:figFlash .3s ease-out}
+
+/* ═══ 日历式翻数（逐位滚动；+1 向上，-1 向下）═══════ */
+.drawer-figs a .roll{display:inline-flex;gap:0;line-height:1.1;font-weight:800}
+.drawer-figs a .rw{display:inline-block;height:1.1em;overflow:hidden;vertical-align:top}
+.drawer-figs a .rd{display:block;animation-duration:.28s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
+.drawer-figs a .rd i{display:block;height:1.1em;font-style:normal;line-height:1.1}
+.drawer-figs a .rd.up{animation-name:rollUp}
+.drawer-figs a .rd.down{animation-name:rollDown}
+@keyframes rollUp{from{transform:translateY(0)}to{transform:translateY(-1.1em)}}
+@keyframes rollDown{from{transform:translateY(-1.1em)}to{transform:translateY(0)}}

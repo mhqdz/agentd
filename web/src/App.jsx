@@ -798,9 +798,14 @@ export default function App() {
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>
           <span className="fig">{String(convs.length).padStart(2,'0')} / {String(archived.length).padStart(2,'0')}</span>
-          <button className="dots" onClick={() => setShowSet(true)}>
-            <i /><i /><i />
-          </button>
+          <div className="rail-acts">
+            <button className="dots" onClick={() => openConv(null)} aria-label="新会话" title="新会话">
+              <span className="plus">＋</span>
+            </button>
+            <button className="dots" onClick={() => setShowSet(true)} aria-label="设置" title="设置">
+              <i /><i /><i />
+            </button>
+          </div>
         </aside>
       </div>
     </div>

@@ -393,3 +393,20 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .foot-btn{color:var(--ink2) !important;border-color:var(--line) !important}
 .drawer .foot-btn:hover{color:var(--sage-d) !important;border-color:var(--sage) !important}
 .drawer .foot-mark{color:var(--ink3) !important}
+
+/* ── 主题色 #99AAAD：只改“背景”，文字保持深色 ── */
+:root{--theme:#99AAAD}
+
+/* 数字块：底色改主题色（浅），数字/标签仍深色 */
+.drawer-figs{background:transparent;border:1px solid var(--line)}
+.drawer-figs a{background:var(--theme)}
+.drawer-figs a:hover{background:#8fa1a4}
+.drawer-figs a b{color:#1f2b2c}
+.drawer-figs a span{color:#33474a}
+.drawer-figs a.on{box-shadow:inset 0 -2px 0 #5f7376}
+
+/* 发送按钮底：主题色 */
+.send{background:var(--theme)}
+
+/* 会话编号：底色主题色，字深色 */
+.drawer .ef-tag{background:var(--theme) !important;color:#1f2b2c !important}

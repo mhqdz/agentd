@@ -604,11 +604,17 @@ export default function App() {
                       <span className="ef-tag" title={c.ID}>No.{String(c.ID).padStart(4, '0')}</span>
                       <time className="ef-field">{(c.UpdatedAt || '').slice(5, 10).replace('-', '.')}</time>
                       <span className="name ef-read">{c.Title || '(无标题)'}</span>
-                      <span className="ef-field">{c.N}</span>
+                        <span className="ef-field count">{c.N}</span>
+                        <button className="act" title={tab === 'archive' ? '恢复' : '归档'}
+                          onClick={e => { e.stopPropagation(); act(tab === 'archive' ? 'restore' : 'archive', c.ID, e) }}>
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d={tab === 'archive'
+                              ? 'M12 5v9m0 0 3.5-3.5M12 14 8.5 10.5M5 19h14'
+                              : 'M4 7h16M6 7v11h12V7M9 7V5h6v2'}
+                              fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" />
+                          </svg>
+                        </button>
                     </a>
-                    <span className="act" onClick={e => act(tab === 'archive' ? 'restore' : 'archive', c.ID, e)}>
-                      {tab === 'archive' ? '恢复' : '归档'}
-                    </span>
                   </li>
                 ))}
               </ol>

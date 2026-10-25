@@ -34,9 +34,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .ef-tag{background:var(--c4);color:var(--c7);font-size:.6rem;padding:.02rem .22rem}
 .drawer .ef-field{color:var(--c5);font-size:.64rem}
 .drawer .name{font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--c7)}
-.drawer .act{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);opacity:0;font-size:.62rem;
-  border:1px solid var(--c3);color:var(--c6);padding:0 .25rem;cursor:pointer}
-.drawer li:hover .act{opacity:1}
 .drawer .foot{padding:.55rem .7rem;border-top:1px solid var(--c3);font-size:.56rem;letter-spacing:.2em;color:var(--c5)}
 
 /* 舞台 */

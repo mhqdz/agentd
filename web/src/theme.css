@@ -668,3 +668,17 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .new-conv{background:var(--c4);border-color:var(--c4);color:var(--c7);
   width:36px;height:36px;left:18px;bottom:18px;box-shadow:0 4px 10px rgba(58,65,66,.16)}
 .new-conv:hover{background:var(--c5);border-color:var(--c5);color:var(--c1)}
+
+/* 抽屉底部条：与抽屉同形、固定在抽屉底部（列表滚动不影响它）*/
+.drawer-foot{flex:0 0 auto;display:flex;align-items:center;gap:.5rem;
+  padding:.5rem .6rem;border-top:1px solid var(--c3);
+  background:linear-gradient(180deg,var(--c2),var(--c2))}
+.new-conv{position:static;width:30px;height:30px;display:grid;place-items:center;padding:0;
+  background:var(--c4);border:1px solid var(--c4);color:var(--c7);cursor:pointer;
+  transition:background .16s,color .16s,border-color .16s}
+.new-conv svg{width:15px;height:15px}
+.new-conv:hover{background:var(--c5);border-color:var(--c5);color:var(--c1)}
+.new-conv:active{transform:scale(.97)}
+/* 宽屏隐藏"设置"（右栏已有入口）；窄屏显示 */
+@media (min-width:1400px){ .drawer-foot .wide-hide{display:none} }
+.drawer-foot .foot-mark{margin-left:auto}

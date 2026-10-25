@@ -108,6 +108,7 @@ export default function App() {
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
+  const [setSnap, setSetSnap] = useState('')
 
   // 快照去掉内部标记 _new，避免"一打开就算脏"✗
   const snapOf = (p) => { if (!p) return ''; const { _new, ...rest } = p; return JSON.stringify(rest) }
@@ -115,7 +116,8 @@ export default function App() {
   const editorDirty = (editField || toolEdit)
     ? ((editField ? (editP?.[editField] || '') : (toolEdit?.description || '')) !== (editOriginal || ''))
     : false
-  const anyDirty = formDirty || editorDirty
+  const settingsDirty = JSON.stringify(settings) !== setSnap
+  const anyDirty = formDirty || editorDirty || settingsDirty
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -281,7 +283,8 @@ export default function App() {
     setArchived(await api('/api/convs?archived=1').catch(() => []))
     setProfiles(await api('/api/profiles'))
     setToolList(await api('/api/tools').catch(() => []))
-    setSettings(await api('/api/settings').catch(() => ({ tool_rounds_enabled: true, tool_rounds: 8 })))
+    const st = await api('/api/settings').catch(() => ({ tool_rounds_enabled: true, tool_rounds: 8 }))
+    setSettings(st); setSetSnap(JSON.stringify(st))
   }
   useEffect(() => {
     refresh().then(async () => {
@@ -615,8 +618,9 @@ export default function App() {
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
                 {anyDirty ? (
-                  <>
+                  <span className="set-actions">
                     <button className="ef-btn small" onClick={() => {
+                      if (settingsDirty && !editorDirty && !formDirty) { setSettings(JSON.parse(setSnap || '{}')); return }
                       if (editorDirty) {
                         if (editField) setEditP({ ...editP, [editField]: editOriginal })
                         else setToolEdit({ ...toolEdit, description: editOriginal })
@@ -625,6 +629,11 @@ export default function App() {
                       }
                     }}>取消</button>
                     <button className="ef-btn small" onClick={async () => {
+                      if (settingsDirty) {
+                        await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) })
+                        setSetSnap(JSON.stringify(settings))
+                        if (!editorDirty && !formDirty) return
+                      }
                       if (editorDirty) {
                         if (toolEdit) {
                           await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
@@ -639,7 +648,7 @@ export default function App() {
                         setEditSnap(snapOf(editP)); refresh()
                       }
                     }}>保存</button>
-                  </>
+                  </span>
                 ) : null}
               </div>
               <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
@@ -706,7 +715,7 @@ export default function App() {
                           await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
                           setEditP(null); setEditField(null); refresh()
                         }}>删除</button>
-                      ) : <span className="set-meta">在空白处点击逐级退出</span>}
+                      ) : null}
                     </div>
                   </div>
                 ) : null}

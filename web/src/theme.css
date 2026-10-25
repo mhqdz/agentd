@@ -645,3 +645,8 @@ body{background:var(--paper);color:var(--ink);
 /* 兜底：面板自身也不把滚轮漏给下层；滚动链限制在面板内 */
 .settings{overflow:hidden}
 .set-cols{overscroll-behavior:contain}
+
+/* 头部右侧按钮组（否则 space-between 会把两个按钮拉散 ✗） */
+.set-hd .set-actions{display:flex;align-items:center;gap:.5rem}
+/* 新建 profile 与列左对齐 */
+.set-col-foot{justify-content:flex-start}

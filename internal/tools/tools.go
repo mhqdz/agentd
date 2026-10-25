@@ -137,7 +137,7 @@ func runBash(ctx context.Context, args map[string]any, _ *Env) (any, error) {
 			return "[error] " + err.Error(), nil
 		}
 	}
-	return fmt.Sprintf("[exit %d]\n%s", code, tail(out.String(), 8000)), nil
+	return fmt.Sprintf("%s\n[exit %d]", tail(out.String(), 8000), code), nil
 }
 
 func runScreenshot(ctx context.Context, args map[string]any, _ *Env) (any, error) {

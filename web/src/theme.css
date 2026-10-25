@@ -486,3 +486,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 用户消息卡：已有左侧竖线提示，不再画页签 */
 .msg.user.ef-panel::before{display:none}
+
+/* 用户消息卡：去掉上边框（只留左侧竖线 + 底边 + 右边）*/
+.msg.user{border-top:0}

@@ -555,3 +555,13 @@ body{background:var(--paper);color:var(--ink);
 
 /* 中断按钮：圆形（发送/插话保持切角方块） */
 .send.stop{border-radius:50% !important;clip-path:none !important}
+
+/* 中断按钮：正圆 + 呼吸动画 */
+.send.stop{width:1.75rem !important;height:1.75rem !important;min-width:1.75rem !important;
+  aspect-ratio:1/1;border-radius:50% !important;padding:0;flex:0 0 auto;
+  animation:stopPulse 1.6s ease-in-out infinite}
+@keyframes stopPulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(180,85,63,.45)}
+  50%{transform:scale(1.06);box-shadow:0 0 0 6px rgba(180,85,63,0)}
+}
+.send.stop:hover{animation-play-state:paused;transform:scale(1.08)}

@@ -113,6 +113,7 @@ export default function App() {
   const [settings, setSettings] = useState({ tool_rounds_enabled: true, tool_rounds: 8 })
   const [toolEdit, setToolEdit] = useState(null)
   const [expandedTool, setExpandedTool] = useState(null)
+  const [models, setModels] = useState({ loading: false, list: [], err: '' })
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
@@ -692,7 +693,7 @@ export default function App() {
                     <div className="card-hd" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
                       <span>{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span>
                       <span style={{ flex: 1 }} />
-                      {!editP._new && !editP.builtin ? (
+                      {!editP._new ? (
                         <button className="btn" onClick={async () => {
                           if (!confirm('删除 ' + editP.name + '？')) return
                           await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
@@ -701,7 +702,7 @@ export default function App() {
                       ) : null}
                     </div>
                     <div className="card-bd">
-                      {[['name', '名称'], ['base_url', '接口地址 /v1'],
+                      {[['name', '名称'], ['base_url', '接口地址 (url+/v1)'],
                         ['api_key', 'API Key'], ['model', '模型']].map(([k, label]) => (
                         <label className="field" key={k}><span>{label}</span>
                           <input value={editP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}

@@ -627,6 +627,11 @@ export default function App() {
           </svg>
         </button>
 
+        <button className="new-conv" onClick={() => openConv(null)} title="新会话" aria-label="新会话">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" />
+          </svg>
+        </button>
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
           onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>
           <i className="guideline" aria-hidden="true" />

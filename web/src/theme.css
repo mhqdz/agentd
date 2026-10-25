@@ -342,7 +342,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .side-toggle:hover{color:var(--sage-d);border-color:var(--sage)}
 
 /* 折叠钮贴合侧栏深色：深底浅字，悬停信号色（不再白底 ✗） */
-.side-toggle{background:var(--side);color:var(--side-fg);border:1px solid var(--c6);border-right:0}
+.side-toggle{background:var(--c2);color:var(--c7);border:1px solid var(--c3);border-right:0}
 .side-toggle.closed{border-right:1px solid var(--c6);border-left:0}
 .side-toggle:hover{color:var(--signal);border-color:var(--sage);background:var(--side2)}
 

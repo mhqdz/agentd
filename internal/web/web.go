@@ -67,11 +67,18 @@ func (s *Server) Handler() http.Handler {
 				writeJSON(w, 400, map[string]string{"error": err.Error()})
 				return
 			}
+			before := config.LoadSettings()
 			if err := config.SaveSettings(in); err != nil {
 				writeJSON(w, 500, map[string]string{"error": err.Error()})
 				return
 			}
-			writeJSON(w, 200, config.LoadSettings())
+			after := config.LoadSettings()
+			// 只在"自动归档"相关配置变化时，立即巡检一次（其它配置保存不触发）
+			if before.AutoArchiveEnabled != after.AutoArchiveEnabled ||
+				before.AutoArchiveDays != after.AutoArchiveDays {
+				go s.sweepAutoArchive()
+			}
+			writeJSON(w, 200, after)
 		default:
 			writeJSON(w, 405, map[string]string{"error": "GET/PUT only"})
 		}
@@ -488,18 +495,23 @@ func (s *Server) handleProfileItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// sweepAutoArchive：按当前设置执行一次自动归档
+func (s *Server) sweepAutoArchive() {
+	st := config.LoadSettings()
+	if !st.AutoArchiveEnabled || st.AutoArchiveDays <= 0 {
+		return
+	}
+	before := time.Now().Add(-time.Duration(st.AutoArchiveDays) * 24 * time.Hour)
+	if n, err := s.st.ArchiveInactiveBefore(before); err == nil && n > 0 {
+		log.Printf("自动归档：%d 个会话（超过 %d 天未活跃）", n, st.AutoArchiveDays)
+	}
+}
+
 // RunAutoArchive：按设置把长期不活跃的会话自动归档（启动时一次，之后每小时一次）
 func (s *Server) RunAutoArchive() {
 	go func() {
 		tick := func() {
-			st := config.LoadSettings()
-			if !st.AutoArchiveEnabled || st.AutoArchiveDays <= 0 {
-				return
-			}
-			before := time.Now().Add(-time.Duration(st.AutoArchiveDays) * 24 * time.Hour)
-			if n, err := s.st.ArchiveInactiveBefore(before); err == nil && n > 0 {
-				log.Printf("自动归档：%d 个会话（超过 %d 天未活跃）", n, st.AutoArchiveDays)
-			}
+			s.sweepAutoArchive()
 		}
 		tick()
 		for range time.Tick(time.Hour) {

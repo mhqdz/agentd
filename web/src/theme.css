@@ -471,3 +471,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 消息卡顶部那条"页签"：改成色阶主题色（原来用 --ef-ink，深色近黑 ✗） */
 .msg.ef-panel::before{background:var(--c4);height:3px;width:120px}
 .msg.ef-panel::after{background:transparent}
+
+/* 页签（endfield 的 .ef-panel::before）：同选择器、后定义、不用 !important */
+.ef-panel::before{background:var(--c4)}

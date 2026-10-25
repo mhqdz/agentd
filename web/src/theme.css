@@ -539,3 +539,7 @@ body{background:var(--paper);color:var(--ink);
 .send::after{content:"";width:10px;height:10px;background:rgba(255,255,255,.9)}
 .send.interject::after{clip-path:polygon(0 0,100% 0,100% 40%,40% 40%,40% 100%,0 100%)}
 .send.stop::after{clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+
+/* 发送按钮：去掉内部白色方块，整体变窄 */
+.send::after{display:none !important;content:none !important;width:0;height:0;background:none}
+.send{width:2rem;min-width:2rem;height:2.2rem}

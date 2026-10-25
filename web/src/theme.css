@@ -733,3 +733,10 @@ body{background:var(--paper);color:var(--ink);
 .drawer .ef-record{align-content:center;align-items:center}
 .drawer .ef-record .name{align-self:center}
 .drawer .ef-record .ef-tag,.drawer .ef-record time.ef-field{align-self:center}
+
+/* endfield 组件的字体变量也指向 Maple（否则 .ef-read/.ef-prose 会回落到 Noto ✗）*/
+:root{
+  --ef-font-ui:"Maple Mono NF CN","Maple Mono NF",ui-monospace,system-ui,sans-serif;
+  --ef-font-text:"Maple Mono NF CN","Maple Mono NF",ui-monospace,system-ui,sans-serif;
+  --ef-font-mono:"Maple Mono NF CN","Maple Mono NF",ui-monospace,monospace;
+}

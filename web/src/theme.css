@@ -671,3 +671,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .peek-no{font-size:.62rem;letter-spacing:.06em;color:var(--c6);font-variant-numeric:tabular-nums}
 .peek-tx{font-size:.72rem;color:var(--c5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .peek-row:hover .peek-tx,.peek-row.on .peek-tx{color:var(--c7)}
+
+/* 右栏轮次数字改为竖排 */
+.rail .rail-mid .fig{writing-mode:vertical-rl;text-orientation:mixed;
+  letter-spacing:.18em;font-size:.72rem;color:var(--c6);line-height:1}

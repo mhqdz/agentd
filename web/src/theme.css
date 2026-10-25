@@ -467,3 +467,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 会话行的伪元素色条：显式指到色阶（endfield 默认可能回落到深色 ✗） */
 .drawer .ef-record::before{background:var(--c4);border:0}
 .drawer .ef-record::after{background:transparent}
+
+/* 消息卡顶部那条"页签"：改成色阶主题色（原来用 --ef-ink，深色近黑 ✗） */
+.msg.ef-panel::before{background:var(--c4);height:3px;width:120px}
+.msg.ef-panel::after{background:transparent}

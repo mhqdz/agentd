@@ -709,3 +709,9 @@ body{background:var(--paper);color:var(--ink);
 
 /* 文本卡：高度随内容，不再内部溢出滚动 */
 .col-editor .set-area{height:auto !important;min-height:120px !important;max-height:none !important;overflow:hidden !important;resize:none}
+
+/* 文本卡：脱离 flex 拉伸，纯块级随内容长高 */
+.col-editor{display:block !important;max-height:none !important;overflow:visible !important}
+.col-editor .set-area{display:block !important;width:100% !important;box-sizing:border-box;
+  height:auto !important;max-height:none !important;overflow:hidden !important;flex:none !important}
+.set-col{max-height:none !important}

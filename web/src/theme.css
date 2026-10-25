@@ -715,3 +715,6 @@ body{background:var(--paper);color:var(--ink);
 
 /* 文本域高度由 JS 写入 --h（!important 会压过内联 height ✗，变量不会 ✓） */
 .col-editor .set-area{height:var(--h,120px) !important;max-height:none !important;overflow:hidden !important;resize:none !important}
+
+/* 3 级文本卡：有上限，超出后卡片内部滚动（和 2 级卡一致 ✓） */
+.col-editor .set-area{max-height:calc(100vh - 170px) !important;overflow-y:auto !important}

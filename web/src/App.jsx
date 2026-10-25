@@ -703,11 +703,19 @@ export default function App() {
                     </div>
                     <div className="card-bd">
                       {[['name', '名称'], ['base_url', '接口地址 (url+/v1)'],
-                        ['api_key', 'API Key'], ['model', '模型']].map(([k, label]) => (
-                        <label className="field" key={k}><span>{label}</span>
+                        ['api_key', 'API Key']].map(([k, label]) => (                        <label className="field" key={k}><span>{label}</span>
                           <input value={editP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}
                             onChange={e => setEditP({ ...editP, [k]: e.target.value })} /></label>
                       ))}
+                      <label className="field"><span className="field-label">模型</span>
+                        {models.loading ? <span className="item-desc">正在匹配模型…</span>
+                         : models.err ? <span className="item-desc">检查接口地址或 API Key：{models.err}</span>
+                         : models.list.length ? (
+                          <select value={editP.model || ''} onChange={e => setEditP({ ...editP, model: e.target.value })}>
+                            {models.list.map(m => <option key={m} value={m}>{m}</option>)}
+                          </select>
+                         ) : <input value={editP.model || ''} onChange={e => setEditP({ ...editP, model: e.target.value })} placeholder="没取到模型列表，可手填" />}
+                      </label>
                       <label className="field"><span>思考强度</span>
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}

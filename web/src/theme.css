@@ -636,3 +636,12 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .side-toggle .st-rail{background:var(--c5)}
 .side-toggle:hover .st-rail,
 .side-toggle.collapsed:hover .st-rail{background:var(--c7)}
+
+/* 指示条改白；折叠态不显示框，只留箭头（点击区域尺寸不变）*/
+.side-toggle .st-rail{background:var(--c1)}
+.side-toggle:hover .st-rail,.side-toggle.collapsed:hover .st-rail{background:var(--c1)}
+.side-toggle.collapsed{
+  background:transparent;border-color:transparent;color:var(--c5)}
+.side-toggle.collapsed .st-rail{display:none}
+.side-toggle.collapsed:hover{
+  background:var(--c4);border-color:transparent;color:var(--c7)}

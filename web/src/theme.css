@@ -619,3 +619,13 @@ body{background:var(--paper);color:var(--ink);
 .list-row .set-meta{font-size:.7rem}
 .set-card .tool-desc{border-top:1px solid var(--line)}
 .set-card .tool-desc:first-child{border-top:0}
+
+/* 设置面板可滚动（之前 .set-cols 固定行高导致内容被裁 ✗） */
+.set-cols{overflow-y:auto !important;min-height:0}
+.set-col{min-height:0}
+.list-row{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 0;border-top:1px solid var(--line);cursor:pointer}
+.list-row:first-child{border-top:0}
+.list-row:hover b,.list-row.on b{color:var(--sage-d)}
+.list-row b{font-size:.82rem}
+.set-card .tool-desc{border-top:1px solid var(--line)}
+.set-card .tool-desc:first-child{border-top:0}

@@ -615,7 +615,7 @@ export default function App() {
                         </select></label>
                       <div className="set-f"><span>工具（勾选启用）</span>
                         <div className="tool-list">
-                          {(toolList.length ? toolList : [{ name: 'bash', description: '' }, { name: 'screenshot', description: '' }, { name: 'kb_search', description: '' }, { name: 'recall', description: '' }]).map(t => {
+                          {(toolList.length ? toolList : []).map(t => {
                             const on = (editP.tools || '').split(',').map(x => x.trim()).filter(Boolean).includes(t.name)
                             return (
                               <label key={t.name} title={t.description || ''} className={'tool-item' + (on ? ' on' : '')}>
@@ -630,8 +630,8 @@ export default function App() {
                           })}
                         </div>
                       </div>
-                      <div className="set-f"><span>系统提示</span></div>
-                      <div className="set-row" style={{ alignItems: 'flex-start', marginTop: '.2rem' }}>
+                      <div className="set-f" style={{ marginTop: '.5rem' }}>
+                        <span>系统提示</span>
                         <div className="prompt-text" title="双击编辑"
                           onDoubleClick={() => setEditField(editField === 'system' ? null : 'system')}>
                           {editP.system || '（空）'}
@@ -660,21 +660,9 @@ export default function App() {
 
                 <div className="set-col col-list">
                   <div className="set-col-scroll">
-                    <div className="set-section">模型配置</div>
-                    {profiles.map(pr => (
-                      <div className={'set-card set-card-click' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
-                        onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null); setToolEdit(null) }}>
-                        <div className="set-row">
-                          <b className="set-name" title="单击编辑"
-                            onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null) }}>{pr.name}</b>
-                        </div>
-                        <div className="set-meta">{pr.model || '（未设置模型）'}</div>
-                      </div>
-                    ))}
-                    <div className="set-section">工具配置</div>
                     <div className="set-section">常规配置</div>
                     <div className="set-card">
-                      <label className="set-row" style={{ cursor: 'pointer' }}>
+                      <div className="set-row">
                         <span style={{ fontSize: '.8rem' }}>工具调用轮次上限</span>
                         <span className="sp" />
                         <button type="button" role="switch" aria-checked={!!settings.tool_rounds_enabled}
@@ -684,10 +672,10 @@ export default function App() {
                             setSettings(next)
                             await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(next) })
                           }}><b /></button>
-                      </label>
-                      <div className="set-meta" style={{ marginTop: '.35rem' }}>开启该项以避免工具循环调用</div>
+                      </div>
+                      <div className="set-meta">开启该项以避免工具循环调用</div>
                       {settings.tool_rounds_enabled ? (
-                        <label className="set-f"><span>轮次上限</span>
+                        <label className="set-f" style={{ marginTop: '.5rem' }}><span>轮次上限</span>
                           <input type="number" min="1" max="1000" value={settings.tool_rounds || 8}
                             onChange={e => setSettings({ ...settings, tool_rounds: Number(e.target.value) || 8 })}
                             onBlur={async e => {
@@ -697,12 +685,28 @@ export default function App() {
                             }} /></label>
                       ) : null}
                     </div>
+
+                    <div className="set-section">模型配置</div>
+                    <div className="set-card">
+                      {profiles.map(pr => (
+                        <div className={'list-row' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
+                          onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null); setToolEdit(null) }}>
+                          <b>{pr.name}</b>
+                          <span className="sp" />
+                          <span className="set-meta" style={{ margin: 0 }}>{pr.model || '（未设置模型）'}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="set-section">工具配置</div>
                     <div className="set-card">
                       {toolList.map(t => (
                         <div className="tool-desc" key={t.name}>
                           <b>{t.name}</b>
                           <span title="双击编辑说明" style={{ cursor: 'text' }}
-                            onDoubleClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditField(null) }}>{t.description}</span>
+                            onDoubleClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditField(null) }}>
+                            {t.description}
+                          </span>
                         </div>
                       ))}
                     </div>

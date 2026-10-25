@@ -342,3 +342,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .rail .dots:hover i{opacity:1;background:var(--sage-d);transition:background .12s,opacity .12s}
 .rail .dots::after{content:"";display:block;width:0;height:1px;background:var(--signal);transition:width .18s ease}
 .rail .dots:hover::after{width:100%}
+
+/* 新会话图标：SVG，靠图标本身变大（不改按钮尺寸/样式） */
+.rail .plus{display:block;width:18px;height:18px;color:var(--sage);
+  transition:color .12s, transform .12s}
+.rail .dots:hover .plus{color:var(--sage-d);transform:translateY(-1px)}

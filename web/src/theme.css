@@ -255,3 +255,9 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .list-row .set-meta,.tool-desc span{font-size:.72rem;line-height:1.65;color:var(--ink2);
   white-space:normal;word-break:break-word;min-width:0}
 .tool-desc b{color:var(--ink)}
+
+/* 说明/摘要：3 行限高、溢出隐藏、不可选中；单击展开 */
+.tool-desc span,.list-row .set-meta{
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  user-select:none;cursor:pointer}
+.tool-desc.exp span,.list-row.exp .set-meta{display:block;-webkit-line-clamp:none;overflow:visible}

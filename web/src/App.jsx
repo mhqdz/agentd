@@ -112,6 +112,7 @@ export default function App() {
   const [toolList, setToolList] = useState([])
   const [settings, setSettings] = useState({ tool_rounds_enabled: true, tool_rounds: 8 })
   const [toolEdit, setToolEdit] = useState(null)
+  const [expandedTool, setExpandedTool] = useState(null)
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
@@ -776,7 +777,8 @@ export default function App() {
                     <div className="set-section">工具配置</div>
                     <div className="set-card">
                       {toolList.map(t => (
-                        <div className="tool-desc" key={t.name}>
+                        <div className={'tool-desc' + (expandedTool === t.name ? ' exp' : '')} key={t.name}
+                          onClick={() => setExpandedTool(expandedTool === t.name ? null : t.name)}>
                           <b>{t.name}</b>
                           <span title="双击编辑说明" style={{ cursor: 'text' }}
                             onDoubleClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditOriginal(t.description || ''); setEditField(null) }}>

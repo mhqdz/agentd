@@ -94,6 +94,7 @@ export default function App() {
   const [colW, setColW] = useState(() => Number(localStorage.getItem('colW')) || 960)
   const colDrag = useRef(null)
   const stageRef = useRef(null)
+  const setOpenRef = useRef(false)
   const threadRef = useRef(null)
   const [inputH, setInputH] = useState(() => Number(localStorage.getItem('inputH')) || 92)
   const hDrag = useRef(null)
@@ -164,6 +165,7 @@ export default function App() {
 
   // 滚轮：在输入区/状态栏上滚动也归给会话区（否则滚轮在这里"失灵"）
   const onStageWheel = (e) => {
+    if (setOpenRef.current) return                   // 设置打开时完全不接管滚轮 ✓
     const th = stageRef.current?.querySelector('.thread')
     if (!th) return
     if (e.target.closest('.thread')) return          // 会话区内部走原生滚动
@@ -265,6 +267,7 @@ export default function App() {
       }
     })
   }, [])
+  useEffect(() => { setOpenRef.current = showSet }, [showSet])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
   useEffect(() => { localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
   // 自动跟随：仅当用户已在底部附近才滚到底；往上翻阅读历史时不打断

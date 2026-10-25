@@ -123,12 +123,13 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				})
 			}
 			// 中断：保留半截内容，并在末尾追加一句中断说明（是数据，不是状态）
-			if len(c.Messages) > 0 {
+			note := "\n\n——（中断：" + err.Error() + "）"
+			if len(c.Messages) > 0 && c.Messages[len(c.Messages)-1].Role == "assistant" {
 				last := &c.Messages[len(c.Messages)-1]
-				if last.Role == "assistant" {
-					note := "\n\n——（中断：" + err.Error() + "）"
-					last.Content = strings.TrimRight(last.Content, "\n") + note
-				}
+				last.Content = strings.TrimRight(last.Content, "\n") + note
+			} else {
+				// 工具轮被打断：补一条 assistant 说明，前端能明确看到"中断"
+				c.Messages = append(c.Messages, store.Message{Role: "assistant", Content: strings.TrimSpace(note)})
 			}
 			_ = a.st.Save(c) // 中断也要留住上下文（用户消息 / 已完成的工具轮次）
 			return err
@@ -142,6 +143,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		c.Messages = append(c.Messages, store.Message{
 			Role: "assistant", Content: strings.TrimSpace(content.String()),
 			Reasoning: reasoning.String(), ToolCalls: calls})
+		_ = a.st.Save(c) // 工具轮：先落库，再执行（中断也不丢）
 		// 并行执行
 		results := make([]any, len(calls))
 		var wg sync.WaitGroup
@@ -181,6 +183,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 					Role: "user", Content: "（上一个工具的截图，请以图为准）", Images: imgs})
 			}
 		}
+		_ = a.st.Save(c) // 工具结果落库
 	}
 	return fmt.Errorf("超过 %d 轮工具调用，已停止", maxRounds)
 }

@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS conversations(
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS messages(
-  seq INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  seq INTEGER NOT NULL DEFAULT 0,
   conv_id INTEGER NOT NULL,
   role TEXT NOT NULL,
   content TEXT NOT NULL DEFAULT '',
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS messages(
   tool_result TEXT NOT NULL DEFAULT '',
   images TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL);
-CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conv_id, seq);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_msg_conv_seq ON messages(conv_id, seq);
 `)
 	if err != nil {
 		return nil, err
@@ -164,14 +165,17 @@ func (s *SQLiteStore) Save(c *Conversation) error {
 			tr = string(b)
 		}
 		im, _ := json.Marshal(m.Images)
-		res, err := tx.Exec(`INSERT INTO messages(conv_id,role,content,reasoning,tool_calls,tool_call_id,tool_result,images,created_at)
-			VALUES(?,?,?,?,?,?,?,?,?)`, c.ID, m.Role, m.Content, m.Reasoning, string(tc), m.ToolCallID, tr, string(im), nStr)
+		var nextSeq int
+		if err := tx.QueryRow(`SELECT COALESCE(MAX(seq),0)+1 FROM messages WHERE conv_id=?`, c.ID).Scan(&nextSeq); err != nil {
+			return err
+		}
+		res, err := tx.Exec(`INSERT INTO messages(conv_id,seq,role,content,reasoning,tool_calls,tool_call_id,tool_result,images,created_at)
+			VALUES(?,?,?,?,?,?,?,?,?,?)`, c.ID, nextSeq, m.Role, m.Content, m.Reasoning, string(tc), m.ToolCallID, tr, string(im), nStr)
 		if err != nil {
 			return err
 		}
-		if seq, err := res.LastInsertId(); err == nil {
-			m.Seq = int(seq) // 写入后回填编号，避免重复插入
-		}
+		_ = res
+		m.Seq = nextSeq // 会话内序号，回填后避免重复插入 ✓
 	}
 	c.UpdatedAt = now
 	return tx.Commit()

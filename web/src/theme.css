@@ -399,7 +399,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a b{display:block;font-size:1.45rem;line-height:1.1;font-weight:800;color:var(--c7)}
 .drawer-figs a span{display:block;margin-top:.15rem;font-size:.6rem;letter-spacing:.18em;color:var(--c6)}
 .drawer-figs a:hover{background:var(--c5)}
-.drawer-figs a.on{box-shadow:inset 0 -2px 0 var(--c6)}
+.drawer-figs a.on{box-shadow:inset 0 -2px 0 var(--c5)}
 
 /* 发送按钮底：主题色 */
 .send{background:var(--theme)}
@@ -437,8 +437,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a b{color:var(--c7)}
 .drawer-figs a span{color:var(--c6)}
 .drawer .ef-tag{background:var(--c4);color:var(--c7)}
-.side-toggle{background:var(--c7);color:var(--c1);border-color:var(--c6)}
-.side-toggle:hover{color:var(--c1);border-color:var(--c4);background:var(--c6)}
+.side-toggle{background:var(--c2);color:var(--c7);border-color:var(--c3)}
+.side-toggle:hover{color:var(--c7);border-color:var(--c4);background:var(--c3)}
 .drawer .foot-btn{color:var(--c2);border-color:var(--c6)}
 .drawer .foot-btn:hover{color:#fff;border-color:var(--c4)}
 .send.stop{background:var(--c5)}

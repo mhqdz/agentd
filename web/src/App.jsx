@@ -777,13 +777,10 @@ export default function App() {
                     <div className="set-section">工具配置</div>
                     <div className="set-card">
                       {toolList.map(t => (
-                        <div className={'tool-desc' + (expandedTool === t.name ? ' exp' : '')} key={t.name}
-                          onClick={() => setExpandedTool(expandedTool === t.name ? null : t.name)}>
+                        <div className="tool-desc" key={t.name}
+                          onClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditOriginal(t.description || ''); setEditField(null) }}>
                           <b>{t.name}</b>
-                          <span title="双击编辑说明" style={{ cursor: 'text' }}
-                            onDoubleClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditOriginal(t.description || ''); setEditField(null) }}>
-                            {t.description}
-                          </span>
+                          <span>{t.description}</span>
                         </div>
                       ))}
                     </div>

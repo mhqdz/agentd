@@ -261,3 +261,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
   user-select:none;cursor:pointer}
 .tool-desc.exp span,.list-row.exp .set-meta{display:block;-webkit-line-clamp:none;overflow:visible}
+
+/* 说明/摘要：3 行限高、不可选中、不可展开（交互与模型行一致：整行可点） */
+.tool-desc span,.list-row .set-meta{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+  overflow:hidden;user-select:none;cursor:inherit}
+.tool-desc.exp span,.list-row.exp .set-meta{display:-webkit-box;-webkit-line-clamp:3}

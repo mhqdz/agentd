@@ -484,10 +484,10 @@ export default function App() {
           style={{ width: sideW, flexBasis: sideW }}>
           <div className="ef-figs drawer-figs">
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}
-               title="只看会话"><b>{String(convs.length).padStart(2, '0')}</b><span>会话</span></a>
+               title="只看会话"><b key={'c' + convs.length}>{String(convs.length).padStart(2, '0')}</b><span>会话</span></a>
             <a className={tab === 'archive' ? 'on' : ''} onClick={() => setTab('archive')}
-               title="只看归档"><b>{String(archived.length).padStart(2, '0')}</b><span>归档</span></a>
-            <a title="当前会话最后一条消息的落库序号"><b>{String(msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0).padStart(2, '0')}</b><span>本轮</span></a>
+               title="只看归档"><b key={'a' + archived.length}>{String(archived.length).padStart(2, '0')}</b><span>归档</span></a>
+            <a title="当前会话最后一条消息的落库序号"><b key={'r' + (msgs.length ? msgs[msgs.length - 1].seq : 0)}>{String(msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0).padStart(2, '0')}</b><span>本轮</span></a>
           </div>
           <div className="list" style={{ padding: '0 .5rem' }}>
             {list.length === 0 ? (

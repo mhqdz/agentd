@@ -21,7 +21,7 @@ func settingsPath() string {
 }
 
 func LoadSettings() Settings {
-	s := Settings{ToolRoundsEnabled: true, ToolRounds: 8, AutoArchiveEnabled: true, AutoArchiveDays: 30}
+	s := Settings{ToolRoundsEnabled: true, ToolRounds: 8, AutoArchiveEnabled: true, AutoArchiveDays: 7}
 	b, err := os.ReadFile(settingsPath())
 	if err == nil {
 		_ = json.Unmarshal(b, &s)
@@ -30,7 +30,7 @@ func LoadSettings() Settings {
 		s.ToolRounds = 8
 	}
 	if s.AutoArchiveDays <= 0 {
-		s.AutoArchiveDays = 30
+		s.AutoArchiveDays = 7
 	}
 	return s
 }

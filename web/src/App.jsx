@@ -911,8 +911,8 @@ export default function App() {
                       <div className="set-meta">超过设定天数未活跃的会话自动归入归档</div>
                       {settings.auto_archive_enabled ? (
                         <label className="field" style={{ marginTop: '.5rem' }}><span>未活跃天数</span>
-                          <input type="number" min="1" max="3650" value={settings.auto_archive_days || 30}
-                            onChange={e => setSettings({ ...settings, auto_archive_days: Number(e.target.value) || 30 })} /></label>
+                          <input type="number" min="1" max="3650" value={settings.auto_archive_days || 7}
+                            onChange={e => setSettings({ ...settings, auto_archive_days: Number(e.target.value) || 7 })} /></label>
                       ) : null}
                     </div>
 

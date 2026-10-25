@@ -674,18 +674,20 @@ export default function App() {
                     <div className="set-section">常规配置</div>
                     <div className="set-card">
                       <label className="set-row" style={{ cursor: 'pointer' }}>
-                        <span style={{ fontSize: '.8rem' }}>限制工具轮次</span>
+                        <span style={{ fontSize: '.8rem' }}>工具调用轮次上限</span>
                         <span className="sp" />
-                        <input type="checkbox" checked={!!settings.tool_rounds_enabled}
+                        <input className="sw" type="checkbox" role="switch"
+                          checked={!!settings.tool_rounds_enabled}
                           onChange={async e => {
                             const next = { ...settings, tool_rounds_enabled: e.target.checked }
                             setSettings(next)
                             await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(next) })
                           }} />
                       </label>
+                      <div className="set-meta" style={{ marginTop: '.35rem' }}>开启该项规避工具循环调用风险</div>
                       {settings.tool_rounds_enabled ? (
-                        <label className="set-f"><span>轮次上限（每轮 = 一次模型调用 + 它的工具执行）</span>
-                          <input type="number" min="1" max="100" value={settings.tool_rounds || 8}
+                        <label className="set-f"><span>取消勾选后不限制轮次</span>
+                          <input type="number" min="1" max="1000" value={settings.tool_rounds || 8}
                             onChange={e => setSettings({ ...settings, tool_rounds: Number(e.target.value) || 8 })}
                             onBlur={async e => {
                               const next = { ...settings, tool_rounds: Number(e.target.value) || 8 }
@@ -693,7 +695,6 @@ export default function App() {
                               await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(next) })
                             }} /></label>
                       ) : null}
-                      <div className="set-meta">关闭后不限制轮次（内部仍有 100 轮硬兜底）</div>
                     </div>
                     <div className="set-card">
                       {toolList.map(t => (

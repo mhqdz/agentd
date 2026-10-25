@@ -16,7 +16,6 @@ import (
 )
 
 // 工具循环：最多 8 轮，避免模型自己绕不出来。
-const hardMaxRounds = 100 // 不限制时的硬兜底
 
 // SendWithTools 带上工具跑一轮（含多轮工具调用）。并行执行同一轮里的多个工具。
 func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text string,
@@ -51,7 +50,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 
 	limit := a.MaxRounds
 	if limit <= 0 {
-		limit = hardMaxRounds
+		limit = int(^uint(0) >> 1) // 关闭限制 = 不设上限（由用户自行掌控）
 	}
 	for round := 0; round < limit; round++ {
 		// 中途插话：把用户新消息插进本轮上下文（模型这一轮就能看到）

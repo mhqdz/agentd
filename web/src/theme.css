@@ -294,3 +294,10 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 只读项：标题左、控件右（一行） */
 .card .item.static{grid-template-columns:1fr auto;align-items:center}
 .card .item>.sp{display:none}
+
+/* 只读项与可点击项区分：只读项标题不加粗、不随悬停变色 */
+.card .item.static>.item-title{font-weight:400;color:var(--ink2)}
+.card .item.static:hover>.item-title{color:var(--ink2)}
+/* “＋ 新建 profile” 作为可点击子项：与其它 item 同构，仅用信号色区分动作 */
+.card .item.item-new{padding:.5rem 0}
+.card .item.item-new>.item-title{font-weight:600;color:var(--sage-d)}

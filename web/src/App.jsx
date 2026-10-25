@@ -170,7 +170,7 @@ export default function App() {
   const [toolEdit, setToolEdit] = useState(null)
   const [expandedTool, setExpandedTool] = useState(null)
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
-  const [readingSeq, setReadingSeq] = useState(0)
+  const [readingIdx, setReadingIdx] = useState(0)
   const [peek, setPeek] = useState({ open: false, idx: -1, top: 0 })
   const suppressPeekClose = useRef(false)
   const suppressTimer = useRef(null)
@@ -339,12 +339,11 @@ export default function App() {
     if (!box) return
     const top = box.getBoundingClientRect().top
     const bottom = top + box.clientHeight
-    let seq = 0
-    box.querySelectorAll('[data-seq]').forEach(el => {
-      const r = el.getBoundingClientRect()
-      if (r.top < bottom) seq = Number(el.dataset.seq) || seq   // 依次覆盖 → 最后一条可见 ✓
+    let idx = 0
+    box.querySelectorAll('[data-vidx]').forEach(el => {
+      if (el.getBoundingClientRect().top < bottom) idx = Number(el.dataset.vidx) || idx
     })
-    setReadingSeq(seq)
+    setReadingIdx(idx)
     if (suppressPeekClose.current) {
       clearTimeout(suppressTimer.current)
       suppressTimer.current = setTimeout(() => { suppressPeekClose.current = false }, 260)
@@ -355,18 +354,17 @@ export default function App() {
 
 
   // 缩略图导航：悬停 36/36 → 右侧栏左侧弹出 5 条，中心对应当前阅读位置
-  const idxOfSeq = (seq) => msgs.findIndex(m => (m.seq || 0) === seq)
+  const idxOfSeq = (seq) => visible.findIndex(m => (m.seq || 0) === seq)
   const curIdx = () => {
-    const i = idxOfSeq(readingSeq)
-    return i >= 0 ? i : msgs.length - 1
+    return Math.max(0, Math.min(visible.length - 1, (readingIdx || 1) - 1))
   }
   const peekRows = (() => {
-    if (!peek.open || !msgs.length) return []
+    if (!peek.open || !visible.length) return []
     const center = peek.idx >= 0 ? peek.idx : curIdx()
     const out = []
     for (let d = -2; d <= 2; d++) {
       const i = center + d
-      if (i >= 0 && i < msgs.length) out.push({ i, m: msgs[i] })
+      if (i >= 0 && i < visible.length) out.push({ i, m: visible[i] })
     }
     return out
   })()
@@ -572,8 +570,10 @@ export default function App() {
   const list = tab === 'archive' ? archived : convs
   const cur = profiles.find(p => p.name === profile)
   // 轮次进度：本轮工具轮次 / 本会话落库的最大 seq（也即已记录的轮次）
-  const roundMax = msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0
-  const roundNow = readingSeq || (msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0)
+  // 只算"人看得见"的消息：工具结果(role=tool)不计入轮次 ✓ 纯前端可做
+  const visible = msgs.filter(m => m.role !== 'tool')
+  const roundMax = visible.length
+  const roundNow = readingIdx || visible.length
 
   return (
     <div className="app">
@@ -667,7 +667,8 @@ export default function App() {
             ) : (
               <div className="col">
                 {msgs.map((m, i) => (
-                  <div key={i} data-seq={m.seq || ''} className={'msg ef-panel cut-tl ' + m.role}>
+                  <div key={i} data-vidx={m.role === 'tool' ? undefined : (visible.findIndex(v => v === m) + 1)}
+                      className={'msg ef-panel cut-tl ' + m.role}>
                     <div>
                       <div className="mhead">
                         <span className={'av' + (m.role === 'user' ? ' u' : m.role === 'tool' ? ' t' : '')}>{m.role === 'user' ? '用' : m.role === 'tool' ? 'T' : '◈'}</span>
@@ -914,7 +915,7 @@ export default function App() {
             onWheel={e => {
               e.preventDefault()
               const base = peek.idx >= 0 ? peek.idx : curIdx()
-              const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
+              const next = Math.max(0, Math.min(visible.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
               if (next !== base) {
                 setPeek(p => ({ ...p, idx: next }))
                 scrollToMsg(next)          // 同时滚动页面 → 分子随之更新 ✓
@@ -939,7 +940,7 @@ export default function App() {
               onWheel={e => {
                 e.preventDefault()
                 const base = peek.idx >= 0 ? peek.idx : curIdx()
-                const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
+                const next = Math.max(0, Math.min(visible.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
                 if (next !== base) {
                   setPeek(p => ({ ...p, idx: next }))
                   scrollToMsg(next)        // 滚动页面 ✓

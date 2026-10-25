@@ -1,6 +1,6 @@
 /* agentd UI — 单层样式表（重写 2026-10-25）
    顺序：变量 → 壳 → 顶栏 → 抽屉 → 舞台 → 消息 → 输入 → 设置 → 响应式
-   约定：不使用 !important；设置卡片统一由 .card / .card-hd / .card-bd 描述。 */
+   约定：不使用；设置卡片统一由 .card / .card-hd / .card-bd 描述。 */
 
 :root{
   --ink:#121a19; --ink2:#5d6a67; --ink3:#93a09b;
@@ -377,18 +377,18 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .foot-mark{width:100%;font-size:.56rem;letter-spacing:.2em;color:var(--side-dim)}
 
 /* ── 左侧栏改浅色（抽屉底色/文字/分隔线），数字块 08/00/05 保持原深色 ── */
-.drawer{background:linear-gradient(180deg,#f7f8f5,#eef0ec) !important;
-  color:var(--ink) !important;border-right:1px solid var(--line) !important}
-.drawer .ef-record{color:var(--ink) !important}
-.drawer .ef-record:hover{background:rgba(20,26,25,.05) !important}
-.drawer .ef-record.on{background:rgba(111,167,156,.12) !important;border-left-color:var(--signal) !important}
-.drawer .ef-tag{background:#e4e6e1 !important;color:var(--ink2) !important}
-.drawer .ef-field{color:var(--ink3) !important}
-.drawer li .act{border-color:var(--line) !important;color:var(--ink2) !important}
-.drawer .foot{background:transparent !important;border-top:1px solid var(--line) !important;color:var(--ink3) !important}
-.drawer .foot-btn{color:var(--ink2) !important;border-color:var(--line) !important}
-.drawer .foot-btn:hover{color:var(--sage-d) !important;border-color:var(--sage) !important}
-.drawer .foot-mark{color:var(--ink3) !important}
+.drawer{background:linear-gradient(180deg,#f7f8f5,#eef0ec);
+  color:var(--ink);border-right:1px solid var(--line)}
+.drawer .ef-record{color:var(--ink)}
+.drawer .ef-record:hover{background:rgba(20,26,25,.05)}
+.drawer .ef-record.on{background:rgba(111,167,156,.12);border-left-color:var(--signal)}
+.drawer .ef-tag{background:#e4e6e1;color:var(--ink2)}
+.drawer .ef-field{color:var(--ink3)}
+.drawer li .act{border-color:var(--line);color:var(--ink2)}
+.drawer .foot{background:transparent;border-top:1px solid var(--line);color:var(--ink3)}
+.drawer .foot-btn{color:var(--ink2);border-color:var(--line)}
+.drawer .foot-btn:hover{color:var(--sage-d);border-color:var(--sage)}
+.drawer .foot-mark{color:var(--ink3)}
 
 /* ── 主题色 #99AAAD：只改“背景”，文字保持深色 ── */
 :root{--theme:#99AAAD}
@@ -405,4 +405,4 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .send{background:var(--theme)}
 
 /* 会话编号：底色主题色，字深色 */
-.drawer .ef-tag{background:var(--theme) !important;color:#1f2b2c !important}
+.drawer .ef-tag{background:var(--theme);color:#1f2b2c}

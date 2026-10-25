@@ -74,6 +74,49 @@ func (s *Server) Handler() http.Handler {
 			writeJSON(w, 405, map[string]string{"error": "GET/PUT only"})
 		}
 	})
+	mux.HandleFunc("/api/models", func(w http.ResponseWriter, r *http.Request) {
+		base := strings.TrimRight(r.URL.Query().Get("base_url"), "/")
+		key := r.URL.Query().Get("api_key")
+		if base == "" {
+			writeJSON(w, 400, map[string]string{"error": "需要 base_url"})
+			return
+		}
+		req, err := http.NewRequest("GET", base+"/models", nil)
+		if err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		if key != "" {
+			req.Header.Set("Authorization", "Bearer "+key)
+		}
+		req.Close = true
+		cl := &http.Client{Timeout: 8 * time.Second, Transport: &http.Transport{DisableKeepAlives: true, DisableCompression: true}}
+		resp, err := cl.Do(req)
+		if err != nil {
+			writeJSON(w, 502, map[string]string{"error": "连不上：" + err.Error()})
+			return
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			writeJSON(w, 502, map[string]string{"error": fmt.Sprintf("接口返回 %d（检查地址或 API Key）", resp.StatusCode)})
+			return
+		}
+		var out struct {
+			Data []struct {
+				ID string `json:"id"`
+			} `json:"data"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+			writeJSON(w, 502, map[string]string{"error": "返回格式不是 OpenAI /v1/models"})
+			return
+		}
+		ids := make([]string, 0, len(out.Data))
+		for _, d := range out.Data {
+			ids = append(ids, d.ID)
+		}
+		sort.Strings(ids)
+		writeJSON(w, 200, map[string]any{"models": ids})
+	})
 	mux.HandleFunc("/api/tools", func(w http.ResponseWriter, r *http.Request) {
 		reg := tools.Registry()
 		out := make([]map[string]any, 0, len(reg))

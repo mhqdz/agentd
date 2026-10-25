@@ -152,9 +152,6 @@ func DeleteProfile(name string) error {
 	found := false
 	for _, p := range list {
 		if p.Name == name {
-			if p.Builtin {
-				return fmt.Errorf("内置 profile 不能删除")
-			}
 			found = true
 			continue
 		}

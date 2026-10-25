@@ -54,7 +54,7 @@ func (a *Agent) Conversation(id string) (*store.Conversation, error) {
 		}
 	}
 	now := time.Now()
-	return &store.Conversation{ID: NewID(), Title: "新会话", CreatedAt: now, UpdatedAt: now}, nil
+	return &store.Conversation{ID: a.st.NextID(), Title: "新会话", CreatedAt: now, UpdatedAt: now}, nil
 }
 
 // Send：追加用户消息 → 流式请求 → 追加助手消息 → 存盘。

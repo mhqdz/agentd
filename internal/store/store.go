@@ -47,6 +47,7 @@ type Store interface {
 	Archive(id string) error
 	Restore(id string) error
 	Delete(id string, hard bool) error
+	NextID() string
 }
 
 type JSONStore struct{ Dir string }

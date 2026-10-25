@@ -172,6 +172,7 @@ export default function App() {
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
   const [readingSeq, setReadingSeq] = useState(0)
   const [peek, setPeek] = useState({ open: false, idx: -1, top: 0 })
+  const suppressPeekClose = useRef(false)
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
@@ -343,6 +344,7 @@ export default function App() {
       if (r.top < bottom) seq = Number(el.dataset.seq) || seq   // 依次覆盖 → 最后一条可见 ✓
     })
     setReadingSeq(seq)
+    if (!suppressPeekClose.current) setPeek(p => (p.open ? { open: false, idx: -1, top: 0 } : p))
   }
 
 
@@ -364,7 +366,10 @@ export default function App() {
   })()
   const scrollToMsg = (i) => {
     const el = document.querySelectorAll('[data-seq]')[i]
-    if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    if (!el) return
+    suppressPeekClose.current = true
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    setTimeout(() => { suppressPeekClose.current = false }, 450)
   }
 
   const closeOne = async () => {

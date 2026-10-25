@@ -495,11 +495,10 @@ export default function App() {
             <div className="row3">
               <span className="hint">Ctrl+Enter 发送　{convId ? '#' + convId.slice(0, 8) : '新会话'}</span>
               {busy ? (
-                <>
-                  <button className="send" onClick={interject} disabled={!text.trim()}>插话 ↵</button>
-                  <button className="send stop" onClick={stop}>停止 ■</button>
-                </>
-              ) : <button className="send" onClick={send}>发送 ↗</button>}
+                text.trim()
+                  ? <button className="send interject" onClick={interject} aria-label="插话" title="插话" />
+                  : <button className="send stop" onClick={stop} aria-label="中断" title="中断" />
+              ) : <button className="send" onClick={send} aria-label="发送" title="发送" />}
             </div>
           </div>
           {showSet ? (

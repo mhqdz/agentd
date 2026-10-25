@@ -579,6 +579,7 @@ export default function App() {
             </div>
           </div>
           {showSet ? (
+              <>
             <div className="set-scrim" onClick={() => { setShowSet(false); setEditP(null); setEditField(null); setToolEdit(null) }} />
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className="set-hd">
@@ -600,6 +601,7 @@ export default function App() {
                       onChange={v => setEditP({ ...editP, [editField]: v })}
                       onDone={() => setEditField(null)} />
                   )
+              </>
                 ) : null}
 
                 {editP ? (

@@ -442,3 +442,24 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .foot-btn{color:var(--c2);border-color:var(--c6)}
 .drawer .foot-btn:hover{color:#fff;border-color:var(--c4)}
 .send.stop{background:var(--c5)}
+
+/* ═══ 把 endfield 的变量也接到我们的色阶上 ═══════════════
+   之前只改了我们的变量，endfield 组件仍用默认值(黑/黄) ✗
+   → .ef-panel 的粗边、.ef-btn 的扫线、.ef-* 的强调色全是黑/黄 ✗ */
+:root{
+  --ef-ink:var(--c7);
+  --ef-ink-2:var(--c5);
+  --ef-paper:var(--c1);
+  --ef-panel:#fff;
+  --ef-rule:var(--c3);
+  --ef-chip:var(--c2);
+  --ef-tag-bg:var(--c2);
+  --ef-tag-fg:var(--c7);
+  --ef-signal:var(--c4);
+  --ef-on-signal:var(--c1);
+  --ef-trace:var(--c4);
+  --ef-marker:var(--c4);
+  --ef-danger:var(--c6);
+  --ef-hatch:rgba(153,170,173,.35);
+  --ef-contour:rgba(153,170,173,.35);
+}

@@ -654,6 +654,7 @@ export default function App() {
               <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
                 {(editField || toolEdit) ? (
                   <div className="set-col col-editor">
+                    <div className="set-section">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
                     <textarea className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
                       placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
                       onChange={e => {
@@ -668,6 +669,7 @@ export default function App() {
 
                 {editP ? (
                   <div className="set-col col-form">
+                    <div className="set-section">{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</div>
                     <div className="set-col-scroll">
                       {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
                         ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名']].map(([k, label]) => (

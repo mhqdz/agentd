@@ -702,3 +702,7 @@ body{background:var(--paper);color:var(--ink);
 .set-hd{background:transparent !important;border-bottom:none !important;padding-left:.2rem}
 .set-col{background:#fff !important;border:1px solid var(--line) !important;
   box-shadow:0 6px 18px rgba(20,26,25,.08)}
+
+/* 卡片标题与"常规配置"同款：小字 + 下划线，贴在卡片顶部 */
+.set-col > .set-section{margin:0;padding:.55rem .85rem .5rem;border-bottom:1px solid var(--line);
+  font-size:.66rem;letter-spacing:.18em;color:var(--ink3)}

@@ -514,3 +514,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .ef-record .ef-tag{font-size:.58rem;padding:0 .2rem}
 .drawer .ef-record time.ef-field{font-size:.6rem}
 .drawer .ef-record>span.ef-field{font-size:.64rem}
+
+/* 会话标题：解除 endfield 的 .ef-read 阅读宽度限制，吃满剩余空间 */
+.drawer .ef-record .name{max-width:none;max-inline-size:none;width:auto}

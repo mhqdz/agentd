@@ -198,17 +198,13 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 2 级卡里的"系统提示"摘要：限制行数（全文在 3 级卡里看） */
 .prompt-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 /* 3 级卡：不是文本框，只是铺开的文本；高度随内容，卡片上限内滚动 */
-.col-editor .card-bd{padding:0;display:block;overflow-y:auto}
-.col-editor textarea{height:auto;min-height:0;width:100%;border:0;background:transparent;
-  padding:.7rem .85rem;font:inherit;font-size:.8rem;line-height:1.8;resize:none;outline:none;overflow:hidden}
+.col-editor .card-bd{padding:0;display:block;overflow-y:auto}.col-editor textarea{max-height:none;flex:0 0 auto;height:auto;min-height:0;width:100%;border:0;background:transparent;padding:.7rem .85rem;font:inherit;font-size:.8rem;line-height:1.8;resize:none;outline:none;overflow:hidden;}
 
 /* ── 统一"配置行"：1 级（模型/工具）与 2 级摘要共用同一套 ── */
 .list-row,.tool-desc{display:grid;grid-template-columns:1fr;gap:.15rem;
   padding:.5rem 0;border-top:1px solid var(--line);cursor:pointer;min-width:0}
 .list-row:first-child,.tool-desc:first-child{border-top:0}
-.list-row b,.tool-desc b{font-size:.82rem;font-weight:600;color:var(--ink);min-width:0}
-.list-row:hover b,.list-row.on b{color:var(--sage-d)}
-.list-row.new{color:var(--sage-d)}
+.list-row b,.tool-desc b{font-size:.82rem;font-weight:600;color:var(--ink);min-width:0}.list-row:hover b,.list-row.on b{color:var(--sage-d);}.list-row.new{font-size:.8rem;color:var(--sage-d);}
 .list-row .set-meta,.tool-desc span{font-size:.72rem;line-height:1.65;color:var(--ink2);
   min-width:0;white-space:normal;word-break:break-word}
 /* 摘要/说明超出时滚动，而不是裁掉 */
@@ -219,13 +215,9 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .list-row,.tool-desc{display:grid;grid-template-columns:1fr;gap:.15rem;padding:.5rem 0;
   border-top:1px solid var(--line);cursor:pointer;min-width:0;
   transition:background .12s ease,padding-left .12s ease}
-.list-row:hover,.tool-desc:hover{background:var(--row-hover)}
-.list-row b,.tool-desc b{font-size:.82rem;font-weight:600;line-height:1.45;color:var(--ink)}
+.list-row:hover,.tool-desc:hover{background:var(--row-hover)}.list-row b,.tool-desc b{min-width:0;font-size:.82rem;font-weight:600;line-height:1.45;color:var(--ink);}
 .list-row:hover b,.tool-desc:hover b{color:var(--sage-d)}
-.list-row.on b{color:var(--sage-d)}
-.list-row .set-meta,.tool-desc span{font-size:.72rem;line-height:1.65;color:var(--ink2);
-  white-space:normal;word-break:break-word;min-width:0}
-.tool-desc b{color:var(--ink)}
+.list-row.on b{color:var(--sage-d)}.list-row .set-meta,.tool-desc span{font-size:.72rem;line-height:1.65;color:var(--ink2);white-space:normal;word-break:break-word;min-width:0;}.tool-desc b{font-size:.76rem;color:var(--ink);}
 
 /* 说明/摘要：3 行限高、溢出隐藏、不可选中；单击展开 */
 .tool-desc span,.list-row .set-meta{
@@ -235,8 +227,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 说明/摘要：3 行限高、不可选中、不可展开（交互与模型行一致：整行可点） */
 .tool-desc span,.list-row .set-meta{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
-  overflow:hidden;user-select:none;cursor:inherit}
-.tool-desc.exp span,.list-row.exp .set-meta{display:-webkit-box;-webkit-line-clamp:3}
+  overflow:hidden;user-select:none;cursor:inherit}.tool-desc.exp span,.list-row.exp .set-meta{overflow:visible;display:-webkit-box;-webkit-line-clamp:3;}
 
 /* ── 卡片内部命名（统一从这里控制，页面里不再单写）────────────────
    .card                  卡片容器
@@ -306,8 +297,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .card-hd .btn{padding:.2rem .5rem}
 
 /* 右栏动作区：＋ 新会话 + 三个点设置（同一套观感与动效） */
-.rail-acts{display:grid;gap:.6rem;justify-items:center}
-.rail .dots{display:grid;gap:.35rem;background:none;border:0;padding:.3rem;cursor:pointer}
+.rail-acts{display:grid;gap:.6rem;justify-items:center}.rail .dots{display:grid;gap:.35rem;background:none;border:0;padding:.3rem;cursor:pointer;}
 .rail .plus{font-size:.95rem;line-height:1;color:var(--sage);transition:color .12s,transform .12s}
 .rail .dots:hover .plus{color:var(--sage-d);transform:translateY(-1px)}
 .rail .dots:hover i{opacity:1;background:var(--sage-d);transition:background .12s,opacity .12s}
@@ -316,8 +306,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 新会话图标：SVG，靠图标本身变大（不改按钮尺寸/样式） */
 .rail .plus{display:block;width:18px;height:18px;color:var(--sage);
-  transition:color .12s, transform .12s}
-.rail .dots:hover .plus{color:var(--sage-d);transform:translateY(-1px)}
+  transition:color .12s, transform .12s}.rail .dots:hover .plus{color:var(--sage-d);transform:translateY(-1px);}
 
 /* 侧栏折叠钮：贴在侧栏右缘、竖直居中；折叠后贴在左缘并翻转朝向 */
 .work{position:relative}
@@ -340,10 +329,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 恢复数字居中：中段不再拉伸，状态改为绝对定位钉在＋上方 */
 .rail{position:relative}
-.rail .rail-mid{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:0;width:auto}
-.rail .rail-mid .fig{margin:0}
-.rail .rail-mid .rail-status{position:absolute;left:50%;bottom:9rem;transform:translateX(-50%);
-  margin:0;white-space:nowrap}
+.rail .rail-mid{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:0;width:auto}.rail .rail-mid .fig{margin-bottom:1rem;margin:0;}.rail .rail-mid .rail-status{margin-top:auto;margin-bottom:.9rem;position:absolute;left:50%;bottom:9rem;transform:translateX(-50%);margin:0;white-space:nowrap;}
 
 /* 抽屉底部动作（原顶栏的"新会话/设置"迁到这里，窄屏也能用） */
 .drawer .foot{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
@@ -355,13 +341,10 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* ── 左侧栏改浅色（抽屉底色/文字/分隔线），数字块 08/00/05 保持原深色 ── */
 .drawer{background:linear-gradient(180deg,var(--c1),var(--c2));
   color:var(--ink);border-right:1px solid var(--line)}
-.drawer .ef-tag{background:var(--c2);color:var(--ink2)}
-.drawer .ef-field{color:var(--ink3)}
-.drawer li .act{border-color:var(--line);color:var(--ink2)}
-.drawer .foot{background:transparent;border-top:1px solid var(--line);color:var(--ink3)}
+.drawer .ef-tag{background:var(--c2);color:var(--ink2)}.drawer .ef-field{font-size:.64rem;color:var(--ink3);}
+.drawer li .act{border-color:var(--line);color:var(--ink2)}.drawer .foot{padding:.55rem .7rem;font-size:.56rem;letter-spacing:.2em;background:transparent;border-top:1px solid var(--line);color:var(--ink3);}
 .drawer .foot-btn{color:var(--ink2);border-color:var(--line)}
-.drawer .foot-btn:hover{color:var(--sage-d);border-color:var(--sage)}
-.drawer .foot-mark{color:var(--ink3)}
+.drawer .foot-btn:hover{color:var(--sage-d);border-color:var(--sage)}.drawer .foot-mark{width:100%;font-size:.56rem;letter-spacing:.2em;color:var(--ink3);}
 
 /* ── 主题色 #99AAAD：只改“背景”，文字保持深色 ── */
 :root{--theme:#99AAAD}
@@ -407,12 +390,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 把散落的硬编码色也归到色阶 */
 .drawer-figs a{background:var(--c4)}
 .drawer-figs a:hover{background:var(--c5)}
-.drawer-figs a b{color:var(--c7)}
-.drawer-figs a span{color:var(--c6)}
-.drawer .ef-tag{background:var(--c4);color:var(--c7)}
-.drawer .foot-btn{color:var(--c2);border-color:var(--c6)}
-.drawer .foot-btn:hover{color:#fff;border-color:var(--c4)}
-.send.stop{background:var(--c5)}
+.drawer-figs a b{color:var(--c7)}.drawer-figs a span{display:block;margin-top:.15rem;font-size:.6rem;letter-spacing:.18em;color:var(--c6);}.drawer .ef-tag{font-size:.6rem;padding:.02rem .22rem;background:var(--c4);color:var(--c7);}.drawer .foot-btn{background:transparent;border:1px solid var(--c6);padding:.22rem .45rem;font:inherit;font-size:.66rem;cursor:pointer;color:var(--c2);border-color:var(--c6);}.drawer .foot-btn:hover{color:#fff;border-color:var(--c4);}.send.stop{border-radius:50%;clip-path:none;background:var(--c5);}
 
 /* ═══ 把 endfield 的变量也接到我们的色阶上 ═══════════════
    之前只改了我们的变量，endfield 组件仍用默认值(黑/黄) ✗
@@ -528,9 +506,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a .rw{overflow:visible;height:auto}
 
 /* 数字变化：整块轻微上浮淡入（简单可靠，不再拆位）*/
-@keyframes figPop{from{opacity:.0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.drawer-figs a b{display:block;font-size:1.45rem;line-height:1.1;font-weight:800;color:var(--c7);
-  animation:figPop .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes figPop{from{opacity:.0;transform:translateY(4px)}to{opacity:1;transform:none}}.drawer-figs a b{display:block;font-size:1.45rem;line-height:1.1;font-weight:800;color:var(--c7);animation:figPop .6s cubic-bezier(.2,.8,.2,1) both;}
 
 /* 数字翻动：交给 number-flow（现成实现），样式仍由这里统一 */
 .drawer-figs a .nf{display:inline-block;font-size:1.45rem;line-height:1.1;font-weight:800;
@@ -538,10 +514,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a .nf::part(digit){font-variant-numeric:tabular-nums}
 
 /* 数字块悬停/点击动效：更明显（底色变化 + 底部 3px 扫线 + 按压缩放）*/
-.drawer-figs a{transition:background .18s ease}
-.drawer-figs a:hover{background:var(--c5)}
-.drawer-figs a::after{height:3px;background:var(--c7);opacity:.85}
-.drawer-figs a:active{transform:scale(.985)}
+.drawer-figs a{transition:background .18s ease}.drawer-figs a:hover{background:var(--c5);}.drawer-figs a::after{content:"";position:absolute;left:0;right:0;bottom:0;transform:scaleX(0);transform-origin:left;transition:transform .22s ease;height:3px;background:var(--c7);opacity:.85;}.drawer-figs a:active{animation:figFlash .3s ease-out;transform:scale(.985);}
 
 /* 入场动画：与 number-flow 并存（外层播放，不重挂载内层）*/
 @keyframes figIn{0%{opacity:0;transform:translateY(6px)}60%{opacity:1}100%{opacity:1;transform:none}}
@@ -559,8 +532,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   transform:translateX(-101%);
   transition:transform .24s cubic-bezier(.2,.8,.2,1);
   pointer-events:none}
-.drawer-figs a:hover::before{transform:translateX(0)}
-.drawer-figs a .nfwrap{position:relative;z-index:1}
+.drawer-figs a:hover::before{transform:translateX(0)}.drawer-figs a .nfwrap{display:inline-block;position:relative;z-index:1;}
 /* 去掉上一版的"数字周围浅色块"，只保留滑入高亮 */
 .drawer-figs a .nfwrap{padding:0}
 
@@ -575,8 +547,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a .nfwrap{padding:0}
 
 /* 数字块：容器无底色、无缝；分隔线由子元素右边框提供（最后一块无）*/
-.drawer-figs{gap:0;background:transparent;border:0}
-.drawer-figs a{border-right:1px solid var(--c3)}
+.drawer-figs{gap:0;background:transparent;border:0}.drawer-figs a{background:var(--theme);padding:.5rem .3rem .45rem;cursor:pointer;position:relative;overflow:hidden;border-right:1px solid var(--c3);}
 .drawer-figs a:last-child{border-right:0}
 
 /* ═══ 侧栏折叠把手（重写：单一图标 + 旋转过渡）═══
@@ -633,8 +604,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .rail .rail-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--c6);transition:width .3s ease}
 
 /* 轮次数字横排（不竖排），间距收紧 */
-.rail .rail-mid .fig{writing-mode:horizontal-tb;letter-spacing:.12em;font-size:.72rem;color:var(--c6)}
-.rail .rail-mid{display:flex;flex-direction:column;align-items:center;gap:.1rem}
+.rail .rail-mid .fig{writing-mode:horizontal-tb;letter-spacing:.12em;font-size:.72rem;color:var(--c6)}.rail .rail-mid{flex:0 0 auto;width:auto;display:flex;flex-direction:column;align-items:center;gap:.1rem;}
 
 /* 右栏顶部进度条：横向，占栏宽 */
 .rail .rail-top{display:block;width:100%;padding:0 .55rem;box-sizing:border-box}

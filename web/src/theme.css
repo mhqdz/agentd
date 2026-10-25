@@ -675,3 +675,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 右栏轮次数字改为竖排 */
 .rail .rail-mid .fig{writing-mode:vertical-rl;text-orientation:mixed;
   letter-spacing:.18em;font-size:.72rem;color:var(--c6);line-height:1}
+
+/* 缩略图弹窗：竖直中心对齐 36/36 所在位置 */
+.peek{transform:translateY(-50%)}

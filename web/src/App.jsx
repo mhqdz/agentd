@@ -171,7 +171,7 @@ export default function App() {
   const [expandedTool, setExpandedTool] = useState(null)
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
   const [readingSeq, setReadingSeq] = useState(0)
-  const [peek, setPeek] = useState({ open: false, idx: -1 })
+  const [peek, setPeek] = useState({ open: false, idx: -1, top: 0 })
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
@@ -896,9 +896,9 @@ export default function App() {
           ) : null}
         </main>
         {peek.open && peekRows.length ? (
-          <div className="peek"
+          <div className="peek" style={{ top: peek.top || '50%' }}
             onMouseEnter={() => setPeek(p => ({ ...p, open: true }))}
-            onMouseLeave={() => setPeek({ open: false, idx: -1 })}
+            onMouseLeave={() => setPeek({ open: false, idx: -1, top: 0 })}
             onWheel={e => {
               e.preventDefault()
               const base = peek.idx >= 0 ? peek.idx : curIdx()
@@ -922,8 +922,8 @@ export default function App() {
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>          <span className="rail-mid">
             <span className="fig" style={{ cursor: 'pointer' }}
-              onMouseEnter={() => setPeek({ open: true, idx: curIdx() })}
-              onMouseLeave={() => setPeek({ open: false, idx: -1 })}
+              onMouseEnter={e => { const r = e.currentTarget.getBoundingClientRect(); setPeek({ open: true, idx: curIdx(), top: r.top + r.height / 2 }) }}
+              onMouseLeave={() => setPeek({ open: false, idx: -1, top: 0 })}
               onWheel={e => {
                 e.preventDefault()
                 const base = peek.idx >= 0 ? peek.idx : curIdx()

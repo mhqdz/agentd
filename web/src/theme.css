@@ -553,3 +553,9 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a .nf{display:inline-block;font-size:1.45rem;line-height:1.1;font-weight:800;
   color:var(--c7);font-variant-numeric:tabular-nums}
 .drawer-figs a .nf::part(digit){font-variant-numeric:tabular-nums}
+
+/* 数字块悬停/点击动效：更明显（底色变化 + 底部 3px 扫线 + 按压缩放）*/
+.drawer-figs a{transition:background .18s ease}
+.drawer-figs a:hover{background:var(--c5)}
+.drawer-figs a::after{height:3px;background:var(--c7);opacity:.85}
+.drawer-figs a:active{transform:scale(.985)}

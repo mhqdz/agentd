@@ -718,3 +718,6 @@ body{background:var(--paper);color:var(--ink);
 
 /* 3 级文本卡：有上限，超出后卡片内部滚动（和 2 级卡一致 ✓） */
 .col-editor .set-area{max-height:calc(100vh - 170px) !important;overflow-y:auto !important}
+
+/* 2 级卡：内容区有上限并内部滚动（与 3 级卡一致），删除按钮在卡内 */
+.col-form .set-col-scroll{max-height:calc(100vh - 170px) !important;overflow-y:auto !important}

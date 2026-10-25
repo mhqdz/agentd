@@ -620,54 +620,50 @@ export default function App() {
                 {anyDirty ? (
                   <span className="set-actions">
                     <button className="ef-btn small" onClick={() => {
-                      if (settingsDirty && !editorDirty && !formDirty) { setSettings(JSON.parse(setSnap || '{}')); return }
                       if (editorDirty) {
                         if (editField) setEditP({ ...editP, [editField]: editOriginal })
                         else setToolEdit({ ...toolEdit, description: editOriginal })
+                      } else if (formDirty) {
+                        setEditP(JSON.parse(editSnap || '{}'))
                       } else {
-                        const s0 = JSON.parse(editSnap || '{}'); setEditP(s0)
+                        setSettings(JSON.parse(setSnap || '{}'))
                       }
                     }}>取消</button>
                     <button className="ef-btn small" onClick={async () => {
-                      if (settingsDirty) {
-                        await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) })
-                        setSetSnap(JSON.stringify(settings))
-                        if (!editorDirty && !formDirty) return
-                      }
                       if (editorDirty) {
                         if (toolEdit) {
                           await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ description: toolEdit.description }) })
                           setEditOriginal(toolEdit.description || ''); refresh()
                         } else { setEditOriginal(editP?.[editField] || '') }
-                      } else {
+                        return
+                      }
+                      if (formDirty) {
                         if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
                         const { _new, ...body } = editP
                         await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
-                        setEditSnap(snapOf(editP)); refresh()
+                        setEditSnap(snapOf(editP)); refresh(); return
                       }
+                      await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) })
+                      setSetSnap(JSON.stringify(settings))
                     }}>保存</button>
                   </span>
                 ) : null}
               </div>
               <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
                 {(editField || toolEdit) ? (
-                  toolEdit ? (
-                    <EditorCol value={toolEdit.description} placeholder="工具说明（模型会看到这段文字）…"
-                      onChange={v => setToolEdit({ ...toolEdit, description: v })}
-                      onCancel={(toolEdit.description || '') !== (editOriginal || '') ? () => setToolEdit({ ...toolEdit, description: editOriginal }) : undefined}
-                      onDone={async () => {
-                        await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ description: toolEdit.description }) })
-                        setToolEdit(null); refresh()
+                  <div className="set-col col-editor">
+                    <textarea className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
+                      placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
+                      onChange={e => {
+                        if (toolEdit) setToolEdit({ ...toolEdit, description: e.target.value })
+                        else setEditP({ ...editP, [editField]: e.target.value })
                       }} />
-                  ) : (
-                    <EditorCol value={editP[editField]} placeholder="这里写完整的系统提示…"
-                      onChange={v => setEditP({ ...editP, [editField]: v })}
-                      onCancel={(editP[editField] || '') !== (editOriginal || '') ? () => setEditP({ ...editP, [editField]: editOriginal }) : undefined}
-                      onDone={() => setEditField(null)} />
-                  )
+                    <div className="set-col-foot"><span className="set-meta">
+                      {(toolEdit ? (toolEdit.description || '') : (editP[editField] || '')).length} 字
+                    </span></div>
+                  </div>
                 ) : null}
 
                 {editP ? (
@@ -685,7 +681,7 @@ export default function App() {
                         </select></label>
                       <div className="set-f"><span>工具（勾选启用）</span>
                         <div className="tool-list">
-                          {(toolList.length ? toolList : []).map(t => {
+                          {toolList.map(t => {
                             const on = (editP.tools || '').split(',').map(x => x.trim()).filter(Boolean).includes(t.name)
                             return (
                               <label key={t.name} title={t.description || ''} className={'tool-item' + (on ? ' on' : '')}>
@@ -701,22 +697,22 @@ export default function App() {
                         </div>
                       </div>
                       <div className="set-f" style={{ marginTop: '.5rem' }}>
-                        <span>系统提示</span>
+                        <span>系统提示（双击编辑）</span>
                         <div className="prompt-text" title="双击编辑"
-                          onDoubleClick={() => { if (editField === 'system') { setEditField(null) } else { setEditOriginal(editP.system || ''); setEditField('system') } }}>
+                          onDoubleClick={() => { if (editField !== 'system') { setEditOriginal(editP.system || ''); setEditField('system') } }}>
                           {editP.system || '（空）'}
                         </div>
                       </div>
                     </div>
-                    <div className="set-col-foot">
-                      {!editP._new && !editP.builtin ? (
+                    {!editP._new && !editP.builtin ? (
+                      <div className="set-col-foot">
                         <button className="ef-btn small" onClick={async () => {
                           if (!confirm('删除 ' + editP.name + '？')) return
                           await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
                           setEditP(null); setEditField(null); refresh()
                         }}>删除</button>
-                      ) : null}
-                    </div>
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
 
@@ -729,22 +725,13 @@ export default function App() {
                         <span className="sp" />
                         <button type="button" role="switch" aria-checked={!!settings.tool_rounds_enabled}
                           className={'tg' + (settings.tool_rounds_enabled ? ' on' : '')}
-                          onClick={async () => {
-                            const next = { ...settings, tool_rounds_enabled: !settings.tool_rounds_enabled }
-                            setSettings(next)
-                            await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(next) })
-                          }}><b /></button>
+                          onClick={() => setSettings({ ...settings, tool_rounds_enabled: !settings.tool_rounds_enabled })}><b /></button>
                       </div>
                       <div className="set-meta">开启该项以避免工具循环调用</div>
                       {settings.tool_rounds_enabled ? (
                         <label className="set-f" style={{ marginTop: '.5rem' }}><span>轮次上限</span>
                           <input type="number" min="1" max="1000" value={settings.tool_rounds || 8}
-                            onChange={e => setSettings({ ...settings, tool_rounds: Number(e.target.value) || 8 })}
-                            onBlur={async e => {
-                              const next = { ...settings, tool_rounds: Number(e.target.value) || 8 }
-                              setSettings(next)
-                              await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(next) })
-                            }} /></label>
+                            onChange={e => setSettings({ ...settings, tool_rounds: Number(e.target.value) || 8 })} /></label>
                       ) : null}
                     </div>
 
@@ -754,9 +741,14 @@ export default function App() {
                         <div className={'list-row col' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
                           onClick={() => { const v = { ...pr, tools: (pr.tools || []).join(',') }; setEditP(v); setEditSnap(snapOf(v)); setEditField(null); setToolEdit(null) }}>
                           <b>{pr.name}</b>
-                          <span className="set-meta" style={{ margin: 0 }}>{pr.model || '（未设置模型）'}</span>
+                          <span className="set-meta">{pr.model || '（未设置模型）'}</span>
                         </div>
                       ))}
+                      <div className="list-row new" onClick={() => {
+                        const v = { _new: true, name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '',
+                          model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: '', system: '' }
+                        setEditP(v); setEditSnap(''); setEditField(null); setToolEdit(null)
+                      }}>＋ 新建 profile</div>
                     </div>
 
                     <div className="set-section">工具配置</div>
@@ -771,12 +763,6 @@ export default function App() {
                         </div>
                       ))}
                     </div>
-                  </div>
-                  <div className="set-col-foot">
-                    <button className="ef-btn small" onClick={() => { setEditP({
-                      _new: true, name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '',
-                      model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: '', system: ''
-                    }); setEditSnap(''); setEditField(null) }}>＋ 新建 profile</button>
                   </div>
                 </div>
               </div>

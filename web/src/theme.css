@@ -657,3 +657,11 @@ body{background:var(--paper);color:var(--ink);
 /* 模型配置里的“新建”行 */
 .list-row.new{color:var(--sage-d);font-size:.8rem;cursor:pointer}
 .list-row.new:hover{background:rgba(111,167,156,.08)}
+
+/* 每层一张独立卡片：等宽、高度自适应（短内容就短），列表列最高并整栏滚动 */
+.set-cols{display:grid;align-items:start !important;gap:.9rem;overflow-y:auto !important;height:auto !important}
+.set-cols.two:not(.three){grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+.set-cols.three{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+.set-col{height:auto !important;min-height:0;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column}
+.set-col-scroll{overflow:visible !important;flex:0 0 auto}
+.col-list{max-height:100%}

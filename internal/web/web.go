@@ -55,6 +55,25 @@ func (s *Server) Handler() http.Handler {
 		sort.Strings(ids)
 		writeJSON(w, 200, ids)
 	})
+	mux.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			writeJSON(w, 200, config.LoadSettings())
+		case http.MethodPut, http.MethodPost:
+			var in config.Settings
+			if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+				writeJSON(w, 400, map[string]string{"error": err.Error()})
+				return
+			}
+			if err := config.SaveSettings(in); err != nil {
+				writeJSON(w, 500, map[string]string{"error": err.Error()})
+				return
+			}
+			writeJSON(w, 200, config.LoadSettings())
+		default:
+			writeJSON(w, 405, map[string]string{"error": "GET/PUT only"})
+		}
+	})
 	mux.HandleFunc("/api/tools", func(w http.ResponseWriter, r *http.Request) {
 		reg := tools.Registry()
 		out := make([]map[string]any, 0, len(reg))
@@ -264,9 +283,16 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ag := s.a
+	set := config.LoadSettings()
+	if set.ToolRoundsEnabled {
+		ag.MaxRounds = set.ToolRounds
+	}
 	if in.Profile != "" {
 		if prof, ok := config.GetProfile(in.Profile); ok {
 			ag = agent.New(s.cfg, s.st, prof)
+			if set.ToolRoundsEnabled {
+				ag.MaxRounds = set.ToolRounds
+			}
 		}
 	}
 	c, err := ag.Conversation(in.ConvID)

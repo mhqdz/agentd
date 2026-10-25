@@ -18,6 +18,7 @@ type Agent struct {
 	cfg config.Config
 	llm *llm.Client
 	// Drain：取出本轮期间用户插话（web 层提供）；OnInterject：把插话回显给前端
+	MaxRounds   int // 0=不限制（内部硬上限 100 兜底）
 	Drain       func() []string
 	OnInterject func(string)
 	st          store.Store

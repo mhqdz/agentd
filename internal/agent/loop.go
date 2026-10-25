@@ -16,7 +16,7 @@ import (
 )
 
 // 工具循环：最多 8 轮，避免模型自己绕不出来。
-const maxRounds = 8
+const hardMaxRounds = 100 // 不限制时的硬兜底
 
 // SendWithTools 带上工具跑一轮（含多轮工具调用）。并行执行同一轮里的多个工具。
 func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text string,
@@ -49,7 +49,11 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 	// 用户消息立刻落盘：请求被中断也不会丢这句
 	_ = a.st.Save(c)
 
-	for round := 0; round < maxRounds; round++ {
+	limit := a.MaxRounds
+	if limit <= 0 {
+		limit = hardMaxRounds
+	}
+	for round := 0; round < limit; round++ {
 		// 中途插话：把用户新消息插进本轮上下文（模型这一轮就能看到）
 		if a.Drain != nil {
 			for _, t := range a.Drain() {
@@ -185,7 +189,16 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		}
 		_ = a.st.Save(c) // 工具结果落库
 	}
-	return fmt.Errorf("超过 %d 轮工具调用，已停止", maxRounds)
+	// 轮次用尽：不能静默返回空回复 ✗ —— 补一条说明并落库
+	note := fmt.Sprintf("（已达到工具轮次上限 %d 轮，本轮没有给出最终结论。可以追问一句\"继续\"让它接着做，或到设置里调高上限。）", limit)
+	c.Messages = append(c.Messages, store.Message{Role: "assistant", Content: note})
+	if err := a.st.Save(c); err != nil {
+		return err
+	}
+	if onDelta != nil {
+		onDelta(note, "")
+	}
+	return nil
 }
 
 func toWire(msgs []store.Message, reg map[string]*tools.Spec) ([]llm.Message, bool) {

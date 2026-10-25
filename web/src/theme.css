@@ -610,9 +610,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 :root{
   --c-signal:#FFF7A8;   /* 旧的对比色（可留作别用）*/
   --c-accent:#FFF7A8;    /* 新增：把手的强调色 */
-  --c-on-accent:#161616;
-  --c-on-signal:#161616;
-  --ef-signal:var(--c4);   /* 恢复：endfield 组件仍用灰青 ✓ */
+  --c-on-accent:#161616;  --ef-signal:var(--c4);   /* 恢复：endfield 组件仍用灰青 ✓ */
   --ef-on-signal:var(--c1);
 }
 
@@ -621,14 +619,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 折叠状态下一直保持浅黄（不只是悬停）*/
 
 /* 把手的强调色（独立变量 --c-accent，与 endfield 的信号色互不影响）*/
-.side-toggle:hover,
-.side-toggle.collapsed,
-.side-toggle.collapsed:hover{
-  background:var(--c-accent);color:var(--c-on-accent);border-color:var(--c-accent)}
-.side-toggle:hover .st-rail,
-.side-toggle.collapsed .st-rail{
-  background:var(--c-on-accent);opacity:1;transform:scaleY(1)}
-.side-toggle:focus-visible{box-shadow:0 0 0 2px var(--c-accent)}
 
 /* 折叠后悬停：回到灰青（不再是黄）*/
 .side-toggle.collapsed:hover{background:var(--c6);color:var(--c1);border-color:var(--c6)}
@@ -639,3 +629,14 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .side-toggle:hover .st-rail{background:var(--c6)}
 .side-toggle.collapsed .st-rail{background:var(--c6)}
 .side-toggle.collapsed:hover .st-rail{background:var(--c1)}
+
+/* ═══ 折叠把手（无黄色逻辑）═══════════════
+   静止：白/纸底；悬停：深 3 级（c1 → c4）*/
+.side-toggle{
+  background:var(--c1);color:var(--c5);border-color:var(--c3)}
+.side-toggle:hover,
+.side-toggle.collapsed:hover{
+  background:var(--c4);color:var(--c7);border-color:var(--c4)}
+.side-toggle .st-rail{background:var(--c5)}
+.side-toggle:hover .st-rail,
+.side-toggle.collapsed:hover .st-rail{background:var(--c7)}

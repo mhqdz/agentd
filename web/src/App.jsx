@@ -48,7 +48,8 @@ function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
     const el = ta.current
     if (!el) return
     el.style.height = 'auto'
-    el.style.height = (el.scrollHeight + 2) + 'px'   // 随内容长高 ✓
+    // 用 CSS 变量驱动高度：样式表里的 !important 会压过内联 height ✗，变量不会被压 ✓
+    el.style.setProperty('--h', (el.scrollHeight + 2) + 'px')
   }, [value])
   return (
     <div className="set-col col-editor">

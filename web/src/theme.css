@@ -715,3 +715,6 @@ body{background:var(--paper);color:var(--ink);
 .col-editor .set-area{display:block !important;width:100% !important;box-sizing:border-box;
   height:auto !important;max-height:none !important;overflow:hidden !important;flex:none !important}
 .set-col{max-height:none !important}
+
+/* 文本域高度由 JS 写入 --h（!important 会压过内联 height ✗，变量不会 ✓） */
+.col-editor .set-area{height:var(--h,120px) !important;max-height:none !important;overflow:hidden !important;resize:none !important}

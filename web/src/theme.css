@@ -603,7 +603,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .st-rail{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c4);
   opacity:.55;transform:scaleY(.3);transform-origin:center;
   transition:transform .22s cubic-bezier(.2,.8,.2,1),opacity .16s,background .16s}
-.side-toggle:hover .st-rail{transform:scaleY(1);opacity:1;background:var(--c6)}
 
 /* ═══ 对比色（终末地标志黄）：色阶第 8 色，只用于"看这里/可操作"的强调 ═══
    #FFFA00 来自 endfield skill 的 --ef-signal（THE yellow） */
@@ -618,13 +617,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 折叠后悬停：回到灰青（不再是黄）*/
 .side-toggle.collapsed:hover{background:var(--c6);color:var(--c1);border-color:var(--c6)}
-.side-toggle.collapsed:hover .st-rail{background:var(--c1)}
 
 /* 指示条：移到右侧，改用色阶颜色（不再用近黑）*/
-.side-toggle .st-rail{left:auto;right:0;width:2px;background:var(--c5)}
-.side-toggle:hover .st-rail{background:var(--c6)}
-.side-toggle.collapsed .st-rail{background:var(--c6)}
-.side-toggle.collapsed:hover .st-rail{background:var(--c1)}
 
 /* ═══ 折叠把手（无黄色逻辑）═══════════════
    静止：白/纸底；悬停：深 3 级（c1 → c4）*/
@@ -633,15 +627,9 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .side-toggle:hover,
 .side-toggle.collapsed:hover{
   background:var(--c4);color:var(--c7);border-color:var(--c4)}
-.side-toggle .st-rail{background:var(--c5)}
-.side-toggle:hover .st-rail,
-.side-toggle.collapsed:hover .st-rail{background:var(--c7)}
 
 /* 指示条改白；折叠态不显示框，只留箭头（点击区域尺寸不变）*/
-.side-toggle .st-rail{background:var(--c1)}
-.side-toggle:hover .st-rail,.side-toggle.collapsed:hover .st-rail{background:var(--c1)}
 .side-toggle.collapsed{
   background:transparent;border-color:transparent;color:var(--c5)}
-.side-toggle.collapsed .st-rail{display:none}
 .side-toggle.collapsed:hover{
   background:var(--c4);border-color:transparent;color:var(--c7)}

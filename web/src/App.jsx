@@ -567,7 +567,6 @@ export default function App() {
           title={sideOpen ? '折叠侧栏' : '展开侧栏'}
           aria-label={sideOpen ? '折叠侧栏' : '展开侧栏'}
           aria-expanded={sideOpen}>
-          <span className="st-rail" aria-hidden="true" />
           <svg className="st-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M14 6 8 12l6 6" fill="none" stroke="currentColor" strokeWidth="1.8"
               strokeLinecap="square" strokeLinejoin="miter" />

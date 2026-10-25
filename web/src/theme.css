@@ -33,8 +33,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .list{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 .5rem}
 .drawer .ef-records{list-style:none;margin:0;padding:0}
 .drawer .ef-records li{position:relative}
-.drawer .ef-record{display:grid;grid-template-columns:3.4rem 2.6rem 1fr auto;gap:.5rem;align-items:center;
-  padding:.58rem .35rem;min-height:2.6rem;cursor:pointer;border-left:3px solid transparent;color:var(--side-fg)}
 .drawer .ef-record:hover,.drawer .ef-record.on{background:rgba(255,255,255,.06);border-left-color:var(--signal)}
 .drawer .ef-tag{background:rgba(255,255,255,.08);color:var(--side-fg);font-size:.62rem;padding:.02rem .25rem}
 .drawer .ef-field{color:var(--side-dim);font-size:.66rem}
@@ -197,7 +195,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .modeltxt{font-size:.74rem;color:var(--c3);max-width:24rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* 抽屉行：标题拿到更多空间（之前被 No./日期 挤到 1 个字 ✗） */
-.drawer .ef-record{grid-template-columns:2.9rem 2.2rem minmax(0,1fr) 1.4rem;gap:.4rem}
 .drawer .ef-field{text-align:right}
 
 /* 抽屉列宽：沿用之前手调值，但提高优先级以压过 endfield 的 .ef-record 默认 */
@@ -379,7 +376,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* ── 左侧栏改浅色（抽屉底色/文字/分隔线），数字块 08/00/05 保持原深色 ── */
 .drawer{background:linear-gradient(180deg,var(--c1),var(--c2));
   color:var(--ink);border-right:1px solid var(--line)}
-.drawer .ef-record{color:var(--ink)}
 .drawer .ef-record:hover{background:rgba(58,65,66,.05)}
 .drawer .ef-record.on{background:rgba(153,170,173,.12);border-left-color:var(--signal)}
 .drawer .ef-tag{background:var(--c2);color:var(--ink2)}
@@ -483,6 +479,13 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a.on b,.drawer-figs a.on span{color:var(--c7)}
 
 /* 会话行只保留一条指示：去掉自加的左侧 border，只留 endfield 的 ::before 色条 */
-.drawer .ef-record{border-left:0;padding-left:.35rem}
 .drawer .ef-record:hover,.drawer .ef-record.on{padding-left:.6rem;background:rgba(58,65,66,.05)}
 .drawer .ef-record.on{background:rgba(153,170,173,.18)}
+
+/* 会话行：唯一定义（列宽/间距/指示线）*/
+.drawer .ef-record{display:grid;grid-template-columns:2.9rem 2.2rem minmax(0,1fr) 1.4rem;
+  gap:.4rem;align-items:center;padding:.58rem .35rem;min-height:2.6rem;
+  color:var(--ink);border-left:0;cursor:pointer;
+  transition:background .12s ease,padding-left .12s ease}
+.drawer .ef-record:hover{padding-left:.6rem;background:rgba(58,65,66,.05)}
+.drawer .ef-record.on{padding-left:.6rem;background:rgba(153,170,173,.18)}

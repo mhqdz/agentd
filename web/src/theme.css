@@ -477,3 +477,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 工具记录面板的页签（div.tools.ef-panel::before）同样用主题色 */
 .tools.ef-panel::before,.msg.ef-panel::before{background:var(--c4);height:3px}
+
+/* 数字块悬停：文字保持深色（原悬停被继承成白色 ✗） */
+.drawer-figs a:hover b,.drawer-figs a:hover span{color:var(--c7)}
+.drawer-figs a.on b,.drawer-figs a.on span{color:var(--c7)}

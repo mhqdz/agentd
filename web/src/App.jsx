@@ -167,6 +167,7 @@ export default function App() {
     const th = stageRef.current?.querySelector('.thread')
     if (!th) return
     if (e.target.closest('.thread')) return          // 会话区内部走原生滚动
+    if (e.target.closest('.settings')) return        // 设置面板内部自己滚 ✓
     th.scrollTop += e.deltaY                          // 输入区上滚 → 滚动会话
   }
 
@@ -686,9 +687,9 @@ export default function App() {
                           <i />
                         </span>
                       </label>
-                      <div className="set-meta" style={{ marginTop: '.35rem' }}>开启该项规避工具循环调用风险</div>
+                      <div className="set-meta" style={{ marginTop: '.35rem' }}>规避工具循环调用</div>
                       {settings.tool_rounds_enabled ? (
-                        <label className="set-f"><span>取消勾选后不限制轮次</span>
+                        <label className="set-f"><span>轮次上限</span>
                           <input type="number" min="1" max="1000" value={settings.tool_rounds || 8}
                             onChange={e => setSettings({ ...settings, tool_rounds: Number(e.target.value) || 8 })}
                             onBlur={async e => {

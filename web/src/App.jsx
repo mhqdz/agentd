@@ -170,6 +170,7 @@ export default function App() {
   const [toolEdit, setToolEdit] = useState(null)
   const [expandedTool, setExpandedTool] = useState(null)
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
+  const [readingSeq, setReadingSeq] = useState(0)
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
@@ -327,6 +328,19 @@ export default function App() {
     if (!el) return
     el.style.height = 'auto'
     el.style.setProperty('--h', (el.scrollHeight + 2) + 'px')
+  }
+
+  // 阅读位置：滚到哪条消息，就显示第几条
+  const onThreadScroll = () => {
+    const box = threadRef.current
+    if (!box) return
+    const top = box.getBoundingClientRect().top + 40
+    let seq = 0
+    box.querySelectorAll('[data-seq]').forEach(el => {
+      const r = el.getBoundingClientRect()
+      if (r.bottom > top && !seq) seq = Number(el.dataset.seq) || 0
+    })
+    setReadingSeq(seq)
   }
 
   const closeOne = async () => {
@@ -523,14 +537,7 @@ export default function App() {
   const cur = profiles.find(p => p.name === profile)
   // 轮次进度：本轮工具轮次 / 本会话落库的最大 seq（也即已记录的轮次）
   const roundMax = msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0
-  const roundNow = (() => {
-    for (let i = msgs.length - 1; i >= 0; i--) {
-      const m = msgs[i]
-      if (m.role === 'assistant' && m.tools && m.tools.length) return m.tools.length
-      if (m.role === 'assistant') return 0
-    }
-    return 0
-  })()
+  const roundNow = readingSeq || (msgs.length ? (msgs[msgs.length - 1].seq || 0) : 0)
 
   return (
     <div className="app">
@@ -588,7 +595,7 @@ export default function App() {
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
           onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>
           <i className="guideline" aria-hidden="true" />
-          <div className="thread" ref={threadRef}>
+          <div className="thread" ref={threadRef} onScroll={onThreadScroll}>
             {msgs.length === 0 ? (
               <div className="col empty">
                 <div className="eyebrow">LOCAL AGENT CONSOLE</div>
@@ -621,7 +628,7 @@ export default function App() {
             ) : (
               <div className="col">
                 {msgs.map((m, i) => (
-                  <div key={i} className={'msg ef-panel cut-tl ' + m.role}>
+                  <div key={i} data-seq={m.seq || ''} className={'msg ef-panel cut-tl ' + m.role}>
                     <div>
                       <div className="mhead">
                         <span className={'av' + (m.role === 'user' ? ' u' : m.role === 'tool' ? ' t' : '')}>{m.role === 'user' ? '用' : m.role === 'tool' ? 'T' : '◈'}</span>

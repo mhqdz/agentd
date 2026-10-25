@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"sync"
@@ -72,6 +73,7 @@ func (s *Server) streamFrom(w http.ResponseWriter, r *http.Request, convID strin
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("X-Accel-Buffering", "no")
 	idx := from
+	lastBeat := time.Now()
 	for {
 		frames, done := j.snapshot(idx)
 		for _, f := range frames {
@@ -82,7 +84,16 @@ func (s *Server) streamFrom(w http.ResponseWriter, r *http.Request, convID strin
 			idx++
 		}
 		if done && len(frames) == 0 {
+			fmt.Fprint(w, "event: done\ndata: {}\n\n")
+			flusher.Flush()
 			return
+		}
+		if time.Since(lastBeat) > 5*time.Second {
+			if _, err := fmt.Fprint(w, ": ping\n\n"); err != nil {
+				return
+			}
+			flusher.Flush()
+			lastBeat = time.Now()
 		}
 		select {
 		case <-r.Context().Done():

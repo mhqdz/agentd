@@ -280,11 +280,8 @@ export default function App() {
     const c = await api('/api/conv/' + id)
     setMsgs(normalize(c.messages || [])); setTitle(c.title || '会话')
     // 后台仍在跑？轮询直到结束（刷新页面后能"接上"）
-    const running = await api('/api/running').catch(() => [])
-    if ((running || []).includes(String(id))) {
-      setSyncing(true); setStatus('后台运行中，正在接上…')
-      attachStream(id)
-    }
+    // 单一事实来源：直接请求续传流。没内容/已结束会立刻返回，不会挂着
+    attachStream(id)
   }
 
 
@@ -325,6 +322,7 @@ export default function App() {
             else if (line.startsWith('data: ')) data = line.slice(6)
           }
           let d = {}; try { d = JSON.parse(data) } catch { }
+          lastFrame = Date.now()          // 心跳也算活动 ✓
           if (ev) lastFrame = Date.now()
           if (ev === 'reasoning') { live.reasoning += d.text || ''; push() }
           else if (ev === 'delta') { live.content += d.text || ''; push() }

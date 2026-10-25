@@ -28,7 +28,7 @@ const version = "0.0.1-p0"
 
 func main() {
 	cfg := config.Load()
-	st, err := store.NewJSON(cfg.DataDir)
+	st, err := store.NewSQLite(cfg.DataDir)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "初始化存储失败:", err)
 		os.Exit(1)

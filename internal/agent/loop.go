@@ -122,6 +122,14 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 					Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(),
 				})
 			}
+			// 中断：保留半截内容，并在末尾追加一句中断说明（是数据，不是状态）
+			if len(c.Messages) > 0 {
+				last := &c.Messages[len(c.Messages)-1]
+				if last.Role == "assistant" {
+					note := "\n\n——（中断：" + err.Error() + "）"
+					last.Content = strings.TrimRight(last.Content, "\n") + note
+				}
+			}
 			_ = a.st.Save(c) // 中断也要留住上下文（用户消息 / 已完成的工具轮次）
 			return err
 		}

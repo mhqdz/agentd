@@ -290,3 +290,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   user-select:none;min-width:0}
 .card .item-new{color:var(--sage-d)}
 .card .card-button{justify-self:end}
+
+/* 只读项：标题左、控件右（一行） */
+.card .item.static{grid-template-columns:1fr auto;align-items:center}
+.card .item>.sp{display:none}

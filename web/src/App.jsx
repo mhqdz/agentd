@@ -745,7 +745,6 @@ export default function App() {
                     <div className="set-card">
                       <div className="item static">
                         <span className="item-title">工具调用轮次上限</span>
-                        <span className="sp" />
                         <button type="button" role="switch" aria-checked={!!settings.tool_rounds_enabled}
                           className={'tg' + (settings.tool_rounds_enabled ? ' on' : '')}
                           onClick={() => setSettings({ ...settings, tool_rounds_enabled: !settings.tool_rounds_enabled })}><b /></button>

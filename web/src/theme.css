@@ -728,9 +728,3 @@ body{background:var(--paper);color:var(--ink);
 .drawer .ef-record .act{align-self:center;justify-self:end;line-height:0}
 .drawer .ef-record:hover .act{display:inline-grid;place-items:center}
 .drawer .ef-record .act svg{display:block}
-
-/* 左栏文字居中：标题居中，编号/日期在其列内居中 */
-.drawer .ef-record .name{text-align:center}
-.drawer .ef-record .ef-tag,
-.drawer .ef-record time.ef-field{justify-self:center;text-align:center}
-.drawer .ef-record > span.ef-field{justify-self:center}

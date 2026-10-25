@@ -682,3 +682,16 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 宽屏隐藏"设置"（右栏已有入口）；窄屏显示 */
 @media (min-width:1400px){ .drawer-foot .wide-hide{display:none} }
 .drawer-foot .foot-mark{margin-left:auto}
+
+/* 底条 = 抽屉本体延伸：同底色、无独立按钮造型，仅一条线分隔 */
+.drawer-foot{
+  background:linear-gradient(180deg,var(--c1),var(--c2));
+  border-top:1px solid var(--c3);
+  padding:.6rem .7rem;gap:.6rem}
+.new-conv{
+  background:transparent;border:0;width:26px;height:26px;color:var(--c6);
+  box-shadow:none;border-radius:0}
+.new-conv svg{width:18px;height:18px}
+.new-conv:hover{background:rgba(58,65,66,.06);color:var(--c7)}
+.new-conv:active{transform:scale(.96)}
+.drawer-foot .foot-mark{color:var(--c5);letter-spacing:.2em;font-size:.56rem}

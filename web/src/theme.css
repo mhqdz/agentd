@@ -700,3 +700,14 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .list{flex:0 1 auto}
 .drawer-spacer{flex:1 1 auto;min-height:0;padding:.9rem .7rem}
 .drawer .new-conv{background:transparent;border:0;color:var(--c6)}
+
+/* ＋ 整行可点、水平居中；悬停出现底色并把 ＋ 旋转 45° 成 × */
+.drawer-spacer{display:flex;align-items:flex-start;justify-content:center;padding:.6rem .5rem}
+.drawer .new-conv{width:100%;height:34px;display:grid;place-items:center;padding:0;
+  background:transparent;border:0;color:var(--c6);cursor:pointer;
+  transition:background .18s ease,color .18s ease}
+.drawer .new-conv svg{width:18px;height:18px;
+  transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.drawer .new-conv:hover{background:rgba(58,65,66,.07);color:var(--c7)}
+.drawer .new-conv:hover svg{transform:rotate(45deg)}
+.drawer .new-conv:active{background:rgba(58,65,66,.12)}

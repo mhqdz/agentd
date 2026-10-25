@@ -557,7 +557,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a .rdg{display:block;height:36px}
 .drawer-figs a .rstr{display:block}
 .drawer-figs a .rstr>span{display:block;height:36px}
-.drawer-figs a .rstr.up{animation:rollUpPx .26s cubic-bezier(.2,.8,.2,1) both}
-.drawer-figs a .rstr.down{animation:rollDownPx .26s cubic-bezier(.2,.8,.2,1) both}
+.drawer-figs a .rstr.up{animation:rollUpPx .45s cubic-bezier(.2,.8,.2,1) both}
+.drawer-figs a .rstr.down{animation:rollDownPx .45s cubic-bezier(.2,.8,.2,1) both}
 @keyframes rollUpPx{from{transform:translateY(0)}to{transform:translateY(-36px)}}
 @keyframes rollDownPx{from{transform:translateY(-36px)}to{transform:translateY(0)}}

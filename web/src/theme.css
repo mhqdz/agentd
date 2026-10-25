@@ -382,7 +382,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 :root{--theme:#99AAAD}
 
 /* 数字块：底色改主题色（浅），数字/标签仍深色 */
-.drawer-figs{background:transparent;border:0}
+.drawer-figs{background:var(--c3);border:0}
 .drawer-figs a{background:var(--theme);padding:.5rem .3rem .45rem;cursor:pointer}
 .drawer-figs a b{display:block;font-size:1.45rem;line-height:1.1;font-weight:800;color:var(--c7)}
 .drawer-figs a span{display:block;margin-top:.15rem;font-size:.6rem;letter-spacing:.18em;color:var(--c6)}

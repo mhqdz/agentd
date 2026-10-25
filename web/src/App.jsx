@@ -370,7 +370,7 @@ export default function App() {
     return out
   })()
   const scrollToMsg = (i) => {
-    const el = document.querySelectorAll('[data-seq]')[i]
+    const el = document.querySelector('[data-vidx="' + (i + 1) + '"]')
     if (!el) return
     suppressPeekClose.current = true
     clearTimeout(suppressTimer.current)

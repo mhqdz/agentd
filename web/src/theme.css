@@ -378,3 +378,10 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   justify-content:flex-start;gap:0;width:100%}
 .rail .rail-mid .fig{margin-bottom:1rem}
 .rail .rail-mid .rail-status{margin-top:auto;margin-bottom:.9rem}
+
+/* 恢复数字居中：中段不再拉伸，状态改为绝对定位钉在＋上方 */
+.rail{position:relative}
+.rail .rail-mid{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:0;width:auto}
+.rail .rail-mid .fig{margin:0}
+.rail .rail-mid .rail-status{position:absolute;left:50%;bottom:5.2rem;transform:translateX(-50%);
+  margin:0;white-space:nowrap}

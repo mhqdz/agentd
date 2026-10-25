@@ -108,7 +108,7 @@ export default function App() {
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
   const [editSnap, setEditSnap] = useState('')
-  const [setSnap, setSetSnap] = useState('')
+  const [setSnap, setSetSnap] = useState(() => JSON.stringify({ tool_rounds_enabled: true, tool_rounds: 8 }))
 
   // 快照去掉内部标记 _new，避免"一打开就算脏"✗
   const snapOf = (p) => { if (!p) return ''; const { _new, ...rest } = p; return JSON.stringify(rest) }

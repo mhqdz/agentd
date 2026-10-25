@@ -137,8 +137,7 @@ func (s *Server) Handler() http.Handler {
 			out = append(out, map[string]any{"name": sp.Name, "description": sp.Description, "params": sp.Params})
 		}
 		sort.Slice(out, func(i, j int) bool { return out[i]["name"].(string) < out[j]["name"].(string) })
-		ov := tools.LoadOverrides()
-		writeJSON(w, 200, map[string]any{"tools": out, "overrides": ov})
+		writeJSON(w, 200, out)
 	})
 	mux.HandleFunc("/api/tools/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPut {
@@ -147,9 +146,7 @@ func (s *Server) Handler() http.Handler {
 		}
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
 		var body struct {
-			Description string          `json:"description"`
-			Enabled     *bool           `json:"enabled"`
-			Subtools    []tools.SubTool `json:"subtools"`
+			Description string `json:"description"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			writeJSON(w, 400, map[string]string{"error": err.Error()})
@@ -159,12 +156,8 @@ func (s *Server) Handler() http.Handler {
 			writeJSON(w, 404, map[string]string{"error": "没有这个工具"})
 			return
 		}
-		ov := tools.Override{Description: body.Description, Enabled: true, Subtools: body.Subtools}
-		if body.Enabled != nil {
-			ov.Enabled = *body.Enabled
-		}
-		logx.Info("tool.save name=%s enabled=%v subtools=%d", name, ov.Enabled, len(ov.Subtools))
-		if err := tools.SaveOverride(name, ov); err != nil {
+		logx.Info("tool.save name=%s chars=%d", name, len([]rune(body.Description)))
+		if err := tools.SaveOverride(name, body.Description); err != nil {
 			writeJSON(w, 500, map[string]string{"error": err.Error()})
 			return
 		}

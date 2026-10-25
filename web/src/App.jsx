@@ -901,11 +901,12 @@ export default function App() {
             onMouseLeave={() => setPeek({ open: false, idx: -1 })}
             onWheel={e => {
               e.preventDefault()
-              setPeek(p => {
-                const base = p.idx >= 0 ? p.idx : curIdx()
-                const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
-                return { open: true, idx: next }
-              })
+              const base = peek.idx >= 0 ? peek.idx : curIdx()
+              const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
+              if (next !== base) {
+                setPeek({ open: true, idx: next })
+                scrollToMsg(next)          // 同时滚动页面 → 分子随之更新 ✓
+              }
             }}>
             {peekRows.map(({ i, m }) => (
               <button key={i}
@@ -925,11 +926,12 @@ export default function App() {
               onMouseLeave={() => setPeek({ open: false, idx: -1 })}
               onWheel={e => {
                 e.preventDefault()
-                setPeek(p => {
-                  const base = p.idx >= 0 ? p.idx : curIdx()
-                  const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
-                  return { open: true, idx: next }
-                })
+                const base = peek.idx >= 0 ? peek.idx : curIdx()
+                const next = Math.max(0, Math.min(msgs.length - 1, base + (e.deltaY > 0 ? 1 : -1)))
+                if (next !== base) {
+                  setPeek({ open: true, idx: next })
+                  scrollToMsg(next)        // 滚动页面 ✓
+                }
               }}>
               {String(roundNow).padStart(2,'0')} / {roundMax ? String(roundMax).padStart(2,'0') : '∞'}
             </span>

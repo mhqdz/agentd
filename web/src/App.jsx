@@ -701,8 +701,8 @@ export default function App() {
                       ) : null}
                     </div>
                     <div className="card-bd">
-                      {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
-                        ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名']].map(([k, label]) => (
+                      {[['name', '名称'], ['base_url', '接口地址 /v1'],
+                        ['api_key', 'API Key'], ['model', '模型']].map(([k, label]) => (
                         <label className="field" key={k}><span>{label}</span>
                           <input value={editP[k] || ''} type={k === 'api_key' ? 'password' : 'text'}
                             onChange={e => setEditP({ ...editP, [k]: e.target.value })} /></label>
@@ -711,7 +711,7 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
-                      <div className="field"><span>工具（勾选启用）</span>
+                      <div className="field"><span>工具</span>
                         <div className="choices">
                           {toolList.map(t => {
                             const on = (editP.tools || '').split(',').map(x => x.trim()).filter(Boolean).includes(t.name)

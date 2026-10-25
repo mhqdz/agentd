@@ -406,3 +406,39 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 会话编号：底色主题色，字深色 */
 .drawer .ef-tag{background:var(--theme);color:#1f2b2c}
+
+/* ═══ 色阶（唯一颜色来源）════════════════════════════
+   c1 最浅 → c7 最深，页面只允许使用这 7 个颜色 + 白/纯黑文字 */
+:root{
+  --c1:#F3F5F5; --c2:#DEE4E5; --c3:#C4CECF; --c4:#99AAAD;
+  --c5:#778587; --c6:#596364; --c7:#3A4142;
+
+  /* 语义映射（全部指向色阶，不另造颜色）*/
+  --paper:var(--c1);
+  --panel:#fff;
+  --line:var(--c3);
+  --ink:var(--c7);
+  --ink2:var(--c5);
+  --ink3:var(--c4);
+  --theme:var(--c4);
+  --sage:var(--c4);
+  --sage-d:var(--c6);
+  --signal:var(--c4);
+  --on-signal:var(--c1);
+  --side:var(--c7);
+  --side2:var(--c6);
+  --side-fg:var(--c1);
+  --side-dim:var(--c5);
+  --chip:var(--c2);
+}
+/* 把散落的硬编码色也归到色阶 */
+.drawer-figs a{background:var(--c4)}
+.drawer-figs a:hover{background:var(--c5)}
+.drawer-figs a b{color:var(--c7)}
+.drawer-figs a span{color:var(--c6)}
+.drawer .ef-tag{background:var(--c4);color:var(--c7)}
+.side-toggle{background:var(--c7);color:var(--c1);border-color:var(--c6)}
+.side-toggle:hover{color:var(--c1);border-color:var(--c4);background:var(--c6)}
+.drawer .foot-btn{color:var(--c2);border-color:var(--c6)}
+.drawer .foot-btn:hover{color:#fff;border-color:var(--c4)}
+.send.stop{background:var(--c5)}

@@ -1,17 +1,24 @@
 
-/* ═══ 内置字体：Maple Mono NF CN（woff2，随项目分发）═══
-   400 Regular / 700 Bold；其他字重由浏览器合成 */
+/* ═══ 内置字体：Maple Mono（官方 woff2 拉丁 + 中文常用字子集）═══
+   总大小 ~1.7MB；生僻字回退系统字体 */
 @font-face{
   font-family:"Maple Mono NF CN";
-  src:url("/fonts/MapleMono-NF-CN-Regular.woff2") format("woff2");
-  font-weight:400;font-style:normal;font-display:swap}
+  src:url("/fonts/MapleMono-Regular.woff2") format("woff2");
+  font-weight:400;font-style:normal;font-display:swap;
+  unicode-range:U+0000-024F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-21FF}
 @font-face{
   font-family:"Maple Mono NF CN";
-  src:url("/fonts/MapleMono-NF-CN-Bold.woff2") format("woff2");
-  font-weight:700;font-style:normal;font-display:swap}
+  src:url("/fonts/MapleMono-Bold.woff2") format("woff2");
+  font-weight:700;font-style:normal;font-display:swap;
+  unicode-range:U+0000-024F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-21FF}
+@font-face{
+  font-family:"Maple Mono NF CN";
+  src:url("/fonts/MapleMono-CN-subset.woff2") format("woff2");
+  font-weight:400 700;font-style:normal;font-display:swap;
+  unicode-range:U+3000-303F,U+3400-4DBF,U+4E00-9FFF,U+FF00-FFEF}
 /* agentd UI — 单层样式表（重写 2026-10-25）
    顺序：变量 → 壳 → 顶栏 → 抽屉 → 舞台 → 消息 → 输入 → 设置 → 响应式
-   约定：不使用；设置卡片统一由 .card / .card-hd / .card-bd 描述。 */
+   约定：不使用 !important；设置卡片统一由 .card / .card-hd / .card-bd 描述。 */
 
 :root{
   --ink:var(--c7); --ink2:var(--c5); --ink3:var(--c4);

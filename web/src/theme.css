@@ -711,3 +711,12 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .new-conv:hover{background:rgba(58,65,66,.07);color:var(--c7)}
 .drawer .new-conv:hover svg{transform:rotate(22.5deg)}
 .drawer .new-conv:active{background:rgba(58,65,66,.12)}
+
+/* 归档/恢复：放在行尾，悬停时替代计数显示 */
+.drawer .ef-record .act{
+  grid-area:count;justify-self:end;display:none;align-items:center;justify-content:center;
+  width:18px;height:18px;padding:0;background:transparent;border:0;color:var(--c6);cursor:pointer}
+.drawer .ef-record .act svg{width:14px;height:14px}
+.drawer .ef-record .act:hover{color:var(--c7)}
+.drawer .ef-record:hover .act{display:flex}
+.drawer .ef-record:hover .count{visibility:hidden}

@@ -18,10 +18,7 @@ function Roll({ value, digits = 2 }) {
         if (!changed || prev[i] === d) return <span className="rw" key={'s' + i + d}>{d}</span>
         return (
           <span className="rw" key={'r' + i + txt}>
-            <span className={'rd ' + (up ? 'up' : 'down')}>
-              {up ? <i>{prev[i]}</i> : <i>{d}</i>}
-              {up ? <i>{d}</i> : <i>{prev[i]}</i>}
-            </span>
+            <span className={'rd ' + (up ? 'up' : 'down')}><i>{d}</i></span>
           </span>
         )
       })}

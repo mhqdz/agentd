@@ -9,19 +9,17 @@ function Roll({ value, digits = 2 }) {
   const txt = String(value ?? 0).padStart(digits, '0')
   const prevRef = useRef(txt)
   const prev = prevRef.current.length === txt.length ? prevRef.current : txt
-  const changed = Number(txt) !== Number(prev)
-  const up = Number(txt) > Number(prev)
   useEffect(() => { prevRef.current = txt }, [txt])
+  const up = Number(txt) > Number(prev)
   return (
     <b className="roll">
-      {txt.split('').map((d, i) => {
-        if (!changed || prev[i] === d) return <span className="rw" key={'s' + i + d}>{d}</span>
-        return (
-          <span className="rw" key={'r' + i + txt}>
-            <span className={'rd ' + (up ? 'up' : 'down')}><i>{d}</i></span>
-          </span>
-        )
-      })}
+      {txt.split('').map((d, i) => (
+        <span className="rc" key={i}>
+          {prev[i] === d
+            ? <span className="rdg">{d}</span>
+            : <span className={'rdg flip ' + (up ? 'up' : 'down')} key={txt + i}>{d}</span>}
+        </span>
+      ))}
     </b>
   )
 }

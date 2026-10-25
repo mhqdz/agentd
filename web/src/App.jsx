@@ -42,14 +42,15 @@ function normalize(arr) {
   return out
 }
 
-function EditorCol({ value, onChange, onDone, placeholder }) {
+function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
   return (
     <div className="set-col col-editor">
       <textarea className="set-area" value={value || ''} placeholder={placeholder}
         onChange={e => onChange(e.target.value)} />
       <div className="set-col-foot">
         <span className="set-meta" style={{ marginRight: 'auto' }}>{(value || '').length} 字</span>
-        <button className="ef-btn small" onClick={onDone}>完成</button>
+        {onCancel ? <button className="ef-btn small" onClick={onCancel}>取消</button> : null}
+        <button className="ef-btn small" onClick={onDone}>保存</button>
       </div>
     </div>
   )
@@ -106,6 +107,7 @@ export default function App() {
   const [settings, setSettings] = useState({ tool_rounds_enabled: true, tool_rounds: 8 })
   const [toolEdit, setToolEdit] = useState(null)
   const [editField, setEditField] = useState(null)
+  const [editOriginal, setEditOriginal] = useState('')
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -242,6 +244,28 @@ export default function App() {
     document.body.style.userSelect = 'none'
     window.addEventListener('mousemove', move)
     window.addEventListener('mouseup', up)
+  }
+
+  // 逐级退出：编辑器 → 详情 → 设置；有改动先问是否保存
+  const closeOne = async () => {
+    const open = editField || toolEdit
+    if (open) {
+      const cur = editField ? (editP?.[editField] || '') : (toolEdit?.description || '')
+      if (cur !== (editOriginal || '')) {
+        if (!confirm('文本已修改，是否保存？\n确定 = 保存并关闭　取消 = 放弃修改')) {
+          if (editField) setEditP({ ...editP, [editField]: editOriginal })
+          else setToolEdit({ ...toolEdit, description: editOriginal })
+        } else if (toolEdit) {
+          await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: toolEdit.description }) })
+          refresh()
+        }
+      }
+      if (editField) setEditField(null); else setToolEdit(null)
+      return
+    }
+    if (editP) { setEditP(null); return }
+    setShowSet(false)
   }
 
   const refresh = async () => {
@@ -412,7 +436,7 @@ export default function App() {
   const cur = profiles.find(p => p.name === profile)
   return (
     <div className="app">
-      {showSet ? <div className="set-scrim" onClick={() => { setShowSet(false); setEditP(null); setEditField(null); setToolEdit(null) }} /> : null}
+      {showSet ? <div className="set-scrim" onClick={() => closeOne()} /> : null}
       <header className="cmd">
         <button onClick={() => setSideOpen(!sideOpen)} title="折叠/展开侧栏">{sideOpen ? '«' : '»'}</button>
         <div className="brand">
@@ -589,6 +613,7 @@ export default function App() {
                   toolEdit ? (
                     <EditorCol value={toolEdit.description} placeholder="工具说明（模型会看到这段文字）…"
                       onChange={v => setToolEdit({ ...toolEdit, description: v })}
+                      onCancel={() => { setToolEdit({ ...toolEdit, description: editOriginal }) }}
                       onDone={async () => {
                         await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ description: toolEdit.description }) })
@@ -597,6 +622,7 @@ export default function App() {
                   ) : (
                     <EditorCol value={editP[editField]} placeholder="这里写完整的系统提示…"
                       onChange={v => setEditP({ ...editP, [editField]: v })}
+                      onCancel={() => setEditP({ ...editP, [editField]: editOriginal })}
                       onDone={() => setEditField(null)} />
                   )
                 ) : null}
@@ -634,7 +660,7 @@ export default function App() {
                       <div className="set-f" style={{ marginTop: '.5rem' }}>
                         <span>系统提示</span>
                         <div className="prompt-text" title="双击编辑"
-                          onDoubleClick={() => setEditField(editField === 'system' ? null : 'system')}>
+                          onDoubleClick={() => { if (editField === 'system') { setEditField(null) } else { setEditOriginal(editP.system || ''); setEditField('system') } }}>
                           {editP.system || '（空）'}
                         </div>
                       </div>
@@ -704,7 +730,7 @@ export default function App() {
                         <div className="tool-desc" key={t.name}>
                           <b>{t.name}</b>
                           <span title="双击编辑说明" style={{ cursor: 'text' }}
-                            onDoubleClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditField(null) }}>
+                            onDoubleClick={() => { setToolEdit({ name: t.name, description: t.description }); setEditOriginal(t.description || ''); setEditField(null) }}>
                             {t.description}
                           </span>
                         </div>

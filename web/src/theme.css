@@ -689,3 +689,9 @@ body{background:var(--paper);color:var(--ink);
 /* 面板底色改为纸色：让"卡片"成为唯一白块 → 高矮一眼可辨（之前面板白底 + 卡片白底 = 连成一片 ✗） */
 .settings{background:var(--paper) !important}
 .set-col{background:#fff !important}
+
+/* 面板高度随内容裁剪：不再铺满整屏（取消 bottom:0 造成的整页留白 ✗） */
+.settings{top:0 !important;bottom:auto !important;height:fit-content !important;
+  max-height:100vh !important;overflow:hidden !important;
+  box-shadow:-12px 8px 32px rgba(20,26,25,.14)}
+.set-cols{max-height:calc(100vh - 46px) !important;overflow-y:auto !important}

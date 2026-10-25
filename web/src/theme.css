@@ -357,3 +357,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .side-toggle svg{width:12px;height:12px}
 .side-toggle.closed{left:0;border-right:1px solid var(--line);border-left:0}
 .side-toggle:hover{color:var(--sage-d);border-color:var(--sage)}
+
+/* 折叠钮贴合侧栏深色：深底浅字，悬停信号色（不再白底 ✗） */
+.side-toggle{background:var(--side);color:var(--side-fg);border:1px solid #2a3a38;border-right:0}
+.side-toggle.closed{border-right:1px solid #2a3a38;border-left:0}
+.side-toggle:hover{color:var(--signal);border-color:var(--sage);background:var(--side2)}

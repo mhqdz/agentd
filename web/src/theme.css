@@ -539,3 +539,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer-figs a .rd.down{animation-name:rollDown}
 @keyframes rollUp{from{transform:translateY(0)}to{transform:translateY(-1.1em)}}
 @keyframes rollDown{from{transform:translateY(-1.1em)}to{transform:translateY(0)}}
+
+/* 翻数保持原字号（Roll 内部 span 不继承大字号时的补偿） */
+.drawer-figs a .roll{font-size:1.45rem;line-height:1.1;color:var(--c7)}
+.drawer-figs a .roll .rw{font-size:1em}

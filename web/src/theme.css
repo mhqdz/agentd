@@ -362,7 +362,18 @@ body{background:var(--paper);color:var(--ink);
 .rail .dots{display:grid;gap:.35rem;background:none;border:0;padding:.3rem;cursor:pointer}
 .rail .dots i{width:4px;height:4px;background:var(--sage);display:block;opacity:.55}
 .rail .dots:hover i{opacity:1;background:var(--sage-d)}
+/* 设置面板 */
+.settings{position:absolute;right:64px;top:0;bottom:0;width:min(420px,80vw);background:var(--panel);
+  border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(20,26,25,.08);z-index:20;
+  display:flex;flex-direction:column}
+.set-hd{display:flex;justify-content:space-between;align-items:center;padding:.7rem .9rem;border-bottom:1px solid var(--line)}
 .set-body{overflow-y:auto;padding:.8rem .9rem;display:grid;gap:.8rem}
+.set-card{border:1px solid var(--line);padding:.7rem .8rem;background:#fff}
+.set-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.set-row .sp{flex:1}
+.set-f{display:grid;gap:.2rem;margin:.45rem 0;font-size:.72rem;color:var(--ink2)}
+.set-f input,.set-f select{border:1px solid var(--line);background:#fff;padding:.3rem .4rem;font:inherit;font-size:.78rem;color:var(--ink)}
+.set-meta{margin-top:.5rem;font-size:.7rem;color:var(--ink3)}
 .ef-btn.small{font-size:.72rem;padding:.2rem .5rem}
 
 /* 修 UI：ef-btn 自带的 ::before/::after 扫线在小按钮上像"进度条" */
@@ -371,16 +382,90 @@ body{background:var(--paper);color:var(--ink);
 /* 保留 ef-btn 的扫线动画，但把它限制在按钮内部（之前 z-index:-1 + 无 overflow 会跑到外面像进度条 ✗） */
 .ef-btn{position:relative;overflow:hidden;isolation:isolate}
 .ef-btn::before,.ef-btn::after{display:block !important;content:'' !important}
+
+/* 设置面板：改为固定覆盖层，脱离 .stage 的层叠/绝对定位上下文 */
+.settings{position:fixed !important;right:0;top:0;bottom:0;left:auto !important;width:min(440px,88vw);
+  background:#fff;border-left:1px solid var(--line);box-shadow:-12px 0 32px rgba(20,26,25,.14);
+  z-index:999;display:flex;flex-direction:column}
+.settings .set-hd,.set-col{color:var(--ink)}
+
+/* 设置：编辑时横向展开第二列 */
+.settings.two{width:min(880px,94vw)}
+.set-cols{display:grid;grid-template-columns:1fr;gap:.8rem;padding:.8rem .9rem;overflow:auto;flex:1;align-content:start}
+.set-cols.two{grid-template-columns:minmax(240px,1fr) minmax(300px,1.15fr)}
+
+
+/* 设置三列 */
+.settings.three{width:min(1250px,96vw)}
+.set-cols.three{grid-template-columns:minmax(200px,.9fr) minmax(260px,1fr) minmax(320px,1.4fr)}
+.set-card.on{border-color:var(--ef-signal);box-shadow:inset 2px 0 0 var(--ef-signal)}
 /* 长配置项：单行省略 + 编辑按钮 */
 .set-long{display:flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:#fff;padding:.22rem .3rem .22rem .45rem}
 .set-long .val{flex:1;min-width:0;font-size:.76rem;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 长文本编辑列 */
+.set-area{width:100%;min-height:320px;border:1px solid var(--line);background:#fff;padding:.5rem .6rem;
+  font:inherit;font-size:.78rem;line-height:1.7;resize:vertical;outline:none}
+.set-area:focus{border-color:var(--sage-d)}
+
+/* 明确列顺序：列表永远在最左（1）→ 详细配置（2）→ 长文本编辑（3） */
+.set-cols{direction:ltr}
+
+.set-cols > .set-form{order:2}
+.set-cols > .set-editor{order:3}
+
+/* 列序反转：长文本编辑 | 详细配置 | 列表（列表贴最右） */
+.set-cols > .set-body:nth-child(1){order:3}
+.set-cols > .set-form{order:2}
+.set-cols > .set-editor{order:1}
+
+/* 每一列独立：独立轨道、独立滚动、min-width:0（内容再长也不撑开别列） */
+.set-cols{display:grid;align-items:start;gap:.9rem;padding:.8rem .9rem;overflow:auto;flex:1;min-height:0}
+.set-cols.two{grid-template-columns:minmax(280px,.95fr) minmax(320px,1.05fr)}
+.set-cols.three{grid-template-columns:minmax(320px,1.25fr) minmax(260px,1fr) minmax(200px,.75fr)}
+.set-col{display:grid;grid-template-columns:minmax(0,1fr);gap:.8rem;align-content:start;
+  min-width:0;max-width:100%;overflow:hidden;border-left:1px solid transparent}
+.set-col > *{min-width:0;max-width:100%}
 .col-form{border-left-color:var(--line);padding-left:.9rem}
 .col-editor{border-left-color:var(--line);padding-left:.9rem}
+/* 列序：编辑 | 详细配置 | 列表 */
+.set-cols > .col-editor{order:1}
+.set-cols > .col-form{order:2}
+.set-cols > .col-list{order:3}
 /* 旧类名不再使用 */
 .set-body{display:none}
+
+/* 修：长配置项把按钮挤出去（flex/grid 子项默认 min-width:auto ✗） */
+.set-card{min-width:0;overflow:hidden}
+.set-f{min-width:0;grid-template-columns:minmax(0,1fr)}
+.set-f input,.set-f select{min-width:0;width:100%}
 .set-long{min-width:0;overflow:hidden}
 .set-long .val{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .set-long button{flex:0 0 auto}
+/* 表单列稍宽，留出按钮空间 */
+.set-cols.two{grid-template-columns:minmax(380px,1.1fr) minmax(240px,.9fr)}
+
+/* 每列是一个完整的大框：框住整列高度，内容内部滚动，按钮固定在底部 */
+.set-cols{align-items:stretch;height:100%;min-height:0}
+.set-col{display:flex;flex-direction:column;min-height:0;height:100%;
+  border:1px solid var(--line);background:#fff;overflow:hidden}
+.set-col-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding:.75rem .8rem;display:grid;
+  grid-template-columns:minmax(0,1fr);gap:.8rem;align-content:start}
+.set-col-foot{flex:0 0 auto;display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem;
+  border-top:1px solid var(--line);background:var(--panel)}
+.set-col .set-row{margin-bottom:.35rem}
+
+/* 防止 .two 覆盖 .three（同优先级时后定义者胜 ✗） */
+.set-cols.two:not(.three){grid-template-columns:minmax(380px,1.1fr) minmax(240px,.9fr)}
+.settings.two:not(.three){width:min(880px,94vw)}
+/* 统一顶部留白，三列同高 */
+.set-cols{padding:.8rem .9rem;align-items:stretch}
+.set-col{height:100%}
+
+/* 让三列框撑满面板高度：grid 行高必须由容器决定，而不是内容 */
+.settings{display:flex;flex-direction:column}
+.set-cols{flex:1 1 auto;min-height:0;height:auto;
+  grid-auto-rows:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.set-col{height:auto;min-height:0}
 
 /* 编辑按钮展开时保持"按下"状态 */
 .ef-btn.active{background:var(--ef-signal);color:var(--on-signal,#08201d);border-color:var(--ef-signal)}
@@ -388,17 +473,60 @@ body{background:var(--paper);color:var(--ink);
 
 /* 编辑列：大框本身就是文本域 */
 .col-editor{padding:0}
+.col-editor .set-area{flex:1 1 auto;min-height:0;width:100%;border:0;background:#fff;
+  padding:.85rem .9rem;font:inherit;font-size:.82rem;line-height:1.8;resize:none;outline:none}
+/* 表单列不再有标题行，首项上移，排版更紧凑 */
+.col-form .set-col-scroll{padding-top:.85rem}
 
 /* 系统提示行：与右侧列表卡片同款"信号色细框" */
 .set-long{border:1px solid var(--line);border-radius:0}
 .set-long.on{border-color:var(--ef-signal);box-shadow:inset 2px 0 0 var(--ef-signal)}
 .set-long .val{color:var(--ink2)}
 
+/* 系统提示全文：不省略、多行、无框 */
+.prompt-text{flex:1 1 auto;min-width:0;white-space:pre-wrap;word-break:break-word;
+  font-size:.78rem;line-height:1.75;color:var(--ink2);max-height:18rem;overflow-y:auto}
+
+/* 工具勾选 */
+.tool-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.35rem;margin-top:.15rem}
+.tool-item{display:flex;align-items:center;gap:.35rem;border:1px solid var(--line);background:#fff;
+  padding:.28rem .4rem;font-size:.74rem;cursor:pointer;color:var(--ink2)}
+.tool-item.on{border-color:var(--ef-signal);color:var(--ink);box-shadow:inset 2px 0 0 var(--ef-signal)}
+.tool-item input{accent-color:var(--sage-d)}
+
+/* 工具勾选：等宽两列，勾选框左对齐 */
+.tool-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tool-item{justify-content:flex-start;gap:.45rem;min-width:0;padding:.3rem .45rem}
+.tool-item input{margin:0;flex:0 0 auto;width:14px;height:14px}
+.tool-item span{flex:1 1 auto;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* 工具说明条目 */
+.tool-desc{display:grid;gap:.1rem;padding:.4rem 0;border-top:1px solid var(--line)}
+.tool-desc:first-of-type{border-top:0}
+.tool-desc b{font-size:.76rem;color:var(--sage-d)}
+.tool-desc span{font-size:.7rem;line-height:1.6;color:var(--ink2)}
+
+/* 分区标题：模型配置 / 工具配置 同一套样式 */
+.set-section{font-size:.66rem;letter-spacing:.18em;color:var(--ink3);padding:.1rem 0 .1rem;
+  border-bottom:1px solid var(--line);margin:.2rem 0 -.2rem}
+
 /* 触发方式替代按钮 */
 .set-name{cursor:pointer}
 .set-name:hover{color:var(--sage-d);text-decoration:underline;text-underline-offset:3px}
+.set-card:hover{border-color:var(--sage)}
+.prompt-text{cursor:text}
+.prompt-text:hover{color:var(--ink)}
+
+.set-card-click{cursor:pointer}
+.tool-desc span{cursor:text}
+
+.set-card-click{cursor:pointer}
 .tool-edit{position:absolute;right:16px;top:64px;width:min(520px,80vw);z-index:30;background:#fff;
   border:1px solid var(--line);box-shadow:0 12px 32px rgba(20,26,25,.16);padding:.8rem}
+.tool-edit .set-area{min-height:160px}
+
+/* 只有"编辑列 + 列表"两列时：编辑列宽、列表窄 */
+.set-cols.two:not(.three){grid-template-columns:minmax(420px,1.6fr) minmax(260px,1fr)}
 
 /* 单按钮：颜色即语义（无文字） */
 .send{width:2.9rem;height:2.6rem;border-radius:0;display:inline-flex;align-items:center;justify-content:center;
@@ -472,75 +600,145 @@ body{background:var(--paper);color:var(--ink);
 .swbox:checked{background:var(--ef-signal);border-color:var(--ef-signal)}
 .swbox:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;
   border-right:2px solid #08201d;border-bottom:2px solid #08201d;transform:rotate(40deg)}
+
+/* 滑块开关（button + 内部方块，避开 input 伪元素不可渲染的问题） */
+.tg{width:38px;height:20px;padding:0;flex:0 0 auto;border:1px solid var(--line);background:#d3d9d4;
+  position:relative;cursor:pointer;transition:background .12s,border-color .12s}
+.tg b{position:absolute;left:1px;top:1px;width:16px;height:16px;background:#fff;
+  border:1px solid rgba(20,26,25,.18);transition:transform .12s,background .12s,border-color .12s}
+.tg.on{background:var(--ef-signal);border-color:var(--ef-signal)}
+.tg.on b{transform:translateX(18px);background:#08201d;border-color:#08201d}
+.tg:focus-visible{outline:2px solid var(--sage-d);outline-offset:2px}
+
+/* 列表列统一成"一张卡 + 分隔行"（与工具配置同风格） */
+.list-row{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 0;border-top:1px solid var(--line);cursor:pointer}
+.list-row:first-child{border-top:0}
+.list-row:hover b{color:var(--sage-d)}
+.list-row.on b{color:var(--sage-d)}
+.list-row b{font-size:.82rem}
+.list-row .set-meta{font-size:.7rem}
+.set-card .tool-desc{border-top:1px solid var(--line)}
+.set-card .tool-desc:first-child{border-top:0}
+
+/* 设置面板可滚动（之前 .set-cols 固定行高导致内容被裁 ✗） */
+.set-cols{overflow-y:auto !important;min-height:0}
+.set-col{min-height:0}
+.list-row{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 0;border-top:1px solid var(--line);cursor:pointer}
+.list-row:first-child{border-top:0}
+.list-row:hover b,.list-row.on b{color:var(--sage-d)}
+.list-row b{font-size:.82rem}
+.set-card .tool-desc{border-top:1px solid var(--line)}
+.set-card .tool-desc:first-child{border-top:0}
+
+/* 模型配置行：名称一行、底模一行（与工具配置同结构，颜色不变） */
+.list-row.col{display:grid;grid-template-columns:1fr;gap:.1rem;align-items:start}
+.list-row.col .set-meta{font-size:.7rem;color:var(--ink3)}
+/* 整栏滚动：列随内容增高，由 .set-cols 统一滚动 */
+.set-col{height:auto !important;min-height:0}
+.set-col-scroll{overflow:visible !important;flex:0 0 auto}
+.set-cols{overflow-y:auto !important;align-items:start !important}
+
+/* 设置开启时的透明遮罩：吃掉点击与滚轮，不影响底层会话 */
+.set-scrim{position:fixed;inset:0;z-index:998;background:transparent;cursor:default}
+.settings{z-index:999}
+
+/* 兜底：面板自身也不把滚轮漏给下层；滚动链限制在面板内 */
+.settings{overflow:hidden}
+.set-cols{overscroll-behavior:contain}
+
+/* 头部右侧按钮组（否则 space-between 会把两个按钮拉散 ✗） */
+.set-hd .set-actions{display:flex;align-items:center;gap:.5rem}
+/* 新建 profile 与列左对齐 */
+.set-col-foot{justify-content:flex-start}
+
+/* 头部高度固定：取消/保存出现时不改变卡片高度 */
+.set-hd{height:46px;box-sizing:border-box}
+.set-hd .ef-btn.small{height:24px;display:inline-flex;align-items:center}
+/* 模型配置里的“新建”行 */
+.list-row.new{color:var(--sage-d);font-size:.8rem;cursor:pointer}
+.list-row.new:hover{background:rgba(111,167,156,.08)}
+
+/* 每层一张独立卡片：等宽、高度自适应（短内容就短），列表列最高并整栏滚动 */
+.set-cols{display:grid;align-items:start !important;gap:.9rem;overflow-y:auto !important;height:auto !important}
+.set-cols.two:not(.three){grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+.set-cols.three{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+.set-col{height:auto !important;min-height:0;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column}
+.set-col-scroll{overflow:visible !important;flex:0 0 auto}
 .col-list{max-height:100%}
+
+/* ===== 权威规则：卡片固定 400px，面板宽度自适应卡片数 ===== */
+.settings,.settings.two,.settings.two:not(.three),.settings.three{
+  width:fit-content !important;max-width:96vw !important}
+.set-cols,.set-cols.two,.set-cols.three,.set-cols.two:not(.three){
+  display:flex !important;grid-template-columns:none !important;flex-wrap:nowrap !important;
+  gap:.9rem !important;justify-content:flex-end !important;align-items:flex-start !important;
+  overflow:auto !important;height:auto !important;min-height:0 !important;padding:.8rem .9rem !important}
+.set-col,.set-col.col-list,.set-col.col-form,.set-col.col-editor{
+  flex:0 0 400px !important;width:400px !important;max-width:400px !important;
+  height:auto !important;min-height:0 !important}
 @media (max-width:900px){
   .set-col,.set-col.col-list,.set-col.col-form,.set-col.col-editor{flex:0 0 100% !important;width:100% !important;max-width:100% !important}
 }
+
+/* 高度严格自适应内容：不拉伸、不等高 */
+.set-col,.set-col.col-list,.set-col.col-form,.set-col.col-editor{
+  height:fit-content !important;align-self:flex-start !important;max-height:none !important}
+/* 文本编辑卡：高度随内容（最少 120px），不占满整列 */
+
+/* 面板底色改为纸色：让"卡片"成为唯一白块 → 高矮一眼可辨（之前面板白底 + 卡片白底 = 连成一片 ✗） */
+.settings{background:var(--paper) !important}
+.set-col{background:#fff !important}
+
+/* 面板高度随内容裁剪：不再铺满整屏（取消 bottom:0 造成的整页留白 ✗） */
+.settings{top:0 !important;bottom:auto !important;height:fit-content !important;
+  max-height:100vh !important;overflow:hidden !important;
+  box-shadow:-12px 8px 32px rgba(20,26,25,.14)}
+.set-cols{max-height:calc(100vh - 46px) !important;overflow-y:auto !important}
+
+/* 背景属于每张卡片本身：面板/列容器一律透明，卡片各自带底、边框、投影 */
+.settings{background:transparent !important;border:none !important;box-shadow:none !important}
+.set-cols{background:transparent !important}
+.set-hd{background:transparent !important;border-bottom:none !important;padding-left:.2rem}
+.set-col{background:#fff !important;border:1px solid var(--line) !important;
+  box-shadow:0 6px 18px rgba(20,26,25,.08)}
+
+/* 卡片标题与"常规配置"同款：小字 + 下划线，贴在卡片顶部 */
+.set-col > .set-section{margin:0;padding:.55rem .85rem .5rem;border-bottom:1px solid var(--line);
+  font-size:.66rem;letter-spacing:.18em;color:var(--ink3)}
 
 /* 文本卡：高度随内容，不再内部溢出滚动 */
 
 /* 文本卡：脱离 flex 拉伸，纯块级随内容长高 */
 .col-editor{display:block !important;max-height:none !important;overflow:visible !important}
 
-/* ═══ 设置面板（唯一一处定义，勿再追加补丁）═══════════════
-   规则：面板透明；每层一张 .card；卡片宽 400、上限 = 视口高；
-        卡片内内容滚动；标题行统一样式。 */
-.set-scrim{position:fixed;inset:0;z-index:998;background:transparent}
-.settings{position:fixed;top:0;right:0;z-index:999;height:100vh;max-height:100vh;width:fit-content;
-  max-width:96vw;display:flex;flex-direction:column;overflow:hidden;background:transparent}
-.set-hd{flex:0 0 46px;display:flex;align-items:center;justify-content:space-between;padding:0 .9rem;
-  font-size:.62rem;letter-spacing:.24em;color:var(--ink3)}
-.set-actions{display:flex;gap:.5rem}
-.set-cols{flex:1 1 auto;min-height:0;display:flex;align-items:flex-start;justify-content:flex-end;
-  gap:.9rem;padding:.8rem .9rem;overflow:auto}
+.set-col{max-height:none !important}
 
-.card{flex:0 0 400px;width:400px;max-width:400px;height:fit-content;max-height:100vh;
-  display:flex;flex-direction:column;overflow:hidden;
-  background:#fff;border:1px solid var(--line);box-shadow:0 6px 18px rgba(20,26,25,.08)}
-.card-hd{flex:0 0 auto;display:flex;align-items:center;gap:.6rem;padding:.55rem .85rem .5rem;
-  border-bottom:1px solid var(--line);font-size:.66rem;letter-spacing:.18em;color:var(--ink3)}
-.card-bd{flex:1 1 auto;min-height:0;overflow-y:auto;padding:.7rem .85rem;
-  display:grid;grid-template-columns:minmax(0,1fr);gap:.7rem;align-content:start}
-.card-ft{flex:0 0 auto;display:flex;gap:.5rem;padding:.5rem .85rem;border-top:1px solid var(--line)}
+/* 文本域高度由 JS 写入 --h（!important 会压过内联 height ✗，变量不会 ✓） */
+.col-editor .set-area{height:var(--h,120px) !important;max-height:none !important;overflow:hidden !important;resize:none !important}
 
-/* 字段与列表 */
-.set-section{font-size:.66rem;letter-spacing:.18em;color:var(--ink3);padding:.1rem 0;border-bottom:1px solid var(--line)}
-.set-card{border:1px solid var(--line);background:#fff;padding:.6rem .7rem;min-width:0}
-.set-row{display:flex;align-items:center;gap:.6rem}
-.set-row .sp{flex:1}
-.set-f{display:grid;gap:.2rem;font-size:.72rem;color:var(--ink2);min-width:0}
-.set-f input,.set-f select{min-width:0;width:100%;border:1px solid var(--line);background:#fff;
-  padding:.3rem .4rem;font:inherit;font-size:.78rem;color:var(--ink)}
-.set-meta{font-size:.7rem;color:var(--ink3)}
-.prompt-text{white-space:pre-wrap;word-break:break-word;font-size:.78rem;line-height:1.75;
-  color:var(--ink2);cursor:text}
-.list-row{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 0;border-top:1px solid var(--line);cursor:pointer}
-.list-row:first-child{border-top:0}
-.list-row.col{display:grid;grid-template-columns:1fr;gap:.1rem;align-items:start}
-.list-row b{font-size:.82rem}
-.list-row:hover b,.list-row.on b{color:var(--sage-d)}
-.list-row.new{color:var(--sage-d);font-size:.8rem}
-.tool-desc{display:grid;gap:.1rem;padding:.45rem 0;border-top:1px solid var(--line)}
-.tool-desc:first-child{border-top:0}
-.tool-desc b{font-size:.76rem;color:var(--sage-d)}
-.tool-desc span{font-size:.7rem;line-height:1.6;color:var(--ink2);cursor:text}
-.tool-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}
-.tool-item{display:flex;align-items:center;gap:.45rem;min-width:0;border:1px solid var(--line);
-  background:#fff;padding:.3rem .45rem;font-size:.74rem;cursor:pointer;color:var(--ink2)}
-.tool-item.on{border-color:var(--ef-signal);color:var(--ink);box-shadow:inset 2px 0 0 var(--ef-signal)}
-.tool-item input{margin:0;flex:0 0 auto;width:14px;height:14px}
-.tool-item span{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 3 级文本卡：有上限，超出后卡片内部滚动（和 2 级卡一致 ✓） */
+.col-editor .set-area{max-height:calc(100vh - 170px) !important;overflow-y:auto !important}
 
-/* 文本编辑：撑满卡片内容区，超出由 .card-bd 滚动 */
-.col-editor .card-bd{padding:0;display:flex;flex-direction:column}
-.col-editor textarea{flex:1 1 auto;min-height:160px;width:100%;border:0;background:#fff;
-  padding:.7rem .85rem;font:inherit;font-size:.8rem;line-height:1.8;resize:none;outline:none}
+/* 2 级卡：内容区有上限并内部滚动（与 3 级卡一致），删除按钮在卡内 */
+.col-form .set-col-scroll{max-height:calc(100vh - 170px) !important;overflow-y:auto !important}
 
-/* 开关 */
-.tg{width:38px;height:20px;padding:0;flex:0 0 auto;border:1px solid var(--line);background:#d3d9d4;
-  position:relative;cursor:pointer}
-.tg b{position:absolute;left:1px;top:1px;width:16px;height:16px;background:#fff;border:1px solid rgba(20,26,25,.18)}
-.tg.on{background:var(--ef-signal);border-color:var(--ef-signal)}
-.tg.on b{transform:translateX(18px);background:#08201d;border-color:#08201d}
+/* ── 统一卡片基类：宽/高上限/边框/标题一致，层级只负责位置 ── */
+.card,.set-col{
+  width:var(--card-w,400px) !important;max-width:var(--card-w,400px) !important;
+  height:fit-content !important;max-height:calc(100vh - 120px) !important;
+  display:flex !important;flex-direction:column !important;overflow:hidden !important;
+  background:#fff !important;border:1px solid var(--line) !important;
+  box-shadow:0 6px 18px rgba(20,26,25,.08) !important}
+.card-hd,.set-col>.set-section{
+  flex:0 0 auto;margin:0 !important;padding:.55rem .85rem .5rem !important;
+  border-bottom:1px solid var(--line) !important;
+  font-size:.66rem !important;letter-spacing:.18em !important;color:var(--ink3) !important}
+.card-bd,.set-col-scroll{
+  flex:1 1 auto !important;min-height:0 !important;overflow-y:auto !important;max-height:none !important}
+.col-editor .set-area{max-height:none !important;overflow-y:auto !important}
 
-@media (max-width:900px){ .card{flex:0 0 100%;width:100%;max-width:100%} }
+/* 最终上限（覆盖所有历史 max-height 规则） */
+.settings{max-height:100vh !important;overflow:hidden !important}
+.set-cols{max-height:calc(100vh - 46px) !important;overflow:auto !important}
+.set-col,.card{max-height:calc(100vh - 70px) !important;overflow:hidden !important}
+.set-col-scroll{max-height:none !important;overflow-y:auto !important}

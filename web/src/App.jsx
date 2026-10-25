@@ -52,7 +52,7 @@ function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
     el.style.setProperty('--h', (el.scrollHeight + 2) + 'px')
   }, [value])
   return (
-    <div className="card col-editor">
+    <div className="set-col col-editor">
       <textarea ref={ta} className="set-area" value={value || ''} placeholder={placeholder}
         onChange={e => onChange(e.target.value)} />
       <div className="set-col-foot">
@@ -672,8 +672,8 @@ export default function App() {
               </div>
               <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
                 {(editField || toolEdit) ? (
-                  <div className="card col-editor">
-                    <div className="card-hd">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
+                  <div className="set-col col-editor">
+                    <div className="set-section">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
                     <textarea className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
                       onInput={e => autoGrow(e.target)}
                       placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
@@ -688,8 +688,8 @@ export default function App() {
                 ) : null}
 
                 {editP ? (
-                  <div className="card col-form">
-                    <div className="card-hd" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+                  <div className="set-col col-form">
+                    <div className="set-section" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
                       <span>{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span>
                       <span style={{ flex: 1 }} />
                       {!editP._new && !editP.builtin ? (
@@ -700,7 +700,7 @@ export default function App() {
                         }}>删除</button>
                       ) : null}
                     </div>
-                    <div className="card-bd">
+                    <div className="set-col-scroll">
                       {[['name', '名称（英文短名）'], ['base_url', '接口地址（本地或云端 /v1）'],
                         ['api_key', 'API Key（云端必填，本地可空）'], ['model', '模型名']].map(([k, label]) => (
                         <label className="set-f" key={k}><span>{label}</span>
@@ -739,9 +739,8 @@ export default function App() {
                   </div>
                 ) : null}
 
-                <div className="card col-list">
-                  <div className="card-hd">配置</div>
-                  <div className="card-bd">
+                <div className="set-col col-list">
+                  <div className="set-col-scroll">
                     <div className="set-section">常规配置</div>
                     <div className="set-card">
                       <div className="set-row">

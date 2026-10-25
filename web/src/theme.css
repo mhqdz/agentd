@@ -453,14 +453,11 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 }
 
 /* 消息卡顶部那条"页签"：改成色阶主题色（原来用 --ef-ink，深色近黑 ✗） */
-.msg.ef-panel::before{background:var(--c4);height:3px;width:120px}
 .msg.ef-panel::after{background:transparent}
 
 /* 页签（endfield 的 .ef-panel::before）：同选择器、后定义、不用 !important */
-.ef-panel::before{background:var(--c4)}
 
 /* 工具记录面板的页签（div.tools.ef-panel::before）同样用主题色 */
-.tools.ef-panel::before,.msg.ef-panel::before{background:var(--c4);height:3px}
 
 /* 数字块悬停：文字保持深色（原悬停被继承成白色 ✗） */
 .drawer-figs a:hover b,.drawer-figs a:hover span{color:var(--c7)}
@@ -482,3 +479,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .ef-record > span.ef-field{grid-area:count;justify-self:end;font-size:.64rem;color:var(--ink3)}
 .drawer .ef-record:hover{padding-left:.6rem;background:rgba(58,65,66,.05)}
 .drawer .ef-record.on{padding-left:.6rem;background:rgba(153,170,173,.18)}
+
+/* 页签长度：会话卡占满宽度，工具记录卡短一截（唯一权威定义） */
+.msg.ef-panel::before{left:-1px;right:-1px;width:auto;height:3px;background:var(--c4)}
+.tools.ef-panel::before{left:-1px;right:auto;width:88px;height:3px;background:var(--c4)}

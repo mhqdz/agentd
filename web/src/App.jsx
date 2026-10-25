@@ -168,7 +168,7 @@ export default function App() {
     if (!th) return
     if (e.target.closest('.thread')) return          // 会话区内部走原生滚动
     if (e.target.closest('.settings')) return        // 设置面板内部自己滚 ✓
-    if (e.target.closest('.set-scrim')) return       // 遮罩层吞掉滚轮 ✓
+    if (e.target.closest('.set-scrim')) return       // 遮罩吞掉滚轮 ✓
     th.scrollTop += e.deltaY                          // 输入区上滚 → 滚动会话
   }
 
@@ -412,6 +412,7 @@ export default function App() {
   const cur = profiles.find(p => p.name === profile)
   return (
     <div className="app">
+      {showSet ? <div className="set-scrim" onClick={() => { setShowSet(false); setEditP(null); setEditField(null); setToolEdit(null) }} /> : null}
       <header className="cmd">
         <button onClick={() => setSideOpen(!sideOpen)} title="折叠/展开侧栏">{sideOpen ? '«' : '»'}</button>
         <div className="brand">
@@ -579,8 +580,6 @@ export default function App() {
             </div>
           </div>
           {showSet ? (
-              <>
-            <div className="set-scrim" onClick={() => { setShowSet(false); setEditP(null); setEditField(null); setToolEdit(null) }} />
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
@@ -601,7 +600,6 @@ export default function App() {
                       onChange={v => setEditP({ ...editP, [editField]: v })}
                       onDone={() => setEditField(null)} />
                   )
-              </>
                 ) : null}
 
                 {editP ? (

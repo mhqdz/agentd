@@ -154,7 +154,11 @@ func (s *Server) handleConvs(w http.ResponseWriter, r *http.Request) {
 	}
 	out := make([]row, 0, len(list))
 	for _, c := range list {
-		out = append(out, row{c.ID, c.Title, c.UpdatedAt, len(c.Messages)})
+		n := c.MsgCount
+		if n == 0 {
+			n = len(c.Messages)
+		}
+		out = append(out, row{c.ID, c.Title, c.UpdatedAt, n})
 	}
 	writeJSON(w, 200, out)
 }

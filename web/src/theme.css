@@ -212,3 +212,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .set-col-foot{padding:.5rem .85rem;border-top:1px solid var(--line);display:flex;gap:.5rem}
 .ef-btn.active{background:var(--signal);color:var(--on-signal);border-color:var(--signal)}
 .modeltxt{font-size:.74rem;color:#a9bdb9;max-width:24rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 抽屉行：标题拿到更多空间（之前被 No./日期 挤到 1 个字 ✗） */
+.drawer .ef-record{grid-template-columns:2.9rem 2.2rem minmax(0,1fr) 1.4rem;gap:.4rem}
+.drawer .ef-field{text-align:right}

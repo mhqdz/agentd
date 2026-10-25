@@ -182,7 +182,7 @@ func (s *SQLiteStore) Save(c *Conversation) error {
 }
 
 func (s *SQLiteStore) list(archived int) ([]*Conversation, error) {
-	rows, err := s.db.Query(`SELECT id,title,created_at,updated_at FROM conversations WHERE archived=? ORDER BY updated_at DESC`, archived)
+	rows, err := s.db.Query(`SELECT c.id,c.title,c.created_at,c.updated_at,(SELECT COUNT(*) FROM messages m WHERE m.conv_id=c.id) FROM conversations c WHERE archived=? ORDER BY updated_at DESC`, archived)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func (s *SQLiteStore) list(archived int) ([]*Conversation, error) {
 		var c Conversation
 		var id int
 		var cat, uat string
-		if err := rows.Scan(&id, &c.Title, &cat, &uat); err != nil {
+		if err := rows.Scan(&id, &c.Title, &cat, &uat, &c.MsgCount); err != nil {
 			return nil, err
 		}
 		c.CreatedAt, _ = time.Parse(time.RFC3339Nano, cat)

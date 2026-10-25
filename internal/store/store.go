@@ -30,6 +30,7 @@ type Conversation struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Messages  []Message `json:"messages"`
+	MsgCount  int       `json:"-"` // 列表用的消息条数（不加载消息）
 
 	// 压缩检查点（模型可换、可追溯）
 	Summary      string            `json:"summary,omitempty"`

@@ -630,3 +630,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   background:transparent;border-color:transparent;color:var(--c5)}
 .side-toggle.collapsed:hover{
   background:var(--c4);border-color:transparent;color:var(--c7)}
+
+/* 右栏轮次进度条（数字下方 2px 细条）*/
+.rail .rail-bar{display:block;width:38px;height:2px;background:var(--c3);margin-top:.35rem;position:relative}
+.rail .rail-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--c6);transition:width .3s ease}

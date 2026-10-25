@@ -521,6 +521,17 @@ export default function App() {
 
   const list = tab === 'archive' ? archived : convs
   const cur = profiles.find(p => p.name === profile)
+  // 轮次进度：当前回复已用的工具轮次 / 设置里的上限
+  const roundMax = settings.tool_rounds_enabled ? (settings.tool_rounds || 0) : 0
+  const roundNow = (() => {
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      const m = msgs[i]
+      if (m.role === 'assistant' && m.tools && m.tools.length) return m.tools.length
+      if (m.role === 'assistant') return 0
+    }
+    return 0
+  })()
+
   return (
     <div className="app">
       {showSet ? <div className="set-scrim" onClick={() => closeOne()} /> : null}
@@ -853,7 +864,10 @@ export default function App() {
         <aside className="rail">
           <span className="vt">AGENT EXECUTE · CREATE</span>
           <span className="rail-mid">
-            <span className="fig">{String(convs.length).padStart(2,'0')} / {String(archived.length).padStart(2,'0')}</span>
+            <span className="fig">{String(roundNow).padStart(2,'0')} / {roundMax ? String(roundMax).padStart(2,'0') : '∞'}</span>
+            <span className="rail-bar" title="本轮工具轮次 / 上限">
+              <i style={{ width: roundMax ? Math.min(100, roundNow / roundMax * 100) + '%' : '0%' }} />
+            </span>
             <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
           </span>
           <div className="rail-acts">

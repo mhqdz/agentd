@@ -652,3 +652,12 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   background:var(--c3);pointer-events:none}
 .topbar i{display:block;height:100%;width:0;background:var(--c6);
   transition:width .25s cubic-bezier(.2,.8,.2,1)}
+
+/* ═══ 会话区滚动条：自定义（替代原生）═══ */
+.thread{scrollbar-width:thin;scrollbar-color:var(--c4) transparent}
+.thread::-webkit-scrollbar{width:8px}
+.thread::-webkit-scrollbar-track{background:transparent}
+.thread::-webkit-scrollbar-thumb{background:var(--c4);border:2px solid transparent;
+  background-clip:content-box;border-radius:0}
+.thread::-webkit-scrollbar-thumb:hover{background:var(--c5);background-clip:content-box}
+.thread::-webkit-scrollbar-thumb:active{background:var(--c6);background-clip:content-box}

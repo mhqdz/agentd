@@ -279,6 +279,7 @@ func (s *Server) handleConv(w http.ResponseWriter, r *http.Request) {
 	}
 	if strings.HasSuffix(raw, "/restore") && r.Method == http.MethodPost {
 		id := strings.TrimSuffix(raw, "/restore")
+		logx.Info("conv.restore id=%s", id)
 		if err := s.st.Restore(id); err != nil {
 			writeJSON(w, 404, map[string]string{"error": "恢复失败：" + err.Error()})
 			return
@@ -288,6 +289,7 @@ func (s *Server) handleConv(w http.ResponseWriter, r *http.Request) {
 	}
 	id := raw
 	if r.Method == http.MethodDelete {
+		logx.Info("conv.archive id=%s", id)
 		if err := s.st.Archive(id); err != nil {
 			writeJSON(w, 404, map[string]string{"error": "归档失败：" + err.Error()})
 			return
@@ -357,6 +359,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 	c, err := ag.Conversation(in.ConvID)
 	if err != nil {
+		logx.Error("chat.error conv=%s err=%v", in.ConvID, err)
 		send("error", map[string]string{"error": err.Error()})
 		return
 	}
@@ -386,6 +389,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		s.convMu.Unlock()
 	}()
 	start := time.Now()
+	logx.Info("chat.start conv=%s profile=%s chars=%d", convID, ag.Profile().Name, len([]rune(in.Text)))
 	err = ag.SendWithTools(ctx, c, in.Text,
 		func(content, reasoning string) {
 			if content != "" {
@@ -412,12 +416,16 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			} else if str, ok := result.(string); ok {
 				text = str
 			}
+			logx.Info("tool.call name=%s ms=%d image=%v out=%d",
+				name, time.Since(start).Milliseconds(), hasImage, len([]rune(text)))
 			send("tool", map[string]any{"name": name, "args": args, "text": text, "image": hasImage})
 		})
 	if err != nil {
+		logx.Error("chat.error conv=%s err=%v", in.ConvID, err)
 		send("error", map[string]string{"error": err.Error()})
 		return
 	}
+	logx.Info("chat.done conv=%s secs=%.1f", c.ID, time.Since(start).Seconds())
 	send("done", map[string]any{"conv_id": c.ID, "secs": time.Since(start).Seconds()})
 }
 

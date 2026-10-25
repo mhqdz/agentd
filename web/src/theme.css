@@ -641,3 +641,7 @@ body{background:var(--paper);color:var(--ink);
 /* 设置开启时的透明遮罩：吃掉点击与滚轮，不影响底层会话 */
 .set-scrim{position:fixed;inset:0;z-index:998;background:transparent;cursor:default}
 .settings{z-index:999}
+
+/* 兜底：面板自身也不把滚轮漏给下层；滚动链限制在面板内 */
+.settings{overflow:hidden}
+.set-cols{overscroll-behavior:contain}

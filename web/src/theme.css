@@ -441,6 +441,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 消息卡顶部那条"页签"：改成色阶主题色（原来用 --ef-ink，深色近黑 ✗） */
 .msg.ef-panel::after{background:transparent}
 
+/* 页签（endfield 的 .ef-panel::before）：同选择器、后定义、不用 !important */
 
 /* 工具记录面板的页签（div.tools.ef-panel::before）同样用主题色 */
 
@@ -466,9 +467,11 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 .drawer .ef-record.on{padding-left:.6rem;background:rgba(153,170,173,.18)}
 
 /* 页签长度：会话卡占满宽度，工具记录卡短一截（唯一权威定义） */
+.msg.ef-panel::before{left:-1px;right:-1px;width:auto;height:3px;background:var(--c4)}
 .tools.ef-panel::before{left:-1px;right:-1px;width:auto;height:3px;background:var(--c2)}
 
 /* 用户消息卡：已有左侧竖线提示，不再画页签 */
+.msg.user.ef-panel::before{display:none}
 
 /* 用户消息卡：去掉上边框（只留左侧竖线 + 底边 + 右边）*/
 .msg.user{border-top:0}
@@ -649,6 +652,3 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   background:var(--c3);pointer-events:none}
 .topbar i{display:block;height:100%;width:0;background:var(--c6);
   transition:width .25s cubic-bezier(.2,.8,.2,1)}
-
-/* 会话消息卡：不使用 endfield 原生页签（顶部不再有横条） */
-.msg.ef-panel::before{display:none}

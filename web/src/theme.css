@@ -679,3 +679,9 @@ body{background:var(--paper);color:var(--ink);
 @media (max-width:900px){
   .set-col,.set-col.col-list,.set-col.col-form,.set-col.col-editor{flex:0 0 100% !important;width:100% !important;max-width:100% !important}
 }
+
+/* 高度严格自适应内容：不拉伸、不等高 */
+.set-col,.set-col.col-list,.set-col.col-form,.set-col.col-editor{
+  height:fit-content !important;align-self:flex-start !important;max-height:none !important}
+/* 文本编辑卡：高度随内容（最少 120px），不占满整列 */
+.col-editor .set-area{height:auto;min-height:120px;max-height:60vh}

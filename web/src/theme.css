@@ -482,4 +482,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 页签长度：会话卡占满宽度，工具记录卡短一截（唯一权威定义） */
 .msg.ef-panel::before{left:-1px;right:-1px;width:auto;height:3px;background:var(--c4)}
-.tools.ef-panel::before{left:-1px;right:auto;width:88px;height:3px;background:var(--c4)}
+.tools.ef-panel::before{left:-1px;right:-1px;width:auto;height:3px;background:var(--c2)}
+
+/* 用户消息卡：已有左侧竖线提示，不再画页签 */
+.msg.user.ef-panel::before{display:none}

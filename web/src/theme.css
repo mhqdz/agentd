@@ -695,3 +695,11 @@ body{background:var(--paper);color:var(--ink);
   max-height:100vh !important;overflow:hidden !important;
   box-shadow:-12px 8px 32px rgba(20,26,25,.14)}
 .set-cols{max-height:calc(100vh - 46px) !important;overflow-y:auto !important}
+
+/* 逐卡片裁剪：内边距统一、末尾不留空、空 footer 不占位 */
+.set-col{padding:0 !important}
+.set-col-scroll{padding:.7rem .85rem !important;gap:.7rem !important}
+.set-col > *:last-child,.set-col-scroll > *:last-child{margin-bottom:0 !important}
+.set-col-foot{padding:.5rem .85rem !important}
+.set-col-foot:empty{display:none !important}
+.set-section{margin-bottom:.15rem !important}

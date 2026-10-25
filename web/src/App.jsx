@@ -614,11 +614,7 @@ export default function App() {
               </ol>
             )}
           </div>
-          <div className="foot">
-            <button className="foot-btn" onClick={() => openConv(null)} title="新会话">＋ 新会话</button>
-            <button className="foot-btn" onClick={() => setShowSet(true)} title="设置">设置</button>
-            <span className="foot-mark">WORKSPACE / AGENT</span>
-          </div>
+<div className="foot"><span className="foot-mark">WORKSPACE / AGENT</span></div>
         </aside>
         <button className={'side-toggle' + (sideOpen ? '' : ' collapsed')}
           onClick={() => setSideOpen(!sideOpen)}

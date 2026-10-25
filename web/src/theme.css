@@ -654,3 +654,12 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 调试：把热区画成红色粗线（确认判定位置）+ 修正层叠顺序 */
 .drawer .edge{z-index:9}
+
+/* 新会话 ＋：贴在抽屉下方（视口左下），不参与抽屉滚动 */
+.new-conv{position:fixed;left:16px;bottom:16px;z-index:30;
+  width:34px;height:34px;display:grid;place-items:center;padding:0;
+  background:var(--c1);border:1px solid var(--c3);color:var(--c6);cursor:pointer;
+  transition:background .16s,color .16s,border-color .16s,width .16s}
+.new-conv svg{width:16px;height:16px}
+.new-conv:hover{background:var(--c4);border-color:var(--c4);color:var(--c7)}
+.new-conv:active{transform:scale(.97)}

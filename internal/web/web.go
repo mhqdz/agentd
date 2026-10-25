@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"path/filepath"
 	"sort"
 	"sync"
+
+	"agentd/internal/logx"
 
 	"net/http"
 	"os"
@@ -34,6 +36,7 @@ type Server struct {
 
 func New(cfg config.Config, a *agent.Agent, st store.Store) *Server {
 	s := &Server{cfg: cfg, a: a, st: st}
+	logx.Init(filepath.Join(cfg.DataDir, ""))
 	s.RunJobSweeper()
 	s.RunAutoArchive()
 	return s
@@ -76,6 +79,7 @@ func (s *Server) Handler() http.Handler {
 			// 只在"自动归档"相关配置变化时，立即巡检一次（其它配置保存不触发）
 			if before.AutoArchiveEnabled != after.AutoArchiveEnabled ||
 				before.AutoArchiveDays != after.AutoArchiveDays {
+				logx.Info("settings.auto_archive enabled=%v days=%d", after.AutoArchiveEnabled, after.AutoArchiveDays)
 				go s.sweepAutoArchive()
 			}
 			writeJSON(w, 200, after)
@@ -503,7 +507,7 @@ func (s *Server) sweepAutoArchive() {
 	}
 	before := time.Now().Add(-time.Duration(st.AutoArchiveDays) * 24 * time.Hour)
 	if n, err := s.st.ArchiveInactiveBefore(before); err == nil && n > 0 {
-		log.Printf("自动归档：%d 个会话（超过 %d 天未活跃）", n, st.AutoArchiveDays)
+		logx.Info("auto_archive archived=%d days=%d", n, st.AutoArchiveDays)
 	}
 }
 

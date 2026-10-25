@@ -20,6 +20,7 @@ import (
 	"agentd/internal/agent"
 	"agentd/internal/config"
 	"agentd/internal/llm"
+	"agentd/internal/logx"
 	"agentd/internal/store"
 	"agentd/internal/web"
 )
@@ -28,6 +29,12 @@ const version = "0.0.1-p0"
 
 func main() {
 	cfg := config.Load()
+	// 日志：写 <data_dir>/agentd.log（同时打 stderr）
+	if err := logx.Init(cfg.DataDir); err != nil {
+		fmt.Fprintf(os.Stderr, "日志初始化失败：%v（仅 stderr）\n", err)
+	}
+	logx.Info("start model=%s base_url=%s data_dir=%s", cfg.Model, cfg.BaseURL, cfg.DataDir)
+
 	st, err := store.NewSQLite(cfg.DataDir)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "初始化存储失败:", err)

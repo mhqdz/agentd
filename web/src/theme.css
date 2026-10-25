@@ -25,7 +25,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 @keyframes pulse{50%{opacity:.25}}
 
 /* 抽屉 */
-.drawer{width:250px;flex:0 0 auto;color:var(--side-fg);display:flex;flex-direction:column;border-right:1px solid var(--c6);
+.drawer{width:250px;flex:0 0 auto;color:var(--side-fg);display:flex;flex-direction:column;border-right:1px solid var(--c3);
   background:linear-gradient(180deg,var(--c1),var(--c2))}
 .drawer.hide{display:none}
 .drawer-figs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:.5rem .5rem .2rem;
@@ -334,7 +334,7 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 折叠钮贴合侧栏深色：深底浅字，悬停信号色（不再白底 ✗） */
 .side-toggle{background:var(--c2);color:var(--c7);border:1px solid var(--c3);border-right:0}
-.side-toggle.closed{border-right:1px solid var(--c6);border-left:0}
+.side-toggle.closed{border-right:1px solid var(--c3);border-left:0}
 .side-toggle:hover{color:var(--signal);border-color:var(--sage);background:var(--side2)}
 
 /* 右栏状态：紧跟 08 / 00 下方，竖排文字块里横排小字 */

@@ -499,3 +499,12 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   text-align:left;justify-self:start}
 .drawer .ef-record .name{grid-area:name}
 .drawer .ef-record>span.ef-field{grid-area:count;text-align:right;justify-self:end}
+
+/* 会话行：日期右对齐到编号右缘；标题吃满剩余宽度；字号上调 */
+.drawer .ef-record{grid-template-columns:3.2rem minmax(0,1fr) 1.2rem;
+  grid-template-areas:"no name count" "date name count";column-gap:.6rem}
+.drawer .ef-record .ef-tag{grid-area:no;justify-self:end;font-size:.6rem;padding:.02rem .24rem}
+.drawer .ef-record time.ef-field{grid-area:date;justify-self:end;text-align:right;
+  font-size:.62rem;color:var(--ink3)}
+.drawer .ef-record .name{grid-area:name;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drawer .ef-record>span.ef-field{grid-area:count;justify-self:end;font-size:.68rem;color:var(--ink3)}

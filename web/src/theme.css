@@ -223,3 +223,10 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* 三级卡片：textarea 随内容长高，卡片上限内滚动 */
 .col-editor .card-bd{display:flex;flex-direction:column;padding:0;overflow-y:auto}
 .col-editor textarea{height:var(--h,200px);min-height:200px;max-height:none;overflow:hidden;flex:0 0 auto}
+
+/* 2 级卡里的"系统提示"摘要：限制行数（全文在 3 级卡里看） */
+.prompt-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* 3 级卡：不是文本框，只是铺开的文本；高度随内容，卡片上限内滚动 */
+.col-editor .card-bd{padding:0;display:block;overflow-y:auto}
+.col-editor textarea{height:auto;min-height:0;width:100%;border:0;background:transparent;
+  padding:.7rem .85rem;font:inherit;font-size:.8rem;line-height:1.8;resize:none;outline:none;overflow:hidden}

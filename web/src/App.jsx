@@ -48,8 +48,7 @@ function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
     const el = ta.current
     if (!el) return
     el.style.height = 'auto'
-    // 用 CSS 变量驱动高度：样式表里的 !important 会压过内联 height ✗，变量不会被压 ✓
-    el.style.setProperty('--h', (el.scrollHeight + 2) + 'px')
+    el.style.height = (el.scrollHeight + 2) + 'px'   // 新样式表无 !important，内联生效 ✓
   }, [value])
   return (
     <div className="card col-editor">

@@ -755,8 +755,16 @@ export default function App() {
                           onClick={() => { const v = { ...pr, tools: (pr.tools || []).join(',') }; setEditP(v); setEditSnap(snapOf(v)); setEditField(null); setToolEdit(null) }}>
                           <b>{pr.name}</b>
                           <span className="set-meta" style={{ margin: 0 }}>{pr.model || '（未设置模型）'}</span>
-                        </div>
+                          <div className="list-row new" onClick={() => { setEditP({
+                        _new: true, name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '',
+                        model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: '', system: ''
+                      }); setEditSnap(''); setEditField(null) }}>＋ 新建 profile</div>
+                    </div>
                       ))}
+                      <div className="list-row new" onClick={() => { setEditP({
+                        _new: true, name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '',
+                        model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: '', system: ''
+                      }); setEditSnap(''); setEditField(null) }}>＋ 新建 profile</div>
                     </div>
 
                     <div className="set-section">工具配置</div>

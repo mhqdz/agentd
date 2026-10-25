@@ -650,3 +650,10 @@ body{background:var(--paper);color:var(--ink);
 .set-hd .set-actions{display:flex;align-items:center;gap:.5rem}
 /* 新建 profile 与列左对齐 */
 .set-col-foot{justify-content:flex-start}
+
+/* 头部高度固定：取消/保存出现时不改变卡片高度 */
+.set-hd{height:46px;box-sizing:border-box}
+.set-hd .ef-btn.small{height:24px;display:inline-flex;align-items:center}
+/* 模型配置里的“新建”行 */
+.list-row.new{color:var(--sage-d);font-size:.8rem;cursor:pointer}
+.list-row.new:hover{background:rgba(111,167,156,.08)}

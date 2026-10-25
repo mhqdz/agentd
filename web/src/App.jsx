@@ -677,14 +677,15 @@ export default function App() {
                       <label className="set-row" style={{ cursor: 'pointer' }}>
                         <span style={{ fontSize: '.8rem' }}>工具调用轮次上限</span>
                         <span className="sp" />
-                        <input type="checkbox" className="swbox" role="switch" checked={!!settings.tool_rounds_enabled}
-                          onChange={async e => {
-                            const next = { ...settings, tool_rounds_enabled: e.target.checked }
+                        <button type="button" role="switch" aria-checked={!!settings.tool_rounds_enabled}
+                          className={'tg' + (settings.tool_rounds_enabled ? ' on' : '')}
+                          onClick={async () => {
+                            const next = { ...settings, tool_rounds_enabled: !settings.tool_rounds_enabled }
                             setSettings(next)
                             await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(next) })
-                          }} />
+                          }}><b /></button>
                       </label>
-                      <div className="set-meta" style={{ marginTop: '.35rem' }}>规避工具循环调用</div>
+                      <div className="set-meta" style={{ marginTop: '.35rem' }}>开启该项以避免工具循环调用</div>
                       {settings.tool_rounds_enabled ? (
                         <label className="set-f"><span>轮次上限</span>
                           <input type="number" min="1" max="1000" value={settings.tool_rounds || 8}

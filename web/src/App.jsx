@@ -49,8 +49,12 @@ function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
         onChange={e => onChange(e.target.value)} />
       <div className="set-col-foot">
         <span className="set-meta" style={{ marginRight: 'auto' }}>{(value || '').length} 字</span>
-        {onCancel ? <button className="ef-btn small" onClick={onCancel}>取消</button> : null}
-        <button className="ef-btn small" onClick={onDone}>保存</button>
+        {onCancel ? (
+          <>
+            <button className="ef-btn small" onClick={onCancel}>取消</button>
+            <button className="ef-btn small" onClick={onDone}>保存</button>
+          </>
+        ) : <button className="ef-btn small" onClick={onDone}>完成</button>}
       </div>
     </div>
   )
@@ -108,6 +112,7 @@ export default function App() {
   const [toolEdit, setToolEdit] = useState(null)
   const [editField, setEditField] = useState(null)
   const [editOriginal, setEditOriginal] = useState('')
+  const [editSnap, setEditSnap] = useState('')
   const drag = useRef(null)
   const [convId, setConvId] = useState(null)
   const [title, setTitle] = useState('新会话')
@@ -613,7 +618,7 @@ export default function App() {
                   toolEdit ? (
                     <EditorCol value={toolEdit.description} placeholder="工具说明（模型会看到这段文字）…"
                       onChange={v => setToolEdit({ ...toolEdit, description: v })}
-                      onCancel={() => { setToolEdit({ ...toolEdit, description: editOriginal }) }}
+                      onCancel={(toolEdit.description || '') !== (editOriginal || '') ? () => setToolEdit({ ...toolEdit, description: editOriginal }) : undefined}
                       onDone={async () => {
                         await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ description: toolEdit.description }) })
@@ -622,7 +627,7 @@ export default function App() {
                   ) : (
                     <EditorCol value={editP[editField]} placeholder="这里写完整的系统提示…"
                       onChange={v => setEditP({ ...editP, [editField]: v })}
-                      onCancel={() => setEditP({ ...editP, [editField]: editOriginal })}
+                      onCancel={(editP[editField] || '') !== (editOriginal || '') ? () => setEditP({ ...editP, [editField]: editOriginal }) : undefined}
                       onDone={() => setEditField(null)} />
                   )
                 ) : null}
@@ -666,6 +671,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="set-col-foot">
+                      {JSON.stringify({ ...editP, _new: 0 }) !== editSnap ? (
                       <button className="ef-btn small" onClick={async () => {
                         if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
                         const { _new, ...body } = editP
@@ -673,6 +679,7 @@ export default function App() {
                           body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
                         setEditP(null); setEditField(null); refresh()
                       }}>保存</button>
+                      ) : null}
                       {!editP._new && !editP.builtin ? (
                         <button className="ef-btn small" onClick={async () => {
                           if (!confirm('删除 ' + editP.name + '？')) return
@@ -680,7 +687,9 @@ export default function App() {
                           setEditP(null); setEditField(null); refresh()
                         }}>删除</button>
                       ) : null}
-                      <button className="ef-btn small" onClick={() => { setEditP(null); setEditField(null) }}>取消</button>
+                      {JSON.stringify({ ...editP, _new: 0 }) !== editSnap
+                        ? <button className="ef-btn small" onClick={() => { const s0 = JSON.parse(editSnap || '{}'); setEditP(s0); setEditField(null) }}>取消</button>
+                        : <button className="ef-btn small" onClick={() => { setEditP(null); setEditField(null) }}>关闭</button>}
                     </div>
                   </div>
                 ) : null}
@@ -717,7 +726,7 @@ export default function App() {
                     <div className="set-card">
                       {profiles.map(pr => (
                         <div className={'list-row col' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
-                          onClick={() => { setEditP({ ...pr, tools: (pr.tools || []).join(',') }); setEditField(null); setToolEdit(null) }}>
+                          onClick={() => { const v = { ...pr, tools: (pr.tools || []).join(',') }; setEditP(v); setEditSnap(JSON.stringify(v)); setEditField(null); setToolEdit(null) }}>
                           <b>{pr.name}</b>
                           <span className="set-meta" style={{ margin: 0 }}>{pr.model || '（未设置模型）'}</span>
                         </div>
@@ -741,7 +750,7 @@ export default function App() {
                     <button className="ef-btn small" onClick={() => { setEditP({
                       _new: true, name: '', base_url: 'http://127.0.0.1:18320/180/v1', api_key: '',
                       model: 'qwen3.8-flash-next-iq3_xxs', reasoning_effort: 'high', tools: '', system: ''
-                    }); setEditField(null) }}>＋ 新建 profile</button>
+                    }); setEditSnap(''); setEditField(null) }}>＋ 新建 profile</button>
                   </div>
                 </div>
               </div>

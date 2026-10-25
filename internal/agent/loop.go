@@ -46,6 +46,8 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		}
 		c.Title = t
 	}
+	// 用户消息立刻落盘：请求被中断也不会丢这句
+	_ = a.st.Save(c)
 
 	for round := 0; round < maxRounds; round++ {
 		// 中途插话：把用户新消息插进本轮上下文（模型这一轮就能看到）
@@ -119,8 +121,8 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				c.Messages = append(c.Messages, store.Message{
 					Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(),
 				})
-				_ = a.st.Save(c)
 			}
+			_ = a.st.Save(c) // 中断也要留住上下文（用户消息 / 已完成的工具轮次）
 			return err
 		}
 		if len(calls) == 0 {

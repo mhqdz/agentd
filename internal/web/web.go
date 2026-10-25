@@ -232,6 +232,8 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		send("error", map[string]string{"error": err.Error()})
 		return
 	}
+	// 会话一建立就先落盘：即使这一轮被中断，会话本身与用户消息也不会丢
+	_ = s.st.Save(c)
 	send("meta", map[string]string{"conv_id": c.ID, "title": c.Title})
 
 	// 中途插话：本请求期间可被 /api/conv/<id>/interject 追加

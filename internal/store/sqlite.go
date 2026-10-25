@@ -16,6 +16,10 @@ import (
 // SQLiteStore：一个会话一行，消息一列一行（消息只追加，不二次编辑）。
 type SQLiteStore struct{ db *sql.DB }
 
+func ensureReasoningMs(db *sql.DB) {
+	db.Exec(`ALTER TABLE messages ADD COLUMN reasoning_ms INTEGER NOT NULL DEFAULT 0`)
+}
+
 func NewSQLite(dir string) (*SQLiteStore, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, err
@@ -44,6 +48,7 @@ CREATE TABLE IF NOT EXISTS messages(
   role TEXT NOT NULL,
   content TEXT NOT NULL DEFAULT '',
   reasoning TEXT NOT NULL DEFAULT '',
+  reasoning_ms INTEGER NOT NULL DEFAULT 0,
   tool_calls TEXT NOT NULL DEFAULT '',
   tool_call_id TEXT NOT NULL DEFAULT '',
   tool_result TEXT NOT NULL DEFAULT '',
@@ -54,6 +59,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_msg_conv_seq ON messages(conv_id, seq);
 	if err != nil {
 		return nil, err
 	}
+	ensureReasoningMs(db)
 	return &SQLiteStore{db: db}, nil
 }
 
@@ -90,7 +96,7 @@ func (s *SQLiteStore) Get(id string) (*Conversation, error) {
 }
 
 func (s *SQLiteStore) messages(convID int) ([]Message, error) {
-	rows, err := s.db.Query(`SELECT seq,role,content,reasoning,tool_calls,tool_call_id,tool_result,images,created_at
+	rows, err := s.db.Query(`SELECT seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at
 		FROM messages WHERE conv_id=? ORDER BY seq`, convID)
 	if err != nil {
 		return nil, err
@@ -101,7 +107,7 @@ func (s *SQLiteStore) messages(convID int) ([]Message, error) {
 		var m Message
 		var tc, tr, im, ca string
 		var seq int
-		if err := rows.Scan(&seq, &m.Role, &m.Content, &m.Reasoning, &tc, &m.ToolCallID, &tr, &im, &ca); err != nil {
+		if err := rows.Scan(&seq, &m.Role, &m.Content, &m.Reasoning, &m.ReasoningMs, &tc, &m.ToolCallID, &tr, &im, &ca); err != nil {
 			return nil, err
 		}
 		m.Seq = seq
@@ -169,8 +175,8 @@ func (s *SQLiteStore) Save(c *Conversation) error {
 		if err := tx.QueryRow(`SELECT COALESCE(MAX(seq),0)+1 FROM messages WHERE conv_id=?`, c.ID).Scan(&nextSeq); err != nil {
 			return err
 		}
-		res, err := tx.Exec(`INSERT INTO messages(conv_id,seq,role,content,reasoning,tool_calls,tool_call_id,tool_result,images,created_at)
-			VALUES(?,?,?,?,?,?,?,?,?,?)`, c.ID, nextSeq, m.Role, m.Content, m.Reasoning, string(tc), m.ToolCallID, tr, string(im), nStr)
+		res, err := tx.Exec(`INSERT INTO messages(conv_id,seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at)
+			VALUES(?,?,?,?,?,?,?,?,?,?,?)`, c.ID, nextSeq, m.Role, m.Content, m.Reasoning, m.ReasoningMs, string(tc), m.ToolCallID, tr, string(im), nStr)
 		if err != nil {
 			return err
 		}

@@ -105,11 +105,19 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				total, a.cfg.MaxPromptChars)
 		}
 		var content, reasoning strings.Builder
+		var reasonStart, reasonMs int64
 		var calls []llm.ToolCall
 		err := a.llm.StreamWithTools(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, Tools: specs, ReasoningEffort: a.profile.ReasoningEffort},
 			func(ch llm.Chunk) error {
 				if ch.Done {
 					return nil
+				}
+				now := time.Now().UnixMilli()
+				if ch.Reasoning != "" && reasonStart == 0 {
+					reasonStart = now
+				}
+				if ch.Delta != "" && reasonStart != 0 && reasonMs == 0 {
+					reasonMs = now - reasonStart
 				}
 				content.WriteString(ch.Delta)
 				reasoning.WriteString(ch.Reasoning)
@@ -122,7 +130,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 			// 意外中断（用户停止 / 网络断 / 上游报错）：先保住已生成的内容，再上抛错误
 			if strings.TrimSpace(content.String()) != "" || reasoning.Len() > 0 {
 				c.Messages = append(c.Messages, store.Message{
-					Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(),
+					Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(), ReasoningMs: reasonMs,
 				})
 			}
 			// 中断：保留半截内容，并在末尾追加一句中断说明（是数据，不是状态）
@@ -139,13 +147,13 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		}
 		if len(calls) == 0 {
 			c.Messages = append(c.Messages, store.Message{
-				Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String()})
+				Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(), ReasoningMs: reasonMs})
 			return a.st.Save(c)
 		}
 		// 记录带 tool_calls 的助手消息
 		c.Messages = append(c.Messages, store.Message{
 			Role: "assistant", Content: strings.TrimSpace(content.String()),
-			Reasoning: reasoning.String(), ToolCalls: calls})
+			Reasoning: reasoning.String(), ReasoningMs: reasonMs, ToolCalls: calls})
 		_ = a.st.Save(c) // 工具轮：先落库，再执行（中断也不丢）
 		// 并行执行
 		results := make([]any, len(calls))

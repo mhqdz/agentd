@@ -49,9 +49,9 @@ func TestProfilesCRUD(t *testing.T) {
 	if _, ok := GetProfile("x"); ok {
 		t.Fatal("删除后应取不到")
 	}
-	// 内置不可删
-	if err := DeleteProfile("180-think"); err == nil {
-		t.Fatal("内置 profile 不应可删")
+	// 内置也可删（用户要求：取消内置特殊化）
+	if err := DeleteProfile("180-think"); err != nil {
+		t.Fatalf("内置 profile 应可删: %v", err)
 	}
 }
 

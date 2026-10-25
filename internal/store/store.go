@@ -13,15 +13,16 @@ import (
 )
 
 type Message struct {
-	Seq        int            `json:"seq"`
-	Role       string         `json:"role"`
-	Content    string         `json:"content"`
-	Reasoning  string         `json:"reasoning,omitempty"`
-	ToolCalls  []llm.ToolCall `json:"tool_calls,omitempty"`
-	ToolCallID string         `json:"tool_call_id,omitempty"`
-	ToolResult any            `json:"tool_result,omitempty"`
-	Images     []string       `json:"images,omitempty"` // data:image/...;base64（工具返回的图 ✓）
-	CreatedAt  time.Time      `json:"created_at"`
+	Seq         int            `json:"seq"`
+	Role        string         `json:"role"`
+	Content     string         `json:"content"`
+	Reasoning   string         `json:"reasoning,omitempty"`
+	ReasoningMs int64          `json:"reasoning_ms,omitempty"`
+	ToolCalls   []llm.ToolCall `json:"tool_calls,omitempty"`
+	ToolCallID  string         `json:"tool_call_id,omitempty"`
+	ToolResult  any            `json:"tool_result,omitempty"`
+	Images      []string       `json:"images,omitempty"` // data:image/...;base64（工具返回的图 ✓）
+	CreatedAt   time.Time      `json:"created_at"`
 }
 
 type Conversation struct {

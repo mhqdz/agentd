@@ -567,7 +567,9 @@ export default function App() {
                       </div>
                       {m.reasoning ? (
                         <details className="fold">
-                          <summary>思考过程 · {String(m.reasoning).length} 字{m.rsecs ? ' · ' + m.rsecs.toFixed(1) + 's' : ''}</summary>
+                          <summary>思考过程 · {String(m.reasoning).length} 字{
+                            (m.reasoning_ms || (m.rsecs ? m.rsecs * 1000 : 0))
+                              ? ' · ' + ((m.reasoning_ms || m.rsecs * 1000) / 1000).toFixed(1) + 's' : ''}</summary>
                           <pre className="think">{m.reasoning}</pre>
                         </details>
                       ) : null}

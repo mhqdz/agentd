@@ -608,9 +608,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 /* ═══ 对比色（终末地标志黄）：色阶第 8 色，只用于"看这里/可操作"的强调 ═══
    #FFFA00 来自 endfield skill 的 --ef-signal（THE yellow） */
 :root{
-  --c-signal:#FFF7A8;   /* 旧的对比色（可留作别用）*/
-  --c-accent:#FFF7A8;    /* 新增：把手的强调色 */
-  --c-on-accent:#161616;  --ef-signal:var(--c4);   /* 恢复：endfield 组件仍用灰青 ✓ */
   --ef-on-signal:var(--c1);
 }
 
@@ -618,7 +615,6 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 折叠状态下一直保持浅黄（不只是悬停）*/
 
-/* 把手的强调色（独立变量 --c-accent，与 endfield 的信号色互不影响）*/
 
 /* 折叠后悬停：回到灰青（不再是黄）*/
 .side-toggle.collapsed:hover{background:var(--c6);color:var(--c1);border-color:var(--c6)}

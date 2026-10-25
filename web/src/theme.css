@@ -517,3 +517,8 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
 
 /* 会话标题：解除 endfield 的 .ef-read 阅读宽度限制，吃满剩余空间 */
 .drawer .ef-record .name{max-width:none;max-inline-size:none;width:auto}
+
+/* 标题列显式拉伸：排除任何残余的列宽/对齐限制 */
+.drawer .ef-record{grid-template-columns:auto minmax(0,1fr) auto;column-gap:.5rem}
+.drawer .ef-record .name{grid-area:name;grid-column:2;justify-self:stretch;
+  min-width:0;max-width:none;width:100%}

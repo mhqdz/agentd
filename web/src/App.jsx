@@ -282,22 +282,48 @@ export default function App() {
     // 后台仍在跑？轮询直到结束（刷新页面后能"接上"）
     const running = await api('/api/running').catch(() => [])
     if ((running || []).includes(String(id))) {
-      setSyncing(true); setStatus('后台运行中，正在同步…')
-      let lastLen = -1, stopped = false
-      const tick = async () => {
-        if (stopped) return
-        const cc = await api('/api/conv/' + id).catch(() => null)
-        const len = cc ? JSON.stringify(cc.messages || []).length : lastLen
-        const changed = len !== lastLen
-        if (cc) setMsgs(normalize(cc.messages || []))
-        lastLen = len
-        const r2 = await api('/api/running').catch(() => [])
-        if (!(r2 || []).includes(String(id))) {
-          stopped = true; setSyncing(false); setStatus('已同步'); refresh(); return
+      setSyncing(true); setStatus('后台运行中，正在接上…')
+      attachStream(id)
+    }
+  }
+
+
+  // D：SSE 断点续传 —— 刷新后从后端缓冲继续接收（不在前端存状态）
+  const attachStream = async (id) => {
+    let live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
+    let base = null
+    const push = () => setMsgs(m => {
+      const kept = m.filter(x => !x.__live)
+      return [...kept, { ...live, tools: [...live.tools], __live: true }]
+    })
+    try {
+      const resp = await fetch('/api/conv/' + id + '/stream?from=0')
+      if (!resp.ok) { setSyncing(false); setStatus('已同步'); return }
+      const reader = resp.body.getReader(); const dec = new TextDecoder()
+      let buf = ''
+      for (;;) {
+        const { value, done } = await reader.read(); if (done) break
+        buf += dec.decode(value, { stream: true })
+        let i
+        while ((i = buf.indexOf('\n\n')) >= 0) {
+          const block = buf.slice(0, i); buf = buf.slice(i + 2)
+          let ev = '', data = ''
+          for (const line of block.split('\n')) {
+            if (line.startsWith('event: ')) ev = line.slice(7)
+            else if (line.startsWith('data: ')) data = line.slice(6)
+          }
+          let d = {}; try { d = JSON.parse(data) } catch { }
+          if (ev === 'reasoning') { live.reasoning += d.text || ''; push() }
+          else if (ev === 'delta') { live.content += d.text || ''; push() }
+          else if (ev === 'tool') { live.tools.push(d); push() }
+          else if (ev === 'done') { /* 结束时统一重载 */}
         }
-        setTimeout(tick, changed ? 1000 : 3000)   // C：有变化 1s，无变化 3s
       }
-      setTimeout(tick, 800)
+      const cc = await api('/api/conv/' + id).catch(() => null)
+      if (cc) setMsgs(normalize(cc.messages || []))
+      setSyncing(false); setStatus('已同步'); refresh()
+    } catch (e) {
+      setSyncing(false); setStatus('同步失败：' + e.message)
     }
   }
 

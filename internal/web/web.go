@@ -20,6 +20,8 @@ import (
 )
 
 type Server struct {
+	jobMu       sync.Mutex
+	jobs        map[string]*job
 	convMu      sync.Mutex
 	convCancel  map[string]context.CancelFunc
 	interjectMu sync.Mutex
@@ -156,6 +158,10 @@ func (s *Server) drainInterject(convID string) []string {
 // GET /api/conv/<id>
 func (s *Server) handleConv(w http.ResponseWriter, r *http.Request) {
 	raw := strings.TrimPrefix(r.URL.Path, "/api/conv/")
+	if strings.HasSuffix(raw, "/stream") {
+		s.streamFrom(w, r, strings.TrimSuffix(raw, "/stream"))
+		return
+	}
 	if strings.HasSuffix(raw, "/stop") {
 		if r.Method != http.MethodPost {
 			writeJSON(w, 405, map[string]string{"error": "POST only"})
@@ -242,11 +248,16 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Accel-Buffering", "no")
 
 	var sendMu sync.Mutex
+	var jb *job
 	send := func(ev string, v any) {
 		b, _ := json.Marshal(v)
 		sendMu.Lock()
 		defer sendMu.Unlock()
-		fmt.Fprintf(w, "event: %s\ndata: %s\n\n", ev, b)
+		frame := fmt.Sprintf("event: %s\ndata: %s\n\n", ev, b)
+		if jb != nil {
+			jb.emit(frame)
+		}
+		fmt.Fprint(w, frame)
 		flusher.Flush()
 	}
 
@@ -263,6 +274,9 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 	// 会话一建立就先落盘：即使这一轮被中断，会话本身与用户消息也不会丢
 	_ = s.st.Save(c)
+	jb = s.job(c.ID)
+	jb.reset()
+	defer jb.finish()
 	send("meta", map[string]string{"conv_id": c.ID, "title": c.Title})
 
 	// 中途插话：本请求期间可被 /api/conv/<id>/interject 追加

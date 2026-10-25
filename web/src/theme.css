@@ -489,3 +489,13 @@ body{background:var(--paper);color:var(--ink);font:14px/1.65 "Noto Sans SC",syst
   transition:background .12s ease,padding-left .12s ease}
 .drawer .ef-record:hover{padding-left:.6rem;background:rgba(58,65,66,.05)}
 .drawer .ef-record.on{padding-left:.6rem;background:rgba(153,170,173,.18)}
+
+/* 会话行：编号与日期两行叠在左侧，标题占满剩余宽度 */
+.drawer .ef-record{grid-template-columns:auto minmax(0,1fr) 1.4rem;
+  grid-template-areas:"no name count" "date name count";
+  column-gap:.55rem;row-gap:0;align-items:center}
+.drawer .ef-record .ef-tag{grid-area:no;font-size:.56rem;padding:.02rem .22rem;justify-self:start}
+.drawer .ef-record time.ef-field{grid-area:date;font-size:.6rem;color:var(--ink3);
+  text-align:left;justify-self:start}
+.drawer .ef-record .name{grid-area:name}
+.drawer .ef-record>span.ef-field{grid-area:count;text-align:right;justify-self:end}

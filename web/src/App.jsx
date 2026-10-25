@@ -110,6 +110,7 @@ export default function App() {
   const [msgs, setMsgs] = useState([])
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
+  const [syncing, setSyncing] = useState(false)
   const [status, setStatus] = useState('')
   const [secs, setSecs] = useState(null)
   const endRef = useRef(null)
@@ -272,19 +273,31 @@ export default function App() {
 
   const openConv = async (id) => {
     setConvId(id)
+    // A：会话 id 进 URL，刷新后能回到同一会话（也便于分享/重开）
+    if (id) history.replaceState(null, '', '?conv=' + id)
+    else history.replaceState(null, '', location.pathname)
     if (!id) { setMsgs([]); setTitle('新会话'); return }
     const c = await api('/api/conv/' + id)
     setMsgs(normalize(c.messages || [])); setTitle(c.title || '会话')
     // 后台仍在跑？轮询直到结束（刷新页面后能"接上"）
     const running = await api('/api/running').catch(() => [])
     if ((running || []).includes(String(id))) {
-      setBusy(true); setStatus('后台运行中，正在同步…')
-      const timer = setInterval(async () => {
+      setSyncing(true); setStatus('后台运行中，正在同步…')
+      let lastLen = -1, stopped = false
+      const tick = async () => {
+        if (stopped) return
         const cc = await api('/api/conv/' + id).catch(() => null)
-        if (cc) { setMsgs(normalize(cc.messages || [])) }
+        const len = cc ? JSON.stringify(cc.messages || []).length : lastLen
+        const changed = len !== lastLen
+        if (cc) setMsgs(normalize(cc.messages || []))
+        lastLen = len
         const r2 = await api('/api/running').catch(() => [])
-        if (!(r2 || []).includes(String(id))) { clearInterval(timer); setBusy(false); setStatus('已同步'); refresh() }
-      }, 1500)
+        if (!(r2 || []).includes(String(id))) {
+          stopped = true; setSyncing(false); setStatus('已同步'); refresh(); return
+        }
+        setTimeout(tick, changed ? 1000 : 3000)   // C：有变化 1s，无变化 3s
+      }
+      setTimeout(tick, 800)
     }
   }
 

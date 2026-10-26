@@ -897,9 +897,16 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 
 }
 
-/* 卡片标题前的返回按钮（窄屏）：与标题同基线 */
-.icon-x.card-back{width:20px;height:20px;margin-right:.15rem;flex:0 0 auto}
+/* 卡片标题前的返回按钮（窄屏）：终末地风格——只保留左上/右下角标，悬停才显边框 */
+.icon-x.card-back{position:relative;width:22px;height:22px;margin-right:.2rem;flex:0 0 auto;
+  border:1px solid transparent;color:var(--c5);transition:color .12s,background .12s,border-color .12s}
 .icon-x.card-back svg{width:13px;height:13px}
+.icon-x.card-back::before,.icon-x.card-back::after{content:"";position:absolute;width:4px;height:4px;
+  border:0 solid var(--c5);transition:border-color .12s}
+.icon-x.card-back::before{left:1px;top:2px;border-left-width:1.5px;border-top-width:1.5px}
+.icon-x.card-back::after{right:1px;bottom:2px;border-right-width:1.5px;border-bottom-width:1.5px}
+.icon-x.card-back:hover{color:var(--c7);background:var(--c1);border-color:var(--c4);transform:none}
+.icon-x.card-back:hover::before,.icon-x.card-back:hover::after{border-color:var(--c7)}
 
 /* 三级卡片：提示/说明编辑区（宽窄屏通用） */
 .card .set-area{display:block;width:100%;box-sizing:border-box;flex:0 0 auto;

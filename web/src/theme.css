@@ -827,7 +827,9 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 
 /* ═══ 设置面板 · 窄屏层叠（1 级在底 → 2 级压其上 → 3 级再压其上）═══ */
 @media (max-width:1399px){
-  .settings{left:0;right:0;width:100%;max-width:none}
+  /* 让出上栏 36px：否则设置头与退出按钮会被固定的上栏盖住 */
+  .settings{top:36px;left:0;right:0;width:100%;max-width:none;height:calc(100vh - 36px);
+    background:var(--paper)}
   .set-cols{flex-direction:column;align-items:stretch;gap:0;padding:.55rem .55rem 1.2rem;
     overflow:auto;justify-content:flex-start}
   .set-cols .card{width:100%;max-width:100%;flex:0 0 auto;max-height:none;
@@ -846,4 +848,19 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   /* 被压住的卡片顶部留出露出高度，并加一道分隔阴影，层次更清楚 */
   .set-cols .col-form,.set-cols .col-list,.set-cols .col-tool{
     padding-top:.35rem;border-top:2px solid var(--c3)}
+}
+
+/* 窄屏：设置只显示最上面那张卡片（其余隐藏）；提供显式退出按钮 */
+.narrow-only{display:none}
+@media (max-width:1399px){
+  .set-cols .card:not(.is-top){display:none}
+  .narrow-only{display:inline-grid}
+  .set-hd .set-close{order:3;margin-left:.5rem;place-items:center;width:26px;height:26px;padding:0;font-size:1rem;line-height:1;
+    border:1px solid var(--line);background:var(--panel);color:var(--c6);cursor:pointer}
+  .set-hd .set-close:hover{color:var(--c7);border-color:var(--c4)}
+  .drawer-close{position:absolute;right:.4rem;top:.35rem;z-index:3;place-items:center;
+    width:26px;height:26px;padding:0;font-size:1rem;line-height:1;
+    border:1px solid var(--line);background:var(--panel);color:var(--c6);cursor:pointer}
+  .drawer-close:hover{color:var(--c7);border-color:var(--c4)}
+  .drawer{position:fixed}
 }

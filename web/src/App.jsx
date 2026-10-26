@@ -122,7 +122,7 @@ function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
     el.style.height = (el.scrollHeight + 2) + 'px'   // 新样式表无 !important，内联生效 ✓
   }, [value])
   return (
-    <div className="card col-editor">
+    <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
       <textarea ref={ta} className="set-area" value={value || ''} placeholder={placeholder}
         onChange={e => onChange(e.target.value)} />
       <div className="set-col-foot">
@@ -693,6 +693,7 @@ export default function App() {
           style={{ width: sideW, flexBasis: sideW }}
           >
           <span className="edge" onMouseDown={startDrag} aria-hidden="true" />
+          <button className="btn drawer-close narrow-only" onClick={() => setSideOpen(false)} aria-label="收起左栏" title="收起">×</button>
           <div className="ef-figs drawer-figs">
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}
                title="只看会话"><FigCell value={convs.length} /><span>会话</span></a>
@@ -870,6 +871,7 @@ export default function App() {
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
+                <button className="btn set-close narrow-only" onClick={() => closeOne()} aria-label="退出设置" title="退出设置">×</button>
                 {anyDirty ? (
                   <span className="card-actions">
                     <button className="btn" onClick={() => {
@@ -930,7 +932,8 @@ export default function App() {
                   </div>
                 </div>
               ) : null}
-              <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
+              <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}
+                onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
                 {(editField || toolEdit) ? (
                   <div className="card col-editor">
                     <div className="card-hd">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
@@ -948,7 +951,7 @@ export default function App() {
                 ) : null}
 
                 {editP ? (
-                  <div className="card col-form">
+                  <div className={"card col-form" + (!(editField || toolEdit) && editP ? " is-top" : "")}>
                     <div className="card-hd" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
                       <span>{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span>
                       <span style={{ flex: 1 }} />
@@ -1019,7 +1022,7 @@ export default function App() {
                   </div>
                 ) : null}
 
-                <div className="card col-list">
+                <div className={"card col-list" + (!(editField || toolEdit) && !editP ? " is-top" : "")}>
                   <div className="card-bd">
                     <div className="set-section">常规配置</div>
                     <div className="set-card">

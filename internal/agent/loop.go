@@ -127,6 +127,11 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				}
 				return nil
 			}, &calls)
+		// 收尾计时：这一轮结束（正常结束、只有 tool_calls、或被中断）时停表，
+		// 否则工具轮（没有 content 增量）会永远是 0 ✓
+		if reasonStart != 0 && reasonMs == 0 {
+			reasonMs = time.Now().UnixMilli() - reasonStart
+		}
 		if err != nil {
 			// 意外中断（用户停止 / 网络断 / 上游报错）：先保住已生成的内容，再上抛错误
 			if strings.TrimSpace(content.String()) != "" || reasoning.Len() > 0 {

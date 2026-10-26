@@ -526,7 +526,7 @@ export default function App() {
       done = true
       const cc = await api('/api/conv/' + id).catch(() => null)
       if (cc && convIdRef.current === id) { setMsgs(normalize(cc.messages || [])); scrollToBottom() }
-      setSyncing(false); setStatus(msg || '已同步'); refresh()
+      setSyncing(false); setBusy(false); setStatus(msg || '已同步'); refresh()
     }
     for (let attempt = 0; attempt < 60 && !done; attempt++) {
       if (convIdRef.current !== id) return
@@ -543,6 +543,7 @@ export default function App() {
       }
       const reader = resp.body.getReader(); const dec = new TextDecoder()
       let buf = ''
+      setBusy(true)   // 刷新后仍能反映"运行中"（状态从后端流推断）
       const guard = setInterval(async () => { if (!done && !(await running())) finish('已同步') }, 2500)
       try {
         for (;;) {
@@ -1122,7 +1123,6 @@ export default function App() {
               }}>
               {String(roundNow).padStart(2,'0')} / {roundMax ? String(roundMax).padStart(2,'0') : '∞'}
             </span>
-            <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
           </span>
           <div className="rail-acts">
             <button className="dots" onClick={() => openConv(null)} aria-label="新会话" title="新会话">
@@ -1134,25 +1134,25 @@ export default function App() {
               <i /><i /><i />
             </button>
           </div>
-            {tps > 0 ? (
-              <span className="rail-tps" title={'上游生成速度（tok/s）：来自服务返回的 timings/usage'}>
-                <b>{Math.round(tps)}</b> tok/s
-              </span>
-            ) : null}
+            <div className="rail-group">
+            <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
             {ctx ? (
-              <span className={'rail-ctx' + ((((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}
-                title={'上下文 ' + fmtK(ctx.est_tokens || 0) + ' / ' + fmtK(ctx.limit_tokens || 105000) + ' tokens（' +
-                  (((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100).toFixed(0) + '%）· 窗口 ' + fmtK(ctx.window || 131072) +
-                  ' · 达到 ' + (ctx.compact_pct || 80) + '% 自动压缩 · 原始 ' + fmtK(ctx.raw || 0) + (ctx.summary ? ' · 已有摘要' : '')}>
+              <span className={'rail-ctx' + ((((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}>
                 <svg viewBox="0 0 20 20" aria-hidden="true">
                   <circle className="bg" cx="10" cy="10" r="8" fill="none" strokeWidth="2" />
                   <circle className="fg" cx="10" cy="10" r="8" fill="none" strokeWidth="2"
                     strokeDasharray={2 * Math.PI * 8}
                     strokeDashoffset={2 * Math.PI * 8 * (1 - Math.min(1, (ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)))} />
                 </svg>
-                <b>{Math.round(((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100)}%</b>
+                <b>{Math.round((ctx.est_tokens || 0) / 1000)}/{Math.round((ctx.limit_tokens || 105000) / 1000)}</b>
               </span>
             ) : null}
+            {tps > 0 ? (
+              <span className="rail-tps">
+                <b>{Math.round(tps)}</b> tok/s
+              </span>
+            ) : null}
+            </div>
         </aside>
       </div>
     </div>

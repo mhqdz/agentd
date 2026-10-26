@@ -786,11 +786,24 @@ body{background:var(--paper);color:var(--ink);
 .rail .rail-ctx svg{width:18px;height:18px;transform:rotate(-90deg)}
 .rail .rail-ctx svg .bg{stroke:var(--c2)}
 .rail .rail-ctx svg .fg{stroke:var(--c5);transition:stroke-dashoffset .3s ease}
-.rail .rail-ctx b{font-size:.6rem;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.rail .rail-ctx b{font-size:.55rem;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .rail .rail-ctx.hot{color:var(--c7)}
 .rail .rail-ctx.hot svg .fg{stroke:var(--c7)}
 
 /* 右栏底部：生成速度（tok/s） */
-.rail .rail-tps{display:flex;align-items:baseline;gap:.1rem;padding:.35rem 0 .2rem;
+.rail .rail-tps{display:flex;align-items:baseline;gap:.1rem;padding:0;
   font-size:.58rem;color:var(--c4);letter-spacing:.02em;font-variant-numeric:tabular-nums}
 .rail .rail-tps b{font-size:.66rem;font-weight:600;color:var(--c6)}
+
+/* 右栏底部一组：运行状态 → 上下文圆环 → 速度 */
+.rail .rail-group{display:flex;flex-direction:column;align-items:center;gap:.45rem;padding:.2rem 0 .6rem}
+.rail .rail-group .rail-status{flex-direction:column;gap:.22rem;font-size:.55rem;letter-spacing:.06em}
+
+/* 右栏底部一组：运行状态 → 圆环 → 速度（横向文字，不随 rail 竖排） */
+.rail .rail-group{display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  padding:.2rem 0 .7rem;writing-mode:horizontal-tb;direction:ltr}
+.rail .rail-group .rail-status{writing-mode:horizontal-tb;flex-direction:row;gap:.3rem;
+  font-size:.56rem;letter-spacing:.02em;margin:0}
+.rail .rail-group .rail-status .dot{width:.32rem;height:.32rem}
+.rail .rail-group .rail-ctx{writing-mode:horizontal-tb;gap:.2rem}
+.rail .rail-group .rail-tps{writing-mode:horizontal-tb}

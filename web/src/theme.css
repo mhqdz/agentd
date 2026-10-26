@@ -779,3 +779,13 @@ body{background:var(--paper);color:var(--ink);
 .status .ctx.warm{color:var(--c6)}
 .status .ctx.hot{color:var(--c7);font-weight:600}
 .status .ctx.hot .ctx-pct,.status .ctx.hot .ctx-raw{color:var(--c6)}
+
+/* 右栏底部：上下文占用圆环（只显比例，细节看悬停提示） */
+.rail .rail-ctx{display:flex;flex-direction:column;align-items:center;gap:.15rem;
+  padding-bottom:.5rem;color:var(--c5);cursor:default;user-select:none}
+.rail .rail-ctx svg{width:18px;height:18px;transform:rotate(-90deg)}
+.rail .rail-ctx svg .bg{stroke:var(--c2)}
+.rail .rail-ctx svg .fg{stroke:var(--c5);transition:stroke-dashoffset .3s ease}
+.rail .rail-ctx b{font-size:.6rem;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.rail .rail-ctx.hot{color:var(--c7)}
+.rail .rail-ctx.hot svg .fg{stroke:var(--c7)}

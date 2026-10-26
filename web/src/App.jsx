@@ -804,17 +804,7 @@ export default function App() {
               </div>
             )}
           </div>
-          <div className="status" onWheel={onComposerWheel}>
-            <span>{status}</span>
-            {ctx ? (
-              <span className={'ctx' + (((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}
-                title={'估算输入 token / 该模型上限；达到 ' + (ctx.compact_pct || 80) + '% 自动压缩。模型窗口 ' + fmtK(ctx.window || 131072) + ' tokens；字符是内部换算（1 token ≈ 1.8 字符）'}>
-                上下文 {fmtK(ctx.est_tokens || 0)} / {fmtK(ctx.limit_tokens || 105000)} tokens
-                <span className="ctx-pct">（{(((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100).toFixed(0)}%）</span>
-                <span className="ctx-raw">窗口 {fmtK(ctx.window || 131072)}</span>
-              </span>
-            ) : null}
-          </div>
+          <div className="status" onWheel={onComposerWheel}>{status}</div>
           <div className="composer" onWheel={onComposerWheel}>
             <div className="row1">
               <span className="eb" style={{ display: 'inline', letterSpacing: '.14em' }}>PROFILE</span>
@@ -1141,6 +1131,20 @@ export default function App() {
               <i /><i /><i />
             </button>
           </div>
+            {ctx ? (
+              <span className={'rail-ctx' + ((((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}
+                title={'上下文 ' + fmtK(ctx.est_tokens || 0) + ' / ' + fmtK(ctx.limit_tokens || 105000) + ' tokens（' +
+                  (((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100).toFixed(0) + '%）· 窗口 ' + fmtK(ctx.window || 131072) +
+                  ' · 达到 ' + (ctx.compact_pct || 80) + '% 自动压缩 · 原始 ' + fmtK(ctx.raw || 0) + (ctx.summary ? ' · 已有摘要' : '')}>
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <circle className="bg" cx="10" cy="10" r="8" fill="none" strokeWidth="2" />
+                  <circle className="fg" cx="10" cy="10" r="8" fill="none" strokeWidth="2"
+                    strokeDasharray={2 * Math.PI * 8}
+                    strokeDashoffset={2 * Math.PI * 8 * (1 - Math.min(1, (ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)))} />
+                </svg>
+                <b>{Math.round(((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100)}%</b>
+              </span>
+            ) : null}
         </aside>
       </div>
     </div>

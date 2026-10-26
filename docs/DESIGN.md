@@ -40,3 +40,12 @@ Go 的 `plugin` 平台与构建耦合；要插件化只能"独立进程 + 协议
 - 多用户/鉴权：只监听 127.0.0.1。
 - 云端同步、遥测、自动更新。
 - 用配置表达分支逻辑：配置只声明"是什么/怎么调"，逻辑留在代码或（将来的）工具进程里。
+
+## 9. 仓库约定
+- 远端：`git@github.com:mhqdz/agentd.git`（用 SSH；本机 `~/.ssh/id_ed25519_kb` 已授权）。
+- 入库：源码、`docs/`、`web/src`、`web/public/fonts`（字体随项目分发）。
+- 不入库（`.gitignore`）：`web/dist/`、`node_modules/`、`*.log`、`agentd`、`/tmp/`。
+  - 原因：`dist` 是构建产物；生产服务直接读磁盘上的 `web/dist`，部署前必须 `npm run build`。
+- 部署流程：`go build -o ~/.local/bin/agentd ./cmd/agentd` → `systemctl --user restart agentd`；
+  前端改动 `cd web && npm run build`（18400 才更新；5173 是热更新）。
+- 历史里的 `web/dist` 仍在旧提交中（`.git` 约 81MB）；若需瘦身要重写历史，属一次性操作，先备份再强推。

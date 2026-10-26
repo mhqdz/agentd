@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -48,10 +49,46 @@ type Chunk struct {
 	Done      bool
 }
 
+// Stats：上游给的用量与速度（OpenAI usage / llama.cpp timings，有就用）
+type Stats struct {
+	PromptTokens     int
+	CompletionTokens int
+	CachedTokens     int
+	PredictedPerSec  float64
+}
+
 type Client struct {
 	BaseURL string
 	APIKey  string
 	HTTP    *http.Client
+
+	mu    sync.Mutex
+	stats Stats
+}
+
+// Stats 返回最近一次流式请求的用量/速度
+func (c *Client) Stats() Stats {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.stats
+}
+
+func (c *Client) setStats(st Stats) {
+	c.mu.Lock()
+	// 累加/覆盖：以最后一次上游上报为准
+	if st.PromptTokens > 0 {
+		c.stats.PromptTokens = st.PromptTokens
+	}
+	if st.CachedTokens > 0 {
+		c.stats.CachedTokens = st.CachedTokens
+	}
+	if st.CompletionTokens > 0 {
+		c.stats.CompletionTokens = st.CompletionTokens
+	}
+	if st.PredictedPerSec > 0 {
+		c.stats.PredictedPerSec = st.PredictedPerSec
+	}
+	c.mu.Unlock()
 }
 
 func New(baseURL, apiKey string) *Client {
@@ -76,6 +113,41 @@ func (c *Client) post(ctx context.Context, body any) (*http.Response, error) {
 		req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	}
 	return c.HTTP.Do(req)
+}
+
+// usageLike / timingsLike：兼容两种上游字段
+type usageLike struct {
+	PromptTokens        int `json:"prompt_tokens"`
+	CompletionTokens    int `json:"completion_tokens"`
+	PromptTokensDetails *struct {
+		CachedTokens int `json:"cached_tokens"`
+	} `json:"prompt_tokens_details"`
+}
+
+type timingsLike struct {
+	PredictedN      int     `json:"predicted_n"`
+	PredictedPerSec float64 `json:"predicted_per_second"`
+	PromptN         int     `json:"prompt_n"`
+}
+
+func (c *Client) captureStats(u *usageLike, t *timingsLike) {
+	st := Stats{}
+	if u != nil {
+		st.PromptTokens = u.PromptTokens
+		st.CompletionTokens = u.CompletionTokens
+		if u.PromptTokensDetails != nil {
+			st.CachedTokens = u.PromptTokensDetails.CachedTokens
+		}
+	}
+	if t != nil && t.PredictedPerSec > 0 {
+		st.PredictedPerSec = t.PredictedPerSec
+		if st.CompletionTokens == 0 {
+			st.CompletionTokens = t.PredictedN
+		}
+	}
+	if st.PromptTokens > 0 || st.CompletionTokens > 0 || st.PredictedPerSec > 0 {
+		c.setStats(st)
+	}
 }
 
 // Stream 逐块返回增量；onChunk 返回错误即中止。
@@ -113,10 +185,13 @@ func (c *Client) Stream(ctx context.Context, req ChatRequest, onChunk func(Chunk
 				} `json:"delta"`
 				FinishReason string `json:"finish_reason"`
 			} `json:"choices"`
+			Usage   *usageLike   `json:"usage"`
+			Timings *timingsLike `json:"timings"`
 		}
 		if err := json.Unmarshal([]byte(data), &ev); err != nil {
 			continue // 容忍非标准块
 		}
+		c.captureStats(ev.Usage, ev.Timings)
 		for _, ch := range ev.Choices {
 			d := ch.Delta
 			reasoning := d.ReasoningContent
@@ -188,6 +263,8 @@ func (c *Client) StreamWithTools(ctx context.Context, req ChatRequest, onChunk f
 			break
 		}
 		var ev struct {
+			Usage   *usageLike   `json:"usage"`
+			Timings *timingsLike `json:"timings"`
 			Choices []struct {
 				Delta struct {
 					Content          string `json:"content"`
@@ -207,6 +284,7 @@ func (c *Client) StreamWithTools(ctx context.Context, req ChatRequest, onChunk f
 		if err := json.Unmarshal([]byte(data), &ev); err != nil {
 			continue
 		}
+		c.captureStats(ev.Usage, ev.Timings)
 		for _, ch := range ev.Choices {
 			d := ch.Delta
 			r := d.ReasoningContent

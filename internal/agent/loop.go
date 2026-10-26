@@ -205,6 +205,9 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 			}, &calls)
 		// 收尾计时：这一轮结束（正常结束、只有 tool_calls、或被中断）时停表，
 		// 否则工具轮（没有 content 增量）会永远是 0 ✓
+		if a.OnStats != nil {
+			a.OnStats(a.llm.Stats())
+		}
 		if reasonStart != 0 && reasonMs == 0 {
 			reasonMs = time.Now().UnixMilli() - reasonStart
 		}

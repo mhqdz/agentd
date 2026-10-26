@@ -789,3 +789,8 @@ body{background:var(--paper);color:var(--ink);
 .rail .rail-ctx b{font-size:.6rem;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .rail .rail-ctx.hot{color:var(--c7)}
 .rail .rail-ctx.hot svg .fg{stroke:var(--c7)}
+
+/* 右栏底部：生成速度（tok/s） */
+.rail .rail-tps{display:flex;align-items:baseline;gap:.1rem;padding:.35rem 0 .2rem;
+  font-size:.58rem;color:var(--c4);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.rail .rail-tps b{font-size:.66rem;font-weight:600;color:var(--c6)}

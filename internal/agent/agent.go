@@ -21,6 +21,7 @@ type Agent struct {
 	MaxRounds   int // 0=不限制（内部硬上限 100 兜底）
 	Drain       func() []string
 	OnInterject func(string)
+	OnStats     func(llm.Stats) // 每轮结束后的上游速度/用量（可为 nil）
 	st          store.Store
 	profile     config.Profile
 }

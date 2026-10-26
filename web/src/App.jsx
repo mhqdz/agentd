@@ -191,6 +191,7 @@ export default function App() {
   const [shotInfo, setShotInfo] = useState('')
   const convIdRef = useRef(null)   // 当前会话 id，用于丢弃过期的续流请求
   const [ctx, setCtx] = useState(null)   // 上下文占用 {chars,max,pct,raw}
+  const [tps, setTps] = useState(0)   // 上游实时速度（tok/s，来自 usage 事件）
   const suppressPeekClose = useRef(false)
   const suppressTimer = useRef(null)
   const [editField, setEditField] = useState(null)
@@ -559,6 +560,7 @@ export default function App() {
             if (ev === 'reasoning') { live.reasoning += d.text || ''; push() }
             else if (ev === 'delta') { live.content += d.text || ''; push() }
             else if (ev === 'tool') { live.tools.push(d); push() }
+              else if (ev === 'usage') { if (d.tps > 0) setTps(d.tps) }
           }
         }
       } catch (e) {
@@ -621,6 +623,7 @@ export default function App() {
           else if (ev === 'error') { asst.content += '\n✗ ' + (d.error || ''); push() }
           else if (ev === 'interject') { setStatus('模型已收到插话：' + (d.text || '').slice(0, 30)) }
           else if (ev === 'done') { setSecs(d.secs); setStatus(`完成 · ${(d.secs || 0).toFixed(1)}s`) }
+            else if (ev === 'usage') { if (d.tps > 0) setTps(d.tps) }
         }
       }
       await refresh(); if (cur) await openConv(cur)
@@ -1131,6 +1134,11 @@ export default function App() {
               <i /><i /><i />
             </button>
           </div>
+            {tps > 0 ? (
+              <span className="rail-tps" title={'上游生成速度（tok/s）：来自服务返回的 timings/usage'}>
+                <b>{Math.round(tps)}</b> tok/s
+              </span>
+            ) : null}
             {ctx ? (
               <span className={'rail-ctx' + ((((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}
                 title={'上下文 ' + fmtK(ctx.est_tokens || 0) + ' / ' + fmtK(ctx.limit_tokens || 105000) + ' tokens（' +

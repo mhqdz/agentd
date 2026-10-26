@@ -9,6 +9,7 @@ import (
 	"sort"
 	"sync"
 
+	"agentd/internal/llm"
 	"agentd/internal/logx"
 
 	"net/http"
@@ -452,6 +453,12 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 				ag.MaxRounds = set.ToolRounds
 			}
 		}
+	}
+	ag.OnStats = func(st llm.Stats) {
+		send("usage", map[string]any{
+			"tps": st.PredictedPerSec, "completion": st.CompletionTokens,
+			"prompt": st.PromptTokens, "cached": st.CachedTokens,
+		})
 	}
 	c, err := ag.Conversation(in.ConvID)
 	if err != nil {

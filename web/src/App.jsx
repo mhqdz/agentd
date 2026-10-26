@@ -976,7 +976,7 @@ export default function App() {
                       <span>{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span>
                       <span style={{ flex: 1 }} />
                       {!editP._new ? (
-                        <button className="btn del-top" onClick={async () => {
+                        <button className="btn danger del-top" onClick={async () => {
                           if (!confirm('删除 ' + editP.name + '？')) return
                           await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
                           setEditP(null); setEditField(null); refresh()
@@ -1040,7 +1040,7 @@ export default function App() {
                       </div>
                       {!editP._new ? (
                         <div className="card-foot del-bottom-wrap">
-                          <button className="btn del-bottom" onClick={async () => {
+                          <button className="btn danger del-bottom" onClick={async () => {
                             if (!confirm('删除 ' + editP.name + '？')) return
                             await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
                             setEditP(null); setEditField(null); refresh()

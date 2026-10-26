@@ -775,12 +775,9 @@ body{background:var(--paper);color:var(--ink);
 .rail .rail-status{display:flex;align-items:center;gap:.26rem;font-size:.55rem;letter-spacing:.02em;color:var(--c5)}
 .rail .rail-status .dot{width:.3rem;height:.3rem;border-radius:50%;background:var(--c5);display:inline-block}
 .rail .rail-status .dot.busy{background:var(--c6);animation:pulse 1.1s infinite}
-.rail .rail-ctx{display:flex;flex-direction:column;align-items:center;gap:.16rem;color:var(--c5);cursor:default}
-.rail .rail-ctx svg{width:16px;height:16px;transform:rotate(-90deg)}
-.rail .rail-ctx svg .bg{stroke:var(--c2)}
-.rail .rail-ctx svg .fg{stroke:var(--c5);transition:stroke-dashoffset .3s ease}
-.rail .rail-ctx b{font-size:.55rem;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
-.rail .rail-ctx.hot{color:var(--c7)}
-.rail .rail-ctx.hot svg .fg{stroke:var(--c7)}
+.rail .rail-ctx{display:block;color:var(--c5);cursor:default;
+  font-size:.55rem;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.rail .rail-ctx b{font-size:inherit;font-weight:inherit}
+.rail .rail-ctx.hot{color:var(--c7);font-weight:600}
 .rail .rail-tps{font-size:.55rem;color:var(--c4);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .rail .rail-tps b{font-size:.6rem;font-weight:600;color:var(--c6)}

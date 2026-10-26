@@ -1141,12 +1141,6 @@ export default function App() {
                 <span
                   title={Math.round((ctx.est_tokens || 0) / 1000) + ' / ' + Math.round((ctx.limit_tokens || 105000) / 1000) + 'k tokens'}
                   className={'rail-ctx' + ((((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}>
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    <circle className="bg" cx="10" cy="10" r="8" fill="none" strokeWidth="2" />
-                    <circle className="fg" cx="10" cy="10" r="8" fill="none" strokeWidth="2"
-                      strokeDasharray={2 * Math.PI * 8}
-                      strokeDashoffset={2 * Math.PI * 8 * (1 - Math.min(1, (ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)))} />
-                  </svg>
                   <b>{Math.round(((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100)}%</b>
                 </span>
               ) : null}

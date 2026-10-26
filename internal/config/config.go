@@ -22,14 +22,12 @@ type Config struct {
 func Default() Config {
 	home, _ := os.UserHomeDir()
 	return Config{
-		BaseURL: "http://127.0.0.1:18320/9/v1",
-		Model:   "Qwen3.5-9B-int4-ov",
-		APIKey:  "local-no-auth",
-		DataDir: filepath.Join(home, ".data/agentd"),
-		WebDir:  "web/dist",
-		System: `你是本机 agent。只回答用户要的东西；需要本机事实（版本/路径/进程/屏幕）时才用工具。
-不要为了"验证"而反复调用工具：生成内容就直接输出，不要写文件再读回来。
-输出代码时用围栏代码块，不要解释。`,
+		BaseURL:        "http://127.0.0.1:18320/9/v1",
+		Model:          "Qwen3.5-9B-int4-ov",
+		APIKey:         "local-no-auth",
+		DataDir:        filepath.Join(home, ".data/agentd"),
+		WebDir:         "web/dist",
+		System:         "", // 系统提示只在 profiles.json 里维护（见 docs/DESIGN.md）
 		MaxPromptChars: 240000,
 		KeepMessages:   16,
 	}

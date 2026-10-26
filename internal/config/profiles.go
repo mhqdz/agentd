@@ -42,16 +42,13 @@ func defaults() []Profile {
 	return []Profile{
 		{Name: "180-think", BaseURL: "http://127.0.0.1:18320/180/v1", Model: "qwen3.8-flash-next-iq3_xxs",
 			ReasoningEffort: "high", Builtin: true, KeepMessages: 16,
-			Tools:  []string{"bash", "screenshot", "kb_search", "recall"},
-			System: "你是规划层。需要本机事实才用工具；生成内容直接输出，不要写文件再读回来。"},
+			Tools: []string{"bash", "screenshot", "kb_search", "recall"}},
 		{Name: "180-low", BaseURL: "http://127.0.0.1:18320/180/v1", Model: "qwen3.8-flash-next-iq3_xxs",
 			ReasoningEffort: "low", Builtin: true, KeepMessages: 16,
-			Tools:  []string{"bash", "screenshot", "kb_search", "recall"},
-			System: "你是规划层，追求快速收敛。需要本机事实才用工具。"},
+			Tools: []string{"bash", "screenshot", "kb_search", "recall"}},
 		{Name: "9-exec", BaseURL: "http://127.0.0.1:18320/9/v1", Model: "Qwen3.5-9B-int4-ov",
 			ReasoningEffort: "none", Builtin: true, KeepMessages: 8,
-			Tools:  []string{"bash"},
-			System: "你是执行层：只跑命令、读输出、按清单判断。不规划、不查知识库、不检索历史。"},
+			Tools: []string{"bash"}},
 	}
 }
 

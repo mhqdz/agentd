@@ -50,3 +50,11 @@ Go 的 `plugin` 平台与构建耦合；要插件化只能"独立进程 + 协议
   重启并做 `/api/health` 检查；失败自动打印 `systemctl status` 并退出非 0。
   手动等价命令仅在脚本不可用时使用（见 `PLAN.md` 第三节）。
 - 历史里的 `web/dist` 仍在旧提交中（`.git` 约 81MB）；若需瘦身要重写历史，属一次性操作，先备份再强推。
+
+## 10. 系统提示只有一份
+提示文本只存在于 `~/.data/agentd/profiles.json` 的 `system` 字段（设置卡里可编辑）。
+- 代码里不再硬编码任何提示：`internal/config/profiles.go` 的内置 profile 与
+  `internal/config/config.go` 的兜底配置，`System` 一律为空。
+- 生效时机：每次 `/api/chat` 现读 profile → 作为 `messages[0]` 的 system 发送；
+  改完提示对后续轮次立即生效，历史消息不回改。
+- 除提示外，system 里还会拼上「已知事实」（`conversation.kv`）与会话摘要（作为单独 user 消息）。

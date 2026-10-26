@@ -1024,7 +1024,7 @@ export default function App() {
                             if (!confirm('删除 ' + editP.name + '？')) return
                             await fetch('/api/profiles/' + editP.name, { method: 'DELETE' })
                             setEditP(null); setEditField(null); refresh()
-                          }}>删除此模型</button>
+                          }}>删除配置</button>
                         </div>
                       ) : null}
                     </div>

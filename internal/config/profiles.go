@@ -20,9 +20,9 @@ type Profile struct {
 	System          string   `json:"system"`
 	Tools           []string `json:"tools"`
 	KeepMessages    int      `json:"keep_messages,omitempty"`
-	Summarizer      string   `json:"summarizer,omitempty"`       // 用哪个 profile 写摘要；空=自己
-	MaxPromptChars  int      `json:"max_prompt_chars,omitempty"` // 该模型的上下文字符上限；0 = 默认 240000
-	CompactPct      int      `json:"compact_pct,omitempty"`      // 达到上限的百分之几时自动压缩/摘要；0 = 默认 80
+	Summarizer      string   `json:"summarizer,omitempty"`        // 用哪个 profile 写摘要；空=自己
+	MaxPromptTokens int      `json:"max_prompt_tokens,omitempty"` // 该模型的输入 token 上限；0 = 默认 105000（模型窗口 131072 的 80%）
+	CompactPct      int      `json:"compact_pct,omitempty"`       // 达到上限的百分之几时自动压缩/摘要；0 = 默认 80
 	Builtin         bool     `json:"builtin,omitempty"`
 }
 

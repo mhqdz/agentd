@@ -23,14 +23,26 @@ import (
 // 工具循环：最多 8 轮，避免模型自己绕不出来。
 
 // maxChars：该 profile 的上限，未配则用全局默认
-const defaultMaxPromptChars = 240000 // 未在 profile 里写上限时的默认值
+// 上下文口径统一用 token：
+//
+//	· 配置项是 token（max_prompt_tokens）
+//	· 内部按 charsPerToken 估算字符数，用于实际裁剪（模型侧没有分词器可调）
+const (
+	defaultMaxPromptTokens = 105000 // 默认输入上限（模型窗口 131072 的 ~80%）
+	charsPerToken          = 1.8    // 中英混合经验值：1 token ≈ 1.8 字符
+)
 
-func (a *Agent) maxChars() int {
-	if a.profile.MaxPromptChars > 0 {
-		return a.profile.MaxPromptChars
+func (a *Agent) maxTokens() int {
+	if a.profile.MaxPromptTokens > 0 {
+		return a.profile.MaxPromptTokens
 	}
-	return defaultMaxPromptChars
+	return defaultMaxPromptTokens
 }
+
+// MaxTokens：该 profile 的输入 token 上限（供接口展示）
+func (a *Agent) MaxTokens() int { return a.maxTokens() }
+
+func (a *Agent) maxChars() int { return int(float64(a.maxTokens()) * charsPerToken) }
 
 // CompactPct：达到上限的百分之几时做压缩/摘要（默认 80）
 func (a *Agent) CompactPct() int {

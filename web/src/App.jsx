@@ -807,11 +807,11 @@ export default function App() {
           <div className="status" onWheel={onComposerWheel}>
             <span>{status}</span>
             {ctx ? (
-              <span className={'ctx' + (((ctx.est_tokens || 0) / (ctx.window || 131072) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}
-                title={'会发给模型的 token 估算 / 模型窗口；达到 ' + (ctx.compact_pct || 80) + '% 自动压缩。字符数（' + fmtK(ctx.chars) + '/' + fmtK(ctx.max) + '）是实际限额单位'}>
-                上下文 {fmtK(ctx.est_tokens || 0)} / {fmtK(ctx.window || 131072)} tokens
-                <span className="ctx-pct">（{(((ctx.est_tokens || 0) / (ctx.window || 131072)) * 100).toFixed(0)}%）</span>
-                <span className="ctx-raw">{fmtK(ctx.chars)}/{fmtK(ctx.max)} 字符</span>
+              <span className={'ctx' + (((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}
+                title={'估算输入 token / 该模型上限；达到 ' + (ctx.compact_pct || 80) + '% 自动压缩。模型窗口 ' + fmtK(ctx.window || 131072) + ' tokens；字符是内部换算（1 token ≈ 1.8 字符）'}>
+                上下文 {fmtK(ctx.est_tokens || 0)} / {fmtK(ctx.limit_tokens || 105000)} tokens
+                <span className="ctx-pct">（{(((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100).toFixed(0)}%）</span>
+                <span className="ctx-raw">窗口 {fmtK(ctx.window || 131072)}</span>
               </span>
             ) : null}
           </div>
@@ -960,10 +960,10 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
-                      <label className="field"><span>上下文上限（字符，留空=240000）</span>
-                        <input type="number" min="0" max="10000000" placeholder="240000"
-                          value={editP.max_prompt_chars || ''}
-                          onChange={e => setEditP({ ...editP, max_prompt_chars: Number(e.target.value) || 0 })} />
+                      <label className="field"><span>上下文上限（tokens，留空=105000）</span>
+                        <input type="number" min="0" max="1000000" placeholder="105000"
+                          value={editP.max_prompt_tokens || ''}
+                          onChange={e => setEditP({ ...editP, max_prompt_tokens: Number(e.target.value) || 0 })} />
                       </label>
                       <label className="field"><span>压缩阈值（%，留空=80）</span>
                         <input type="number" min="1" max="99" placeholder="80"

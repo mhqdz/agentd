@@ -157,7 +157,16 @@ body{background:var(--paper);color:var(--ink);
   font:inherit;font-size:.8rem;line-height:1.8;resize:none;outline:none}
 
 /* 字段与列表 */
-.set-section{font-size:.66rem;letter-spacing:.18em;color:var(--ink3);padding:.1rem 0;border-bottom:1px solid var(--line)}
+/* 标题体系（卡片标题与卡片内小节标题共用）：竖条 + 字距 + 右侧细线 */
+.ef-label{display:inline-flex;align-items:center;gap:.45rem;min-width:0;
+  font-size:.66rem;letter-spacing:.16em;color:var(--c6);line-height:1.2}
+.ef-label::before{content:"";flex:0 0 auto;width:3px;height:.86em;background:var(--c5)}
+.ef-label .ef-label-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.set-section{display:flex;align-items:center;gap:.55rem;padding:.15rem 0 .35rem;
+  font-size:.64rem;letter-spacing:.18em;color:var(--c5);border-bottom:1px solid var(--line)}
+.set-section::before{content:"";flex:0 0 auto;width:3px;height:.86em;background:var(--c4)}
+.set-section::after{content:"";flex:1 1 auto;height:1px;background:var(--line);margin-left:.2rem}
 .set-card{border:1px solid var(--line);background:#fff;padding:.6rem .7rem;min-width:0}
 .set-row{display:flex;align-items:center;gap:.6rem}
 .set-row .sp{flex:1}

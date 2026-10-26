@@ -955,7 +955,7 @@ export default function App() {
                 onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
                 {(editField || toolEdit) ? (
                   <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
-                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
+                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button><span className="ef-label"><span className="ef-label-t">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</span></span></div>
                     <textarea ref={el => { if (el) autoGrow(el) }} className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
                       onInput={e => autoGrow(e.target)}
                       placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
@@ -973,7 +973,7 @@ export default function App() {
                   <div className={"card col-form" + (!(editField || toolEdit) && editP ? " is-top" : "")}>
                     <div className="card-hd" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
                       <button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
-                      <span>{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span>
+                      <span className="ef-label"><span className="ef-label-t">{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span></span>
                       <span style={{ flex: 1 }} />
                       {!editP._new ? (
                         <button className="btn danger del-top" onClick={async () => {
@@ -1054,7 +1054,7 @@ export default function App() {
                 <div className={"card col-list" + (!(editField || toolEdit) && !editP ? " is-top" : "")}>
                   <div className="card-hd narrow-only">
                     <button className="icon-x back card-back" onClick={() => closeOne()} aria-label="退出设置" title="退出"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
-                    <span>配置</span>
+                    <span className="ef-label"><span className="ef-label-t">配置</span></span>
                   </div>
                   <div className="card-bd">
                     <div className="set-section">常规配置</div>

@@ -355,7 +355,9 @@ export default function App() {
   const autoGrow = (el) => {
     if (!el) return
     el.style.height = 'auto'
-    el.style.setProperty('--h', (el.scrollHeight + 2) + 'px')
+    const h = el.scrollHeight + 2
+    el.style.setProperty('--h', h + 'px')
+    el.style.height = h + 'px'      // .set-area 直接吃像素高度（随内容长高，不折叠）
   }
 
   // 阅读位置：滚到哪条消息，就显示第几条
@@ -939,7 +941,7 @@ export default function App() {
                 {(editField || toolEdit) ? (
                   <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
                     <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="返回" title="返回"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M12 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter"/></svg></button>{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
-                    <textarea className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
+                    <textarea ref={el => { if (el) autoGrow(el) }} className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
                       onInput={e => autoGrow(e.target)}
                       placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
                       onChange={e => {

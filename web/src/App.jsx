@@ -167,7 +167,11 @@ export default function App() {
   const [profiles, setProfiles] = useState([])
   const [profile, setProfile] = useState(localStorage.getItem('profile') || '180-think')
   const [tab, setTab] = useState('live')
-  const [sideOpen, setSideOpen] = useState(localStorage.getItem('sideOpen') !== '0')
+  // 窄屏默认收起左栏（它是浮层，展开会盖住正文）；宽屏沿用上次状态
+  const [sideOpen, setSideOpen] = useState(() => {
+    if (window.innerWidth < 1400) return false
+    return localStorage.getItem('sideOpen') !== '0'
+  })
   const [sideW, setSideW] = useState(() => Number(localStorage.getItem('sideW')) || 250)
   const [colW, setColW] = useState(() => Number(localStorage.getItem('colW')) || 960)
   const colDrag = useRef(null)
@@ -450,7 +454,7 @@ export default function App() {
   }, [editField, toolEdit])
   useEffect(() => { loadShotStats() }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
-  useEffect(() => { localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
+  useEffect(() => { if (window.innerWidth >= 1400) localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
   // 自动跟随：仅当用户已在底部附近才滚到底；往上翻阅读历史时不打断
   useEffect(() => {
     const th = threadRef.current

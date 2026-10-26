@@ -15,6 +15,7 @@ import (
 
 	"agentd/internal/config"
 	"agentd/internal/llm"
+	"agentd/internal/logx"
 	"agentd/internal/store"
 	"agentd/internal/tools"
 )
@@ -100,7 +101,20 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		}
 		_ = a.maybeSummarize(ctx, c, keep)
 		msgs, toolMsgs := toWire(c.Messages, reg)
+		before := len(msgs)
+		beforeChars := 0
+		for _, m := range msgs {
+			beforeChars += wireLen(m.Content)
+		}
 		msgs = compact(msgs, keep, a.maxChars()/2)
+		if before != len(msgs) {
+			afterChars := 0
+			for _, m := range msgs {
+				afterChars += wireLen(m.Content)
+			}
+			logx.Info("compact conv=%s msgs=%d->%d chars=%d->%d budget=%d keep=%d",
+				c.ID, before, len(msgs), beforeChars, afterChars, a.maxChars()/2, keep)
+		}
 		if a.profile.System != "" || c.Summary != "" || len(c.KV) > 0 {
 			sys := a.profile.System
 			if len(c.KV) > 0 {
@@ -293,9 +307,6 @@ func stringify(v any) string {
 // 规则：保留 system + 最近 keep 条消息；更早的折叠成一条"省略说明"。
 // 不调用模型做摘要（省钱、可预测）；需要更聪明的摘要时再换。
 func compact(msgs []llm.Message, keep int, budget int) []llm.Message {
-	if len(msgs) <= keep+1 {
-		return msgs
-	}
 	var sys *llm.Message
 	start := 0
 	if len(msgs) > 0 && msgs[0].Role == "system" {
@@ -322,15 +333,21 @@ func compact(msgs []llm.Message, keep int, budget int) []llm.Message {
 		remain -= wireLen(body[cut].Content)
 		cut++
 	}
-	// 至少保留 keep 条（预算再小也要留下最近几步）
-	if max := len(body) - keep; cut > max {
+	// 保留下限：没超预算时以 keep 为目标；超预算时必须能砍到预算内 ✗
+	// （之前固定"至少留 keep=16 条"→ 消息数<16 时完全砍不动 → 请求体超上限被拒 ✓ 复现于 conv 22）
+	minKeep := keep
+	if total > budget && minKeep > 4 {
+		minKeep = 4 // 至少留 4 条（约 2 轮），其余按预算砍
+	}
+	if max := len(body) - minKeep; cut > max {
 		cut = max
 	}
 	if cut <= 0 {
 		return msgs
 	}
-	// 边界对齐到 user，且**向前**退（不能往后推，否则会超过保留下限）
-	for cut > 0 && body[cut].Role != "user" {
+	// 边界不能落在 tool 上：那会把 tool 结果与它的 tool_call 拆开
+	// （之前要求必须落在 user 上 ✗ 只有一条 user 时会一路退到 0，等于完全不压缩 ✓ 复现于 conv 24）
+	for cut > 0 && body[cut].Role == "tool" {
 		cut--
 	}
 	if cut <= 0 {

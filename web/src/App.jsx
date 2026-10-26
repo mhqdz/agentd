@@ -185,6 +185,7 @@ export default function App() {
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
   const [readingIdx, setReadingIdx] = useState(0)
   const [peek, setPeek] = useState({ open: false, idx: -1, top: 0 })
+  const [shotInfo, setShotInfo] = useState('')
   const suppressPeekClose = useRef(false)
   const suppressTimer = useRef(null)
   const [editField, setEditField] = useState(null)
@@ -441,6 +442,7 @@ export default function App() {
     const el = document.querySelector('.col-editor .set-area')
     if (el) setTimeout(() => autoGrow(el), 0)
   }, [editField, toolEdit])
+  useEffect(() => { loadShotStats() }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
   useEffect(() => { localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
   // 自动跟随：仅当用户已在底部附近才滚到底；往上翻阅读历史时不打断
@@ -469,6 +471,12 @@ export default function App() {
       const th = threadRef.current
       if (th) th.scrollTop = th.scrollHeight
     })
+  }
+
+  // 截图占用统计（设置卡里显示）
+  const loadShotStats = async () => {
+    const r = await api('/api/shots/stats').catch(() => null)
+    if (r) setShotInfo(`当前 ${r.count} 张，占用 ${r.size_mb.toFixed(1)} MB`)
   }
 
   const openConv = async (id) => {
@@ -966,6 +974,30 @@ export default function App() {
                           <input type="number" min="1" max="3650" value={settings.auto_archive_days || 7}
                             onChange={e => setSettings({ ...settings, auto_archive_days: Number(e.target.value) || 7 })} /></label>
                       ) : null}
+                    </div>
+
+                    <div className="set-card">
+                      <div className="item static">
+                        <span className="item-title">截图清理</span>
+                        <button type="button" role="switch" aria-checked={!!settings.shots_auto_clean}
+                          className={'tg' + (settings.shots_auto_clean ? ' on' : '')}
+                          onClick={() => setSettings({ ...settings, shots_auto_clean: !settings.shots_auto_clean })}><b /></button>
+                      </div>
+                      <div className="set-meta">超过保留天数的截图文件自动删除（数据库里的消息不受影响）</div>
+                      {settings.shots_auto_clean ? (
+                        <label className="field" style={{ marginTop: '.5rem' }}><span>保留天数</span>
+                          <input type="number" min="1" max="3650" value={settings.shots_keep_days || 7}
+                            onChange={e => setSettings({ ...settings, shots_keep_days: Number(e.target.value) || 7 })} /></label>
+                      ) : null}
+                      <div className="item static" style={{ marginTop: '.4rem' }}>
+                        <span className="item-desc" style={{ margin: 0 }}>{shotInfo || '—'}</span>
+                        <button className="btn" onClick={async () => {
+                          const r = await fetch('/api/shots/cleanup', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ days: settings.shots_keep_days || 7 }) }).then(x => x.json())
+                          setShotInfo(`已清理 ${r.removed} 张，释放 ${r.freed_kb} KB`)
+                          loadShotStats()
+                        }}>立即清理</button>
+                      </div>
                     </div>
 
                     <div className="set-section">模型配置</div>

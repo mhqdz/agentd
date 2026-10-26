@@ -12,7 +12,10 @@ type Settings struct {
 	ToolRounds        int  `json:"tool_rounds"`         // 限制值（默认 8）
 
 	AutoArchiveEnabled bool `json:"auto_archive_enabled"` // 是否自动归档长期不活跃会话
-	AutoArchiveDays    int  `json:"auto_archive_days"`    // 超过多少天未活跃则归档（默认 30）
+	AutoArchiveDays    int  `json:"auto_archive_days"`    // 超过多少天未活跃则归档（默认 7）
+
+	ShotsAutoClean bool `json:"shots_auto_clean"` // 是否自动清理截图
+	ShotsKeepDays  int  `json:"shots_keep_days"`  // 截图保留天数（默认 7）
 }
 
 func settingsPath() string {
@@ -21,7 +24,7 @@ func settingsPath() string {
 }
 
 func LoadSettings() Settings {
-	s := Settings{ToolRoundsEnabled: true, ToolRounds: 8, AutoArchiveEnabled: true, AutoArchiveDays: 7}
+	s := Settings{ToolRoundsEnabled: true, ToolRounds: 8, AutoArchiveEnabled: true, AutoArchiveDays: 7, ShotsAutoClean: true, ShotsKeepDays: 7}
 	b, err := os.ReadFile(settingsPath())
 	if err == nil {
 		_ = json.Unmarshal(b, &s)
@@ -31,6 +34,9 @@ func LoadSettings() Settings {
 	}
 	if s.AutoArchiveDays <= 0 {
 		s.AutoArchiveDays = 7
+	}
+	if s.ShotsKeepDays <= 0 {
+		s.ShotsKeepDays = 7
 	}
 	return s
 }

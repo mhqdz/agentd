@@ -65,6 +65,38 @@ func (s *Server) Handler() http.Handler {
 		sort.Strings(ids)
 		writeJSON(w, 200, ids)
 	})
+	mux.HandleFunc("/api/shots/cleanup", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, 405, map[string]string{"error": "POST only"})
+			return
+		}
+		var in struct {
+			Days int `json:"days"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&in)
+		if in.Days <= 0 {
+			in.Days = config.LoadSettings().ShotsKeepDays
+		}
+		n, bytes := s.cleanupShots(in.Days)
+		writeJSON(w, 200, map[string]any{"removed": n, "freed_kb": bytes / 1024, "days": in.Days})
+	})
+	mux.HandleFunc("/api/shots/stats", func(w http.ResponseWriter, r *http.Request) {
+		home, _ := os.UserHomeDir()
+		dir := filepath.Join(home, ".data", "agentd", "shots")
+		ents, _ := os.ReadDir(dir)
+		var n int
+		var bytes int64
+		for _, e := range ents {
+			if e.IsDir() {
+				continue
+			}
+			if info, err := e.Info(); err == nil {
+				n++
+				bytes += info.Size()
+			}
+		}
+		writeJSON(w, 200, map[string]any{"count": n, "size_mb": float64(bytes) / 1024 / 1024})
+	})
 	mux.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -514,8 +546,41 @@ func (s *Server) handleProfileItem(w http.ResponseWriter, r *http.Request) {
 }
 
 // sweepAutoArchive：按当前设置执行一次自动归档
+// cleanupShots：删除 shots 目录里超过 days 天的截图，返回删除数量与释放字节
+func (s *Server) cleanupShots(days int) (int, int64) {
+	home, _ := os.UserHomeDir()
+	dir := filepath.Join(home, ".data", "agentd", "shots")
+	ents, err := os.ReadDir(dir)
+	if err != nil {
+		return 0, 0
+	}
+	cutoff := time.Now().Add(-time.Duration(days) * 24 * time.Hour)
+	var n int
+	var bytes int64
+	for _, e := range ents {
+		if e.IsDir() {
+			continue
+		}
+		info, err := e.Info()
+		if err != nil || info.ModTime().After(cutoff) {
+			continue
+		}
+		if os.Remove(filepath.Join(dir, e.Name())) == nil {
+			n++
+			bytes += info.Size()
+		}
+	}
+	if n > 0 {
+		logx.Info("shots.cleanup removed=%d freed=%dKB days=%d", n, bytes/1024, days)
+	}
+	return n, bytes
+}
+
 func (s *Server) sweepAutoArchive() {
 	st := config.LoadSettings()
+	if st.ShotsAutoClean && st.ShotsKeepDays > 0 {
+		s.cleanupShots(st.ShotsKeepDays)
+	}
 	if !st.AutoArchiveEnabled || st.AutoArchiveDays <= 0 {
 		return
 	}

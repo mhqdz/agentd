@@ -75,3 +75,15 @@ curl -s -N -X POST http://127.0.0.1:18400/api/chat \
   -d '{"conv_id":"","text":"列出当前目录","profile":"180-low"}'
 curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 ```
+
+## 截图文件
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/shots/stats` | `{count, size_mb}`：截图目录的文件数与占用 |
+| POST | `/api/shots/cleanup` `{"days":7}` | 删除超过 N 天的截图，返回 `{removed, freed_kb, days}` |
+| GET | `/shots/<name>.png` | 直接取截图文件（`~/.data/agentd/shots/`） |
+
+消息里只存 `/shots/<name>.png` 路径；发给模型时由 `toWire` 读盘转 data URL。
+自动清理：`settings.shots_auto_clean` + `shots_keep_days`（默认开 + 7 天），
+启动与每小时巡检时执行一次。

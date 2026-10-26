@@ -524,7 +524,7 @@ export default function App() {
       if (done) return
       done = true
       const cc = await api('/api/conv/' + id).catch(() => null)
-      if (cc && convIdRef.current === id) setMsgs(normalize(cc.messages || []))
+      if (cc && convIdRef.current === id) { setMsgs(normalize(cc.messages || [])); scrollToBottom() }
       setSyncing(false); setStatus(msg || '已同步'); refresh()
     }
     for (let attempt = 0; attempt < 60 && !done; attempt++) {
@@ -636,7 +636,7 @@ export default function App() {
         }
       if (e.name === 'AbortError') {
         setStatus('已停止')
-        if (cur) { const cc = await api('/api/conv/' + cur).catch(() => null); if (cc) setMsgs(normalize(cc.messages || [])) }
+        if (cur) { const cc = await api('/api/conv/' + cur).catch(() => null); if (cc) { setMsgs(normalize(cc.messages || [])); scrollToBottom() } }
       }
       else setStatus('✗ ' + e.message + '（可重试）')
     } finally { abortRef.current = null; setBusy(false); refresh(); loadCtx(cur) }   // 中断/报错也刷新列表，避免会话"看不见"

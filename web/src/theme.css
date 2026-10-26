@@ -886,8 +886,6 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   .set-cols .col-form .del-bottom-wrap{display:flex;justify-content:flex-end;
     padding:.5rem .6rem 1.1rem;border-top:1px solid var(--line)}
   .set-cols .col-form .del-bottom{width:100%;min-height:32px;justify-content:center}
-    .set-hd .set-close{position:absolute;right:.85rem;top:calc(46px + .32rem);
-    z-index:4;place-items:center;width:30px;height:26px;padding:0;font-size:1rem;line-height:1}
 }
 
 /* 关闭/收起：极简图标按钮（无边框，悬停加深 + 轻微旋转） */
@@ -898,8 +896,6 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .icon-x.back:hover{transform:translateX(-2px)}
 .icon-x:focus-visible{outline:1px solid var(--c4);outline-offset:2px}
 @media (max-width:1399px){
-  .set-hd .set-close{position:absolute;right:.7rem;top:calc(46px + .62rem);z-index:4;
-    width:30px;height:26px;border:0;background:transparent}
 
 }
 

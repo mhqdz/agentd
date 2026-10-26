@@ -158,13 +158,13 @@ body{background:var(--paper);color:var(--ink);
 
 /* 字段与列表 */
 /* 标题体系（卡片标题与卡片内小节标题共用）：竖条 + 字距 + 右侧细线 */
-.ef-label{display:inline-flex;align-items:center;gap:.45rem;min-width:0;
-  font-size:.66rem;letter-spacing:.16em;color:var(--c6);line-height:1.2}
+.ef-label{display:inline-flex;align-items:center;gap:.5rem;min-width:0;
+  font-size:.74rem;letter-spacing:.14em;color:var(--c6);line-height:1.2}
 .ef-label::before{content:"";flex:0 0 auto;width:3px;height:.86em;background:var(--c5)}
 .ef-label .ef-label-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .set-section{display:flex;align-items:center;gap:.55rem;padding:.15rem 0 .35rem;
-  font-size:.64rem;letter-spacing:.18em;color:var(--c5);border-bottom:1px solid var(--line)}
+  font-size:.68rem;letter-spacing:.16em;color:var(--c5);border-bottom:1px solid var(--line)}
 .set-section::before{content:"";flex:0 0 auto;width:3px;height:.86em;background:var(--c4)}
 .set-section::after{content:"";flex:1 1 auto;height:1px;background:var(--line);margin-left:.2rem}
 .set-card{border:1px solid var(--line);background:#fff;padding:.6rem .7rem;min-width:0}
@@ -951,13 +951,13 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   .set-cols .card .set-col-foot{padding:.35rem .7rem}
 
   /* 卡片统一高度上限：不超过可视区域，内容短就短、长则框内滚动 */
-  .set-cols .card{max-height:calc(100vh - 36px - 40px - 1.6rem)}
+  .set-cols .card{max-height:calc(100vh - 36px - .9rem)}
   .set-cols .col-editor .set-area{max-height:none}
 }
 
 /* 宽屏同样：卡片不超过可视高度 */
 @media (min-width:1400px){
-  .set-cols .card{max-height:calc(100vh - 46px - 1.6rem)}
+  .set-cols .card{max-height:calc(100vh - .9rem)}
 }
 
 /* 显隐：.icon-x 自身 display:grid 会盖掉 .narrow-only，这里显式声明 */

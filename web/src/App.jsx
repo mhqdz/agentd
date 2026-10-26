@@ -91,34 +91,23 @@ function ProfileSeg({ profiles, value, onChange, small }) {
 // 历史消息归一：把 assistant.tool_calls 与其后的 tool 结果合成 tools 数组，
 // 这样刷新后"思考过程"和"工具调用记录"不会消失（之前只存在于流式时的前端状态 ✗）
 function normalize(arr) {
-  const out = []
-  const used = new Set()
+  // 工具结果保留为独立消息（有自己的 seq，界面上是单独一个气泡）
+  const call = {}
   for (const m of arr) {
-    if (m.role === 'assistant' && (m.tool_calls || []).length) {
-      const tools = (m.tool_calls || []).map(tc => {
-        const res = arr.find(x => x.role === 'tool' && x.tool_call_id === tc.id)
-        if (res) used.add(res)
-        const text = res ? (typeof res.tool_result === 'string' ? res.tool_result : (res.content || '')) : ''
-        return { name: tc.function?.name, args: tc.function?.arguments, text, image: res?.images?.[0] }
-      })
-      out.push({ ...m, tools })
-      continue
-    }
-    if (m.role === 'tool' && used.has(m)) continue
-    out.push(m)
-  }
-  // 中断说明单独成条时，并回上一条"只有工具调用、没有正文"的 assistant（避免两个 Agent 气泡）
-  for (let i = 0; i < out.length - 1; i++) {
-    const a = out[i], b = out[i + 1]
-    if (a.role === 'assistant' && !(a.content || '').trim() && (a.tools || []).length &&
-        b.role === 'assistant' && /^\s*——（(中断|已停止)/.test(b.content || '')) {
-      out[i] = { ...a, content: b.content }
-      out.splice(i + 1, 1)
-      break
+    for (const tc of (m.tool_calls || [])) {
+      call[tc.id] = { name: tc.function?.name || '工具', args: tc.function?.arguments || '' }
     }
   }
-  return out
+  return arr.map(m => {
+    if (m.role === 'tool') {
+      const c = call[m.tool_call_id] || {}
+      return { ...m, toolName: c.name, toolArgs: c.args }
+    }
+    const { tools, ...rest } = m    // assistant 不再内嵌工具列表
+    return rest
+  })
 }
+
 
 function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
   const ta = useRef(null)
@@ -723,7 +712,7 @@ export default function App() {
                     <div>
                       <div className="mhead">
                         <span className={'av' + (m.role === 'user' ? ' u' : m.role === 'tool' ? ' t' : '')}>{m.role === 'user' ? '用' : m.role === 'tool' ? 'T' : '◈'}</span>
-                        <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? '工具' : 'Agent'}</b>
+                        <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? (m.toolName || '工具') : 'Agent'}</b>
                         {m.interject ? <span className="ef-tag">插话</span> : null}
                         {m.seq ? <span className="ef-tag">No.{String(m.seq).padStart(3, '0')}</span> : null}
                         <span className="ef-field">{m.at || ''}</span>
@@ -740,20 +729,19 @@ export default function App() {
                         </details>
                       ) : null}
                       {m.content ? <Sections text={m.content} /> : null}
-                      {(m.tools || []).length > 0 ? (
-                        <div className="tools ef-panel cut-tl">
-                          <div className="hd"><span>TOOL LOG / 工具调用记录</span><span>{m.tools.length} 项 · 全部完成</span></div>
-                          {m.tools.map((t, k) => (
-                            <div className="row ef-row" key={k}>
-                              <span className="nm">{t.name}</span>
-                              <div>
-                                <div style={{ color: 'var(--ink2)', fontSize: '.78rem' }}>{(t.args || '').slice(0, 140)}</div>
-                                {t.text ? <details className="fold"><summary>输出 · {String(t.text).length} 字</summary><pre className="out">{t.text}</pre></details> : null}
-                                {t.image ? <img src={t.image} alt="tool" /> : null}
-                              </div>
-                              <span className="ok">✓</span>
-                            </div>
-                          ))}
+                      {m.role === 'tool' ? (
+                        <div>
+                          <div style={{ fontSize: '.72rem', color: 'var(--ink3)', marginBottom: '.2rem' }}>
+                            {(m.toolName || '工具') + (m.toolArgs ? ' · ' + String(m.toolArgs).slice(0, 120) : '')}
+                          </div>
+                          {(m.content || '').length > 300 ? (
+                            <details className="fold">
+                              <summary>输出 · {String(m.content).length} 字</summary>
+                              <pre className="out">{m.content}</pre>
+                            </details>
+                          ) : (
+                            <pre className="out">{m.content}</pre>
+                          )}
                         </div>
                       ) : null}
                       {(m.images || []).map((u, k) => <img key={k} src={u} style={{ maxWidth: '100%', marginTop: '.5rem', border: '1px solid var(--line)' }} />)}

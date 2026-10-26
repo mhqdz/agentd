@@ -630,6 +630,18 @@ func (s *Server) cleanupShots(days int) (int, int64) {
 	return n, bytes
 }
 
+// CancelAll：取消所有进行中的轮次（服务停机时调用，让循环把半截内容与中断说明落库）
+func (s *Server) CancelAll() int {
+	s.convMu.Lock()
+	defer s.convMu.Unlock()
+	n := 0
+	for _, cancel := range s.convCancel {
+		cancel()
+		n++
+	}
+	return n
+}
+
 func (s *Server) sweepAutoArchive() {
 	st := config.LoadSettings()
 	if st.ShotsAutoClean && st.ShotsKeepDays > 0 {

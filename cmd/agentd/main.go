@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"agentd/internal/agent"
@@ -73,8 +74,20 @@ func main() {
 		if v := os.Getenv("AGENTD_ADDR"); v != "" {
 			addr = v
 		}
-		srv := &http.Server{Addr: addr, Handler: web.New(cfg, a, st).Handler()}
+		s := web.New(cfg, a, st)
+		srv := &http.Server{Addr: addr, Handler: s.Handler()}
 		fmt.Fprintf(os.Stderr, "agentd %s · model=%s · http://%s\n", version, cfg.Model, addr)
+		// 优雅停机：先把进行中的轮次取消（它们会落库半截内容 + 中断说明），再退出
+		go func() {
+			ch := make(chan os.Signal, 1)
+			signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+			<-ch
+			if n := s.CancelAll(); n > 0 {
+				logx.Info("shutdown cancel_running=%d", n)
+				time.Sleep(3 * time.Second)
+			}
+			os.Exit(0)
+		}()
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			fatal(err)
 		}

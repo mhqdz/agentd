@@ -194,6 +194,7 @@ export default function App() {
   const [peek, setPeek] = useState({ open: false, idx: -1, top: 0 })
   const [shotInfo, setShotInfo] = useState('')
   const convIdRef = useRef(null)   // 当前会话 id，用于丢弃过期的续流请求
+  const [narrow, setNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < 1400)
   const [ctx, setCtx] = useState(null)   // 上下文占用 {chars,max,pct,raw}
   const [tps, setTps] = useState(0)   // 上游实时速度（tok/s，来自 usage 事件）
   const suppressPeekClose = useRef(false)
@@ -475,6 +476,11 @@ export default function App() {
     if (el) setTimeout(() => autoGrow(el), 0)
   }, [editField, toolEdit])
   useEffect(() => { loadShotStats() }, [])
+  useEffect(() => {
+    const on = () => setNarrow(window.innerWidth < 1400)
+    window.addEventListener('resize', on)
+    return () => window.removeEventListener('resize', on)
+  }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
   useEffect(() => { if (window.innerWidth >= 1400) localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
   // 自动跟随：仅当用户已在底部附近才滚到底；往上翻阅读历史时不打断
@@ -682,6 +688,42 @@ export default function App() {
   const list = tab === 'archive' ? archived : convs
   const cur = profiles.find(p => p.name === profile)
   // 轮次进度：本轮工具轮次 / 本会话落库的最大 seq（也即已记录的轮次）
+  const dirtyActions = anyDirty ? (
+    <span className="card-actions title-actions">
+
+        <button className="btn" onClick={() => {
+          if (editorDirty) {
+            if (editField) setEditP({ ...editP, [editField]: editOriginal })
+            else setToolEdit({ ...toolEdit, description: editOriginal })
+          } else if (formDirty) {
+            setEditP(JSON.parse(editSnap || '{}'))
+          } else {
+            setSettings(JSON.parse(setSnap || '{}'))
+          }
+        }}>取消</button>
+        <button className="btn" onClick={async () => {
+          if (editorDirty) {
+            if (toolEdit) {
+              await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: toolEdit.description }) })
+              setEditOriginal(toolEdit.description || ''); refresh()
+            } else { setEditOriginal(editP?.[editField] || '') }
+            return
+          }
+          if (formDirty) {
+            if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
+            const { _new, ...body } = editP
+            await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
+            setEditSnap(snapOf(editP)); refresh(); return
+          }
+          await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) })
+          setSetSnap(JSON.stringify(settings))
+        }}>保存</button>
+      
+    </span>
+  ) : null
+
   return (
     <div className="app">
       <div className="topbar">
@@ -890,43 +932,6 @@ export default function App() {
           </div>
           {showSet ? (
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
-              {anyDirty ? (
-              <div className="set-hd">
-                {anyDirty ? (
-                  <span className="card-actions">
-                    <button className="btn" onClick={() => {
-                      if (editorDirty) {
-                        if (editField) setEditP({ ...editP, [editField]: editOriginal })
-                        else setToolEdit({ ...toolEdit, description: editOriginal })
-                      } else if (formDirty) {
-                        setEditP(JSON.parse(editSnap || '{}'))
-                      } else {
-                        setSettings(JSON.parse(setSnap || '{}'))
-                      }
-                    }}>取消</button>
-                    <button className="btn" onClick={async () => {
-                      if (editorDirty) {
-                        if (toolEdit) {
-                          await fetch('/api/tools/' + toolEdit.name, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ description: toolEdit.description }) })
-                          setEditOriginal(toolEdit.description || ''); refresh()
-                        } else { setEditOriginal(editP?.[editField] || '') }
-                        return
-                      }
-                      if (formDirty) {
-                        if (!editP.name || !editP.base_url || !editP.model) { alert('名称 / 接口地址 / 模型 必填'); return }
-                        const { _new, ...body } = editP
-                        await fetch('/api/profiles', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ ...body, tools: (body.tools || '').split(',').map(x => x.trim()).filter(Boolean), keep_messages: body.keep_messages || 16 }) })
-                        setEditSnap(snapOf(editP)); refresh(); return
-                      }
-                      await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) })
-                      setSetSnap(JSON.stringify(settings))
-                    }}>保存</button>
-                  </span>
-                ) : null}
-              </div>
-              ) : null}
               {toolCfg ? (
                 <div className="card col-tool">
                   <div className="card-hd">
@@ -957,7 +962,9 @@ export default function App() {
                 onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
                 {(editField || toolEdit) ? (
                   <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
-                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button><span className="ef-label"><span className="ef-label-t">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</span></span></div>
+                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button><span className="ef-label"><span className="ef-label-t">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</span></span>
+                        <span style={{ flex: 1 }} />
+                        {narrow ? dirtyActions : null}</div>
                     <textarea ref={el => { if (el) autoGrow(el) }} className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
                       onInput={e => autoGrow(e.target)}
                       placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
@@ -977,6 +984,7 @@ export default function App() {
                       <button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
                       <span className="ef-label"><span className="ef-label-t">{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span></span>
                       <span style={{ flex: 1 }} />
+                      {narrow ? dirtyActions : null}
                       {!editP._new ? (
                         <button className="btn danger del-top" onClick={async () => {
                           if (!confirm('删除 ' + editP.name + '？')) return
@@ -1057,6 +1065,8 @@ export default function App() {
                   <div className="card-hd list-hd">
                     <button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="退出设置" title="退出"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
                     <span className="ef-label"><span className="ef-label-t">SETTINGS / PROFILES</span></span>
+                      <span style={{ flex: 1 }} />
+                      {!narrow ? dirtyActions : null}
                   </div>
                   <div className="card-bd">
                     <div className="set-section">常规配置</div>

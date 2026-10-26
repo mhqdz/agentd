@@ -139,8 +139,6 @@ body{background:var(--paper);color:var(--ink);
 .set-scrim{position:fixed;inset:0;z-index:998;background:transparent}
 .settings{position:fixed;top:0;right:0;z-index:999;height:100vh;width:fit-content;max-width:96vw;
   display:flex;flex-direction:column;overflow:hidden;background:transparent}
-.set-hd{flex:0 0 44px;display:flex;align-items:center;justify-content:flex-end;gap:.5rem;padding:0 .9rem;
-  font-size:.62rem;letter-spacing:.24em;color:var(--ink3)}
 .set-actions{display:flex;gap:.5rem}
 .set-cols{flex:1 1 auto;min-height:0;display:flex;align-items:flex-start;justify-content:flex-end;
   gap:.9rem;padding:.8rem .9rem;overflow:auto}
@@ -888,8 +886,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   .set-cols .col-form .del-bottom-wrap{display:flex;justify-content:flex-end;
     padding:.5rem .6rem 1.1rem;border-top:1px solid var(--line)}
   .set-cols .col-form .del-bottom{width:100%;min-height:32px;justify-content:center}
-  .set-hd{position:relative}
-  .set-hd .set-close{position:absolute;right:.85rem;top:calc(46px + .32rem);
+    .set-hd .set-close{position:absolute;right:.85rem;top:calc(46px + .32rem);
     z-index:4;place-items:center;width:30px;height:26px;padding:0;font-size:1rem;line-height:1}
 }
 
@@ -938,8 +935,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 
 /* ═══ 窄屏设置：更紧凑 + 三级填满可用高度（提升小屏可读性）═══ */
 @media (max-width:1399px){
-  .set-hd{flex:0 0 40px;padding:0 .7rem}
-  .set-cols{padding:.5rem .45rem}
+    .set-cols{padding:.5rem .45rem}
   .set-cols .card-hd{padding:.5rem .7rem .45rem;font-size:.68rem}
   .set-cols .card-bd{padding:.6rem .7rem;gap:.55rem}
   .set-cols .field>span{font-size:.68rem}
@@ -963,3 +959,11 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 /* 显隐：.icon-x 自身 display:grid 会盖掉 .narrow-only，这里显式声明 */
 .icon-x.narrow-only{display:none}
 @media (max-width:1399px){ .icon-x.narrow-only{display:grid} }
+
+/* 一级卡片标题栏右侧动作（取消 / 保存）：终末地风格，无黄色 */
+.title-actions{display:inline-flex;align-items:center;gap:.45rem}
+.title-actions .btn{padding:.12rem .5rem;font-size:.66rem;letter-spacing:.06em}
+.title-actions .btn.save{border-color:var(--c5);color:var(--c6);background:var(--panel)}
+.title-actions .btn.save:hover{border-color:var(--c7);background:var(--c1);color:var(--c7)}
+.title-actions .btn.save::before,.title-actions .btn.save::after{border-color:var(--c6)}
+.title-actions .btn.save:hover::before,.title-actions .btn.save:hover::after{border-color:var(--c7)}

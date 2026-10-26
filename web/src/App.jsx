@@ -451,6 +451,18 @@ export default function App() {
     if (nearBottom) th.scrollTop = th.scrollHeight
   }, [msgs, status])
 
+  // 续流去重：DB 里已落库的那条（本轮进行中的 assistant）不该与流式副本并存
+  const trimDup = (list, live) => {
+    const out = [...list]
+    while (out.length) {
+      const last = out[out.length - 1]
+      const c = last && last.role === "assistant" ? (last.content || "") : null
+      if (c !== null && (c === "" || (live.content || "").startsWith(c) || /——（中断/.test(c))) out.pop()
+      else break
+    }
+    return out
+  }
+
   const openConv = async (id) => {
     setConvId(id)
     // A：会话 id 进 URL，刷新后能回到同一会话（也便于分享/重开）
@@ -470,7 +482,7 @@ export default function App() {
     let live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
     let base = null
     const push = () => setMsgs(m => {
-      const kept = m.filter(x => !x.__live)
+      const kept = trimDup(m.filter(x => !x.__live), live)
       return [...kept, { ...live, tools: [...live.tools], __live: true }]
     })
     try {
@@ -572,7 +584,10 @@ export default function App() {
       }
       await refresh(); if (cur) await openConv(cur)
     } catch (e) {
-      if (e.name === 'AbortError') setStatus('已停止')
+      if (e.name === 'AbortError') {
+        setStatus('已停止')
+        if (cur) { const cc = await api('/api/conv/' + cur).catch(() => null); if (cc) setMsgs(normalize(cc.messages || [])) }
+      }
       else setStatus('✗ ' + e.message + '（可重试）')
     } finally { abortRef.current = null; setBusy(false); refresh() }   // 中断/报错也刷新列表，避免会话"看不见"
   }

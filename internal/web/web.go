@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"sync"
 
 	"agentd/internal/logx"
@@ -125,8 +126,17 @@ func (s *Server) Handler() http.Handler {
 		}
 		compactPct := ag.CompactPct()
 		compactAt := max * compactPct / 100
+		// token 估算：chars ÷ 1.8（中英混合经验值）；窗口默认 131072，可用环境变量覆盖
+		win := 131072
+		if v := os.Getenv("AGENTD_CTX_TOKENS"); v != "" {
+			if n, err := strconv.Atoi(v); err == nil && n > 0 {
+				win = n
+			}
+		}
+		estTokens := int(float64(chars) / 1.8)
 		writeJSON(w, 200, map[string]any{"chars": chars, "max": max, "pct": pct, "raw": raw,
 			"compact_pct": compactPct, "compact_at": compactAt,
+			"est_tokens": estTokens, "window": win,
 			"messages": len(c.Messages), "summary": c.Summary != ""})
 	})
 	mux.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {

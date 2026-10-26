@@ -21,6 +21,14 @@ import (
 
 // 工具循环：最多 8 轮，避免模型自己绕不出来。
 
+// maxChars：该 profile 的上限，未配则用全局默认
+func (a *Agent) maxChars() int {
+	if a.profile.MaxPromptChars > 0 {
+		return a.profile.MaxPromptChars
+	}
+	return a.cfg.MaxPromptChars
+}
+
 // SendWithTools 带上工具跑一轮（含多轮工具调用）。并行执行同一轮里的多个工具。
 func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text string,
 	onDelta func(content, reasoning string), onTool func(name, args string, result any)) error {
@@ -76,7 +84,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		}
 		_ = a.maybeSummarize(ctx, c, keep)
 		msgs, toolMsgs := toWire(c.Messages, reg)
-		msgs = compact(msgs, keep, a.cfg.MaxPromptChars/2)
+		msgs = compact(msgs, keep, a.maxChars()/2)
 		if a.profile.System != "" || c.Summary != "" || len(c.KV) > 0 {
 			sys := a.profile.System
 			if len(c.KV) > 0 {
@@ -104,9 +112,9 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				total += len(tc.Function.Arguments)
 			}
 		}
-		if a.cfg.MaxPromptChars > 0 && total > a.cfg.MaxPromptChars {
+		if a.maxChars() > 0 && total > a.maxChars() {
 			return fmt.Errorf("请求体已达 %d 字符（上限 %d），已中止以免爆上下文；建议新开会话",
-				total, a.cfg.MaxPromptChars)
+				total, a.maxChars())
 		}
 		var content, reasoning strings.Builder
 		var reasonStart, reasonMs int64
@@ -296,7 +304,7 @@ func (a *Agent) maybeSummarize(ctx context.Context, c *store.Conversation, keep 
 	for _, m := range c.Messages {
 		total += wireLen(m.Content)
 	}
-	if total < a.cfg.MaxPromptChars/2 {
+	if total < a.maxChars()/2 {
 		return nil
 	}
 	cut := len(c.Messages) - keep
@@ -439,7 +447,7 @@ func (a *Agent) ContextSize(c *store.Conversation) (int, int) {
 		keep = a.cfg.KeepMessages
 	}
 	msgs, _ := toWire(c.Messages, reg)
-	msgs = compact(msgs, keep, a.cfg.MaxPromptChars/2)
+	msgs = compact(msgs, keep, a.maxChars()/2)
 	if a.profile.System != "" || c.Summary != "" || len(c.KV) > 0 {
 		msgs = append([]llm.Message{{Role: "system", Content: a.profile.System}}, msgs...)
 	}
@@ -450,5 +458,5 @@ func (a *Agent) ContextSize(c *store.Conversation) (int, int) {
 			total += len(tc.Function.Arguments)
 		}
 	}
-	return total, a.cfg.MaxPromptChars
+	return total, a.maxChars()
 }

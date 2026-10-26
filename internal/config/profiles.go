@@ -20,7 +20,8 @@ type Profile struct {
 	System          string   `json:"system"`
 	Tools           []string `json:"tools"`
 	KeepMessages    int      `json:"keep_messages,omitempty"`
-	Summarizer      string   `json:"summarizer,omitempty"` // 用哪个 profile 写摘要；空=自己
+	Summarizer      string   `json:"summarizer,omitempty"`       // 用哪个 profile 写摘要；空=自己
+	MaxPromptChars  int      `json:"max_prompt_chars,omitempty"` // 该模型的上限；0=用全局默认
 	Builtin         bool     `json:"builtin,omitempty"`
 }
 

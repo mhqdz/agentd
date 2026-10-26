@@ -97,7 +97,7 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 ```
 
 - `chars` 是**实际会发给模型的字符数**（已按 keep_messages 压缩、已含 system 与摘要）
-- `max` 是上限（`AGENTD_MAX_PROMPT_CHARS`，默认 240000），超过即中止该轮并提示新开会话
+- `max` 是该 profile 的上限：`profiles.json` 里的 `max_prompt_chars`，留空/0 时用全局 `AGENTD_MAX_PROMPT_CHARS`（默认 240000），超过即中止该轮并提示新开会话
 - `raw` 是未压缩的原始体量（消息正文 + 思考），用于判断"对话本身有多大"
 - `summary` 表示该会话已有压缩摘要
 

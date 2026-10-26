@@ -940,6 +940,11 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
+                      <label className="field"><span>上下文上限（字符，留空=全局默认）</span>
+                        <input type="number" min="0" max="10000000" placeholder="240000"
+                          value={editP.max_prompt_chars || ''}
+                          onChange={e => setEditP({ ...editP, max_prompt_chars: Number(e.target.value) || 0 })} />
+                      </label>
                       <div className="field"><span>工具</span>
                         <div className="choices">
                           {toolList.map(t => {

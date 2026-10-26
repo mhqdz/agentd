@@ -855,13 +855,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 @media (max-width:1399px){
   .set-cols .card:not(.is-top){display:none}
   .narrow-only{display:inline-grid}
-  .set-hd .set-close{order:3;margin-left:.5rem;place-items:center;width:26px;height:26px;padding:0;font-size:1rem;line-height:1;
-    border:1px solid var(--line);background:var(--panel);color:var(--c6);cursor:pointer}
-  .set-hd .set-close:hover{color:var(--c7);border-color:var(--c4)}
-  .drawer-close{position:absolute;right:.4rem;top:.35rem;z-index:3;place-items:center;
-    width:26px;height:26px;padding:0;font-size:1rem;line-height:1;
-    border:1px solid var(--line);background:var(--panel);color:var(--c6);cursor:pointer}
-  .drawer-close:hover{color:var(--c7);border-color:var(--c4)}
+
   .drawer{position:fixed}
 }
 
@@ -875,4 +869,17 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   .set-hd{position:relative}
   .set-hd .set-close{position:absolute;right:.85rem;top:calc(46px + .32rem);
     z-index:4;place-items:center;width:30px;height:26px;padding:0;font-size:1rem;line-height:1}
+}
+
+/* 关闭/收起：极简图标按钮（无边框，悬停加深 + 轻微旋转） */
+.icon-x{display:grid;place-items:center;width:26px;height:26px;padding:0;background:transparent;
+  border:0;color:var(--c6);cursor:pointer;transition:color .14s,transform .18s ease}
+.icon-x svg{width:14px;height:14px;display:block}
+.icon-x:hover{color:var(--c7);transform:rotate(90deg)}
+.icon-x:focus-visible{outline:1px solid var(--c4);outline-offset:2px}
+@media (max-width:1399px){
+  .set-hd .set-close{position:absolute;right:.7rem;top:calc(46px + .28rem);z-index:4;
+    width:30px;height:26px;border:0;background:transparent}
+  .drawer-close{position:absolute;right:.45rem;top:.3rem;z-index:3;width:26px;height:26px;
+    border:0;background:transparent}
 }

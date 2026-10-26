@@ -56,7 +56,6 @@ func newTestServer(t *testing.T) (*Server, *store.JSONStore, *config.Config) {
 	cfg.BaseURL = up.URL
 	cfg.Model = "fake"
 	cfg.DataDir = t.TempDir()
-	cfg.MaxPromptChars = 1_000_000
 	st, err := store.NewJSON(cfg.DataDir)
 	if err != nil {
 		t.Fatal(err)

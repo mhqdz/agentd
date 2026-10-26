@@ -97,8 +97,10 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 ```
 
 - `chars` 是**实际会发给模型的字符数**（已按 keep_messages 压缩、已含 system 与摘要）
-- `max` 是该 profile 的上限：`profiles.json` 里的 `max_prompt_chars`，留空/0 时用全局 `AGENTD_MAX_PROMPT_CHARS`（默认 240000），超过即中止该轮并提示新开会话
+- `max` 是该 profile 的上限：`profiles.json` 的 `max_prompt_chars`，留空/0 时用内置默认 200000
+- `warn` / `hot` 是状态栏着色阈值（百分比）：`ctx_warn_pct`（默认 60）、`ctx_hot_pct`（默认 85）
+- 全局不再维护 `MaxPromptChars`：上限与阈值都写在每个 profile 里，超过即中止该轮并提示新开会话
 - `raw` 是未压缩的原始体量（消息正文 + 思考），用于判断"对话本身有多大"
 - `summary` 表示该会话已有压缩摘要
 
-前端在状态栏显示：`上下文 4.1k / 240k（1.7%） 原 213k`，50% 起变灰、80% 起变深并加粗。
+前端在状态栏显示：`上下文 4.1k / 200k（2.0%） 原 213k`，达到 warn 变灰、达到 hot 变深并加粗（阈值来自该模型配置）。

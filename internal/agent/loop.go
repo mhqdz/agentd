@@ -22,11 +22,28 @@ import (
 // 工具循环：最多 8 轮，避免模型自己绕不出来。
 
 // maxChars：该 profile 的上限，未配则用全局默认
+const defaultMaxPromptChars = 200000 // 未在 profile 里写上限时的默认值
+
 func (a *Agent) maxChars() int {
 	if a.profile.MaxPromptChars > 0 {
 		return a.profile.MaxPromptChars
 	}
-	return a.cfg.MaxPromptChars
+	return defaultMaxPromptChars
+}
+
+// CtxThresholds：状态栏提醒/危险阈值（百分比），未配置时用 60 / 85
+func (a *Agent) CtxThresholds() (int, int) {
+	warn, hot := a.profile.CtxWarnPct, a.profile.CtxHotPct
+	if warn <= 0 {
+		warn = 60
+	}
+	if hot <= 0 {
+		hot = 85
+	}
+	if hot <= warn {
+		hot = warn + 10
+	}
+	return warn, hot
 }
 
 // SendWithTools 带上工具跑一轮（含多轮工具调用）。并行执行同一轮里的多个工具。

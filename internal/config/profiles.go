@@ -21,7 +21,9 @@ type Profile struct {
 	Tools           []string `json:"tools"`
 	KeepMessages    int      `json:"keep_messages,omitempty"`
 	Summarizer      string   `json:"summarizer,omitempty"`       // 用哪个 profile 写摘要；空=自己
-	MaxPromptChars  int      `json:"max_prompt_chars,omitempty"` // 该模型的上限；0=用全局默认
+	MaxPromptChars  int      `json:"max_prompt_chars,omitempty"` // 该模型的上下文字符上限；0 = 默认 200000
+	CtxWarnPct      int      `json:"ctx_warn_pct,omitempty"`     // 状态栏"提醒"阈值百分比；0 = 默认 60
+	CtxHotPct       int      `json:"ctx_hot_pct,omitempty"`      // 状态栏"危险"阈值百分比；0 = 默认 85
 	Builtin         bool     `json:"builtin,omitempty"`
 }
 

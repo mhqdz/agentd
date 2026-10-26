@@ -24,7 +24,6 @@ func setup(t *testing.T, upstream string) (*httptest.Server, *store.JSONStore, *
 	t.Helper()
 	cfg := config.Default()
 	cfg.DataDir = t.TempDir()
-	cfg.MaxPromptChars = 1_000_000
 	cfg.BaseURL = upstream
 	cfg.Model = "fake"
 	t.Setenv("AGENTD_PROFILES", t.TempDir()+"/profiles.json")

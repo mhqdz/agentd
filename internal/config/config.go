@@ -9,27 +9,25 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `json:"base_url"` // 例如 http://127.0.0.1:18320/9/v1（走 path 路由）
-	Model          string `json:"model"`
-	APIKey         string `json:"api_key"`
-	DataDir        string `json:"data_dir"`         // JSON 存储目录（P0 先不用 sqlite）
-	WebDir         string `json:"web_dir"`          // 前端构建产物目录
-	System         string `json:"system"`           // 系统提示（空 = 不加）
-	MaxPromptChars int    `json:"max_prompt_chars"` // 单次请求 messages 的字符上限，超过就拒绝（防爆炸）
-	KeepMessages   int    `json:"keep_messages"`
+	BaseURL      string `json:"base_url"` // 例如 http://127.0.0.1:18320/9/v1（走 path 路由）
+	Model        string `json:"model"`
+	APIKey       string `json:"api_key"`
+	DataDir      string `json:"data_dir"` // JSON 存储目录（P0 先不用 sqlite）
+	WebDir       string `json:"web_dir"`  // 前端构建产物目录
+	System       string `json:"system"`   // 系统提示（空 = 不加）
+	KeepMessages int    `json:"keep_messages"`
 }
 
 func Default() Config {
 	home, _ := os.UserHomeDir()
 	return Config{
-		BaseURL:        "http://127.0.0.1:18320/9/v1",
-		Model:          "Qwen3.5-9B-int4-ov",
-		APIKey:         "local-no-auth",
-		DataDir:        filepath.Join(home, ".data/agentd"),
-		WebDir:         "web/dist",
-		System:         "", // 系统提示只在 profiles.json 里维护（见 docs/DESIGN.md）
-		MaxPromptChars: 240000,
-		KeepMessages:   16,
+		BaseURL:      "http://127.0.0.1:18320/9/v1",
+		Model:        "Qwen3.5-9B-int4-ov",
+		APIKey:       "local-no-auth",
+		DataDir:      filepath.Join(home, ".data/agentd"),
+		WebDir:       "web/dist",
+		System:       "", // 系统提示只在 profiles.json 里维护（见 docs/DESIGN.md）
+		KeepMessages: 16,
 	}
 }
 
@@ -58,7 +56,6 @@ func Load() Config {
 	}
 	if v := os.Getenv("AGENTD_MAX_PROMPT_CHARS"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 {
-			c.MaxPromptChars = n
 		}
 	}
 	if v := os.Getenv("AGENTD_WEB_DIR"); v != "" {

@@ -517,7 +517,18 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		send("error", map[string]string{"error": err.Error()})
 		return
 	}
-	logx.Info("chat.done conv=%s secs=%.1f", c.ID, time.Since(start).Seconds())
+	// 结束时的上下文画像：便于事后判断"是不是快到上限/有没有压缩"
+	chars, maxChars := ag.ContextSize(c)
+	pct := 0.0
+	if maxChars > 0 {
+		pct = float64(chars) * 100 / float64(maxChars)
+	}
+	raw := 0
+	for _, m := range c.Messages {
+		raw += len([]rune(m.Content)) + len([]rune(m.Reasoning))
+	}
+	logx.Info("chat.done conv=%s secs=%.1f ctx=%d/%d(%.0f%%) raw=%d msgs=%d summary=%v",
+		c.ID, time.Since(start).Seconds(), chars, maxChars, pct, raw, len(c.Messages), c.Summary != "")
 	send("done", map[string]any{"conv_id": c.ID, "secs": time.Since(start).Seconds()})
 }
 

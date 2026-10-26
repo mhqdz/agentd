@@ -658,11 +658,32 @@ export default function App() {
   // 轮次进度：本轮工具轮次 / 本会话落库的最大 seq（也即已记录的轮次）
   return (
     <div className="app">
-      <div className="topbar" aria-hidden="true">
-        <i style={{ width: roundMax ? Math.min(100, roundNow / roundMax * 100) + '%' : '0%' }} />
+      <div className="topbar">
+        <div className="mobrail">
+          <span className={'mob-dot' + (busy ? ' busy' : '')} title={busy ? '运行中' : '空闲'} />
+          <span className="mob-fig" title="本轮 / 上限">{String(roundNow).padStart(2,'0')}/{roundMax ? String(roundMax).padStart(2,'0') : '∞'}</span>
+          {tps > 0 ? <span className="mob-tps"><b>{Math.round(tps)}</b> tok/s</span> : null}
+          {ctx ? (
+            <span className={'mob-ctx' + ((((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}
+              title={Math.round((ctx.est_tokens || 0) / 1000) + ' / ' + Math.round((ctx.limit_tokens || 105000) / 1000) + 'k tokens'}>
+              {Math.round(((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100)}%
+            </span>
+          ) : null}
+          <span className="mob-sp" />
+          <button className="mob-btn" onClick={() => openConv(null)} aria-label="新会话" title="新会话">
+            <svg className="plus" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square"/>
+            </svg>
+          </button>
+          <button className="mob-btn" onClick={() => setShowSet(true)} aria-label="设置" title="设置"><i /><i /><i /></button>
+        </div>
+        <div className="topline">
+          <i style={{ width: roundMax ? Math.min(100, roundNow / roundMax * 100) + '%' : '0%' }} />
+        </div>
       </div>
       {showSet ? <div className="set-scrim" onClick={() => closeOne()} /> : null}
 
+      {sideOpen ? <div className="drawer-scrim" onClick={() => setSideOpen(false)} /> : null}
       <div className="work" style={{ '--sidew': (sideOpen ? sideW : 0) + 'px' }}>
         <aside className={'drawer' + (sideOpen ? '' : ' hide')}
           style={{ width: sideW, flexBasis: sideW }}

@@ -599,10 +599,12 @@ body{background:var(--paper);color:var(--ink);
 
 /* ═══ 页面顶部进度条（代替上边框）═══
    固定在视口最上方，2px，阅读进度 = 当前阅读位置 / 总轮次 */
-.topbar{position:fixed;top:0;left:0;right:0;height:2px;z-index:1000;
-  background:var(--c3);pointer-events:none}
-.topbar i{display:block;height:100%;width:0;background:var(--c6);
+/* 上栏：宽屏只有一条进度线；窄屏变成一条与面板同宽的横条（承载右栏内容） */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:transparent}
+.topbar .topline{height:2px;background:var(--c3)}
+.topbar .topline i{display:block;height:100%;width:0;background:var(--c6);
   transition:width .25s cubic-bezier(.2,.8,.2,1)}
+.topbar .mobrail{display:none}
 
 /* ═══ 会话区滚动条：自定义（替代原生）═══ */
 
@@ -781,3 +783,34 @@ body{background:var(--paper);color:var(--ink);
 .rail .rail-ctx.hot{color:var(--c7);font-weight:600}
 .rail .rail-tps{font-size:.55rem;color:var(--c4);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .rail .rail-tps b{font-size:.6rem;font-weight:600;color:var(--c6)}
+
+/* ═══ 窄屏（<1400px）：上栏横条 + 正文全宽 + 左栏浮层 ═══════ */
+@media (max-width:1399px){
+  .topbar{background:var(--panel);border-bottom:1px solid var(--line)}
+  .topbar .mobrail{display:flex;align-items:center;gap:.55rem;height:34px;padding:0 .6rem;
+    color:var(--c5);font-size:.58rem;letter-spacing:.02em}
+  .topbar .mobrail .mob-dot{width:.34rem;height:.34rem;border-radius:50%;background:var(--c5);display:inline-block}
+  .topbar .mobrail .mob-dot.busy{background:var(--c6);animation:pulse 1.1s infinite}
+  .topbar .mobrail .mob-fig{font-variant-numeric:tabular-nums;color:var(--c6);letter-spacing:.08em}
+  .topbar .mobrail .mob-tps{font-variant-numeric:tabular-nums;color:var(--c4)}
+  .topbar .mobrail .mob-tps b{color:var(--c6);font-weight:600}
+  .topbar .mobrail .mob-ctx{font-variant-numeric:tabular-nums;color:var(--c5)}
+  .topbar .mobrail .mob-ctx.hot{color:var(--c7);font-weight:600}
+  .topbar .mobrail .mob-sp{flex:1 1 auto}
+  .topbar .mobrail .mob-btn{display:grid;place-items:center;width:24px;height:24px;padding:0;
+    background:none;border:0;cursor:pointer;color:var(--c5)}
+  .topbar .mobrail .mob-btn:hover{color:var(--c7)}
+  .topbar .mobrail .mob-btn i{width:3px;height:3px;background:currentColor;display:block}
+  .topbar .mobrail .mob-btn .plus{width:13px;height:13px;display:block}
+
+  /* 正文占满宽度（左栏不再挤压内容） */
+  .work{padding-top:36px}
+  .stage{width:100%}
+
+  /* 左栏 = 浮层（与设置面板同层的观感） */
+  .drawer{position:fixed;top:36px;left:0;bottom:0;z-index:999;
+    max-width:86vw;box-shadow:0 8px 26px rgba(58,65,66,.18)}
+  .drawer.hide{display:none}
+  .drawer-scrim{position:fixed;inset:36px 0 0 0;z-index:998;background:rgba(58,65,66,.18)}
+}
+@media (min-width:1400px){ .drawer-scrim{display:none} }

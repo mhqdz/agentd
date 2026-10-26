@@ -693,7 +693,6 @@ export default function App() {
           style={{ width: sideW, flexBasis: sideW }}
           >
           <span className="edge" onMouseDown={startDrag} aria-hidden="true" />
-          <button className="icon-x drawer-close narrow-only" onClick={() => setSideOpen(false)} aria-label="收起左栏" title="收起"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
           <div className="ef-figs drawer-figs">
             <a className={tab === 'live' ? 'on' : ''} onClick={() => setTab('live')}
                title="只看会话"><FigCell value={convs.length} /><span>会话</span></a>
@@ -871,7 +870,7 @@ export default function App() {
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
-                <button className="icon-x set-close narrow-only" onClick={() => closeOne()} aria-label="退出设置" title="退出设置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
+                <button className="icon-x back set-close narrow-only" onClick={() => closeOne()} aria-label="返回上一级" title="返回"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M12 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter"/></svg></button>
                 {anyDirty ? (
                   <span className="card-actions">
                     <button className="btn" onClick={() => {

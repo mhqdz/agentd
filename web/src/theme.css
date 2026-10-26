@@ -139,7 +139,7 @@ body{background:var(--paper);color:var(--ink);
 .set-scrim{position:fixed;inset:0;z-index:998;background:transparent}
 .settings{position:fixed;top:0;right:0;z-index:999;height:100vh;width:fit-content;max-width:96vw;
   display:flex;flex-direction:column;overflow:hidden;background:transparent}
-.set-hd{flex:0 0 46px;display:flex;align-items:center;justify-content:space-between;padding:0 .9rem;
+.set-hd{flex:0 0 44px;display:flex;align-items:center;justify-content:flex-end;gap:.5rem;padding:0 .9rem;
   font-size:.62rem;letter-spacing:.24em;color:var(--ink3)}
 .set-actions{display:flex;gap:.5rem}
 .set-cols{flex:1 1 auto;min-height:0;display:flex;align-items:flex-start;justify-content:flex-end;
@@ -959,3 +959,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 @media (min-width:1400px){
   .set-cols .card{max-height:calc(100vh - 46px - 1.6rem)}
 }
+
+/* 显隐：.icon-x 自身 display:grid 会盖掉 .narrow-only，这里显式声明 */
+.icon-x.narrow-only{display:none}
+@media (max-width:1399px){ .icon-x.narrow-only{display:grid} }

@@ -889,8 +889,8 @@ export default function App() {
           </div>
           {showSet ? (
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
+              {anyDirty ? (
               <div className="set-hd">
-                <span className="eb">SETTINGS / PROFILES</span>
                 {anyDirty ? (
                   <span className="card-actions">
                     <button className="btn" onClick={() => {
@@ -925,6 +925,7 @@ export default function App() {
                   </span>
                 ) : null}
               </div>
+              ) : null}
               {toolCfg ? (
                 <div className="card col-tool">
                   <div className="card-hd">
@@ -1052,9 +1053,9 @@ export default function App() {
                 ) : null}
 
                 <div className={"card col-list" + (!(editField || toolEdit) && !editP ? " is-top" : "")}>
-                  <div className="card-hd narrow-only">
-                    <button className="icon-x back card-back" onClick={() => closeOne()} aria-label="退出设置" title="退出"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
-                    <span className="ef-label"><span className="ef-label-t">配置</span></span>
+                  <div className="card-hd list-hd">
+                    <button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="退出设置" title="退出"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
+                    <span className="ef-label"><span className="ef-label-t">SETTINGS / PROFILES</span></span>
                   </div>
                   <div className="card-bd">
                     <div className="set-section">常规配置</div>

@@ -855,6 +855,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 @media (max-width:1399px){
   .set-cols .card:not(.is-top){display:none}
   .narrow-only{display:inline-grid}
+  .card-hd.narrow-only{display:flex}   /* 标题行保持横排（箭头 + 文字） */
 
   .drawer{position:fixed}
 }

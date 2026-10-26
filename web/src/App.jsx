@@ -1052,6 +1052,10 @@ export default function App() {
                 ) : null}
 
                 <div className={"card col-list" + (!(editField || toolEdit) && !editP ? " is-top" : "")}>
+                  <div className="card-hd narrow-only">
+                    <button className="icon-x back card-back" onClick={() => closeOne()} aria-label="退出设置" title="退出"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M12 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter"/></svg></button>
+                    <span>配置</span>
+                  </div>
                   <div className="card-bd">
                     <div className="set-section">常规配置</div>
                     <div className="set-card">

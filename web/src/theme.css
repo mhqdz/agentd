@@ -814,3 +814,13 @@ body{background:var(--paper);color:var(--ink);
   .drawer-scrim{position:fixed;inset:36px 0 0 0;z-index:998;background:rgba(58,65,66,.18)}
 }
 @media (min-width:1400px){ .drawer-scrim{display:none} }
+
+/* 工具输出/参数：一律自动换行，不横向溢出 */
+pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow:auto;
+  white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;
+  font-size:.78em;color:var(--ink2)}
+.msg .tool-args{font-size:.72rem;color:var(--ink3);margin-bottom:.2rem;
+  white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%}
+.msg .bd,.msg .body{min-width:0}
+/* 消息内的直接子元素允许收缩（否则 flex 的 min-width:auto 会让 pre 撑破卡片） */
+.msg > *{min-width:0;max-width:100%}

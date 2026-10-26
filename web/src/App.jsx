@@ -811,7 +811,7 @@ export default function App() {
                       {m.content && m.role !== 'tool' ? <Sections text={m.content} /> : null}
                       {m.role === 'tool' ? (
                         <div>
-                          <div style={{ fontSize: '.72rem', color: 'var(--ink3)', marginBottom: '.2rem' }}>
+                          <div className="tool-args">
                             {(m.toolName || '工具') + (m.toolArgs ? ' · ' + String(m.toolArgs).slice(0, 120) : '')}
                           </div>
                           {(m.images || []).map((u, k) => <img key={k} className="msg-img" src={u} alt="tool" />)}

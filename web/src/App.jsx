@@ -870,7 +870,6 @@ export default function App() {
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className="set-hd">
                 <span className="eb">SETTINGS / PROFILES</span>
-                <button className="icon-x back set-close narrow-only" onClick={() => closeOne()} aria-label="返回上一级" title="返回"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M12 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter"/></svg></button>
                 {anyDirty ? (
                   <span className="card-actions">
                     <button className="btn" onClick={() => {
@@ -935,7 +934,7 @@ export default function App() {
                 onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
                 {(editField || toolEdit) ? (
                   <div className="card col-editor">
-                    <div className="card-hd">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
+                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="返回" title="返回"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M12 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter"/></svg></button>{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
                     <textarea className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
                       onInput={e => autoGrow(e.target)}
                       placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
@@ -952,6 +951,7 @@ export default function App() {
                 {editP ? (
                   <div className={"card col-form" + (!(editField || toolEdit) && editP ? " is-top" : "")}>
                     <div className="card-hd" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+                      <button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="返回" title="返回"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M12 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter"/></svg></button>
                       <span>{editP._new ? '新建模型' : ('模型详情 · ' + editP.name)}</span>
                       <span style={{ flex: 1 }} />
                       {!editP._new ? (

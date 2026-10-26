@@ -97,10 +97,10 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 ```
 
 - `chars` 是**实际会发给模型的字符数**（已按 keep_messages 压缩、已含 system 与摘要）
-- `max` 是该 profile 的上限：`profiles.json` 的 `max_prompt_chars`，留空/0 时用内置默认 200000
-- `warn` / `hot` 是状态栏着色阈值（百分比）：`ctx_warn_pct`（默认 60）、`ctx_hot_pct`（默认 85）
-- 全局不再维护 `MaxPromptChars`：上限与阈值都写在每个 profile 里，超过即中止该轮并提示新开会话
+- `max` 是该 profile 的上限：`profiles.json` 的 `max_prompt_chars`，留空/0 时用内置默认 240000
+- `compact_pct` / `compact_at`：达到上限的百分之几（默认 80）时触发自动压缩/摘要，以及对应的字符数
+- 全局不再维护上限与阈值：都写在每个 profile 里（`max_prompt_chars`、`compact_pct`），超过即中止该轮并提示新开会话
 - `raw` 是未压缩的原始体量（消息正文 + 思考），用于判断"对话本身有多大"
 - `summary` 表示该会话已有压缩摘要
 
-前端在状态栏显示：`上下文 4.1k / 200k（2.0%） 原 213k`，达到 warn 变灰、达到 hot 变深并加粗（阈值来自该模型配置）。
+前端在状态栏显示：`上下文 5.0k / 240k（2.1%） 原 214k`，达到压缩阈值时变深加粗；鼠标悬停会提示"达到 80%（约 192k）会自动压缩/摘要"。

@@ -123,9 +123,10 @@ func (s *Server) Handler() http.Handler {
 		if max > 0 {
 			pct = float64(chars) / float64(max) * 100
 		}
-		warn, hot := ag.CtxThresholds()
+		compactPct := ag.CompactPct()
+		compactAt := max * compactPct / 100
 		writeJSON(w, 200, map[string]any{"chars": chars, "max": max, "pct": pct, "raw": raw,
-			"warn": warn, "hot": hot,
+			"compact_pct": compactPct, "compact_at": compactAt,
 			"messages": len(c.Messages), "summary": c.Summary != ""})
 	})
 	mux.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {

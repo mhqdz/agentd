@@ -22,7 +22,7 @@ import (
 // 工具循环：最多 8 轮，避免模型自己绕不出来。
 
 // maxChars：该 profile 的上限，未配则用全局默认
-const defaultMaxPromptChars = 200000 // 未在 profile 里写上限时的默认值
+const defaultMaxPromptChars = 240000 // 未在 profile 里写上限时的默认值
 
 func (a *Agent) maxChars() int {
 	if a.profile.MaxPromptChars > 0 {
@@ -31,19 +31,17 @@ func (a *Agent) maxChars() int {
 	return defaultMaxPromptChars
 }
 
-// CtxThresholds：状态栏提醒/危险阈值（百分比），未配置时用 60 / 85
-func (a *Agent) CtxThresholds() (int, int) {
-	warn, hot := a.profile.CtxWarnPct, a.profile.CtxHotPct
-	if warn <= 0 {
-		warn = 60
+// CompactPct：达到上限的百分之几时做压缩/摘要（默认 80）
+func (a *Agent) CompactPct() int {
+	if a.profile.CompactPct > 0 && a.profile.CompactPct < 100 {
+		return a.profile.CompactPct
 	}
-	if hot <= 0 {
-		hot = 85
-	}
-	if hot <= warn {
-		hot = warn + 10
-	}
-	return warn, hot
+	return 80
+}
+
+// compactAt：该模型触发压缩的字符数
+func (a *Agent) compactAt() int {
+	return a.maxChars() * a.CompactPct() / 100
 }
 
 // SendWithTools 带上工具跑一轮（含多轮工具调用）。并行执行同一轮里的多个工具。
@@ -321,7 +319,7 @@ func (a *Agent) maybeSummarize(ctx context.Context, c *store.Conversation, keep 
 	for _, m := range c.Messages {
 		total += wireLen(m.Content)
 	}
-	if total < a.maxChars()/2 {
+	if total < a.compactAt() {
 		return nil
 	}
 	cut := len(c.Messages) - keep

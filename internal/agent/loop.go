@@ -77,7 +77,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 
 	limit := a.MaxRounds
 	if limit <= 0 {
-		limit = 300 // 关闭上限时的硬保险：防止模型无限探索（跑飞会几小时没有结果）
+		limit = int(^uint(0) >> 1) // 关闭限制 = 不设上限（由用户自行掌控）
 	}
 	lastSig, sameCallStreak := "", 0
 	for round := 0; round < limit; round++ {
@@ -321,8 +321,25 @@ func compact(msgs []llm.Message, keep int, budget int) []llm.Message {
 	for cut < len(body) && body[cut].Role != "user" {
 		cut++
 	}
-	note := llm.Message{Role: "user", Content: fmt.Sprintf(
-		"（上下文压缩：更早的 %d 条消息已省略；如果缺少必要信息，请向用户确认，不要猜。）", cut)}
+	var done []string
+	for _, m := range body[:cut] {
+		for _, tc := range m.ToolCalls {
+			args := strings.ReplaceAll(tc.Function.Arguments, "\n", " ")
+			if len(args) > 80 {
+				args = args[:80] + "…"
+			}
+			done = append(done, "- "+tc.Function.Name+" "+args)
+		}
+	}
+	if len(done) > 12 {
+		done = done[len(done)-12:]
+	}
+	noteText := fmt.Sprintf("（上下文压缩：更早的 %d 条消息已省略。", cut)
+	if len(done) > 0 {
+		noteText += "这些工具调用已经执行过，结果是当时就地看过的，不要重复执行：\n" + strings.Join(done, "\n")
+	}
+	noteText += "\n如果缺少必要信息，请向用户确认，不要猜。）"
+	note := llm.Message{Role: "user", Content: noteText}
 	out := make([]llm.Message, 0, keep+2)
 	if sys != nil {
 		out = append(out, *sys)

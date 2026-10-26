@@ -960,7 +960,12 @@ export default function App() {
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
                           {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
                         </select></label>
-                      <label className="field"><span>上下文上限（tokens，留空=105000）</span>
+                      <label className="field"><span>上下文窗口（tokens，留空=自动读上游）</span>
+                        <input type="number" min="0" max="2000000" placeholder="自动（如 131072）"
+                          value={editP.context_window || ''}
+                          onChange={e => setEditP({ ...editP, context_window: Number(e.target.value) || 0 })} />
+                      </label>
+                      <label className="field"><span>输入上限（tokens，留空=105000）</span>
                         <input type="number" min="0" max="1000000" placeholder="105000"
                           value={editP.max_prompt_tokens || ''}
                           onChange={e => setEditP({ ...editP, max_prompt_tokens: Number(e.target.value) || 0 })} />

@@ -98,7 +98,8 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 
 - `chars` 是**实际会发给模型的字符数**（已按 keep_messages 压缩、已含 system 与摘要）
 - 口径统一为 **token**：`profiles.json` 的 `max_prompt_tokens`，留空/0 用内置默认 105000
-- `limit_tokens` 是该 profile 的输入上限；`window` 是模型窗口（默认 131072，`AGENTD_CTX_TOKENS` 可覆盖）
+- `limit_tokens` 是该 profile 的输入上限（`max_prompt_tokens`，默认 105000）
+- `window` 是模型窗口：优先 `profiles.json.context_window`；否则**自动读上游 `GET /v1/models` 的 `meta.n_ctx`**（10 分钟缓存）；都拿不到才用 131072
 - `chars` / `max` 是内部换算值（1 token ≈ 1.8 字符），仅用于实际裁剪
 - 例：`{"est_tokens":29096,"limit_tokens":105000,"window":131072,"compact_pct":80,"compact_at":84000,"chars":52373,"max":189000}`
 - `compact_pct` / `compact_at`：达到上限的百分之几（默认 80）时触发自动压缩/摘要，以及对应的字符数

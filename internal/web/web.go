@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"sync"
 
 	"agentd/internal/logx"
@@ -126,12 +125,7 @@ func (s *Server) Handler() http.Handler {
 		}
 		compactPct := ag.CompactPct()
 		// 窗口与上限都以 token 表示；chars→tokens 用同一换算（1.8）
-		win := 131072
-		if v := os.Getenv("AGENTD_CTX_TOKENS"); v != "" {
-			if n, err := strconv.Atoi(v); err == nil && n > 0 {
-				win = n
-			}
-		}
+		win := ag.ContextWindow()
 		estTokens := int(float64(chars) / 1.8)
 		limitTokens := ag.MaxTokens()
 		compactAt := limitTokens * compactPct / 100

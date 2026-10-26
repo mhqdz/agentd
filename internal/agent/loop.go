@@ -44,6 +44,29 @@ func (a *Agent) MaxTokens() int { return a.maxTokens() }
 
 func (a *Agent) maxChars() int { return int(float64(a.maxTokens()) * charsPerToken) }
 
+// ContextWindow：该模型的窗口（tokens）
+//
+//	优先 profile.context_window → 上游 /v1/models 的 meta.n_ctx → 131072
+func (a *Agent) ContextWindow() int {
+	if a.profile.ContextWindow > 0 {
+		return a.profile.ContextWindow
+	}
+	base, key, model := a.cfg.BaseURL, a.cfg.APIKey, a.cfg.Model
+	if a.profile.BaseURL != "" {
+		base = a.profile.BaseURL
+	}
+	if a.profile.Model != "" {
+		model = a.profile.Model
+	}
+	if a.profile.APIKey != "" {
+		key = a.profile.APIKey
+	}
+	if n := llm.ContextWindow(base, key, model); n > 0 {
+		return n
+	}
+	return 131072
+}
+
 // CompactPct：达到上限的百分之几时做压缩/摘要（默认 80）
 func (a *Agent) CompactPct() int {
 	if a.profile.CompactPct > 0 && a.profile.CompactPct < 100 {

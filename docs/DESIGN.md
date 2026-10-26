@@ -46,6 +46,7 @@ Go 的 `plugin` 平台与构建耦合；要插件化只能"独立进程 + 协议
 - 入库：源码、`docs/`、`web/src`、`web/public/fonts`（字体随项目分发）。
 - 不入库（`.gitignore`）：`web/dist/`、`node_modules/`、`*.log`、`agentd`、`/tmp/`。
   - 原因：`dist` 是构建产物；生产服务直接读磁盘上的 `web/dist`，部署前必须 `npm run build`。
-- 部署流程：`go build -o ~/.local/bin/agentd ./cmd/agentd` → `systemctl --user restart agentd`；
-  前端改动 `cd web && npm run build`（18400 才更新；5173 是热更新）。
+- 部署：一律用 `scripts/deploy.sh`（`--no-front` 只发后端）。它会构建到临时文件、替换二进制、
+  重启并做 `/api/health` 检查；失败自动打印 `systemctl status` 并退出非 0。
+  手动等价命令仅在脚本不可用时使用（见 `PLAN.md` 第三节）。
 - 历史里的 `web/dist` 仍在旧提交中（`.git` 约 81MB）；若需瘦身要重写历史，属一次性操作，先备份再强推。

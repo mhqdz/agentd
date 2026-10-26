@@ -824,3 +824,26 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .msg .bd,.msg .body{min-width:0}
 /* 消息内的直接子元素允许收缩（否则 flex 的 min-width:auto 会让 pre 撑破卡片） */
 .msg > *{min-width:0;max-width:100%}
+
+/* ═══ 设置面板 · 窄屏层叠（1 级在底 → 2 级压其上 → 3 级再压其上）═══ */
+@media (max-width:1399px){
+  .settings{left:0;right:0;width:100%;max-width:none}
+  .set-cols{flex-direction:column;align-items:stretch;gap:0;padding:.55rem .55rem 1.2rem;
+    overflow:auto;justify-content:flex-start}
+  .set-cols .card{width:100%;max-width:100%;flex:0 0 auto;max-height:none;
+    box-shadow:0 -4px 16px rgba(58,65,66,.10)}
+
+  /* 视觉顺序：3 级(编辑器) → 2 级(模型详情) → 1 级(列表) */
+  .set-cols .col-editor{order:1;z-index:3}
+  .set-cols .col-form{order:2;z-index:2}
+  .set-cols .col-list,.set-cols .col-tool{order:3;z-index:1}
+
+  /* 每一级向下压住下一级：露出下一级的标题栏，形成层叠 */
+  .set-cols .col-editor{margin-bottom:-3.2rem}
+  .set-cols .col-form{margin-bottom:-3.2rem}
+  .set-cols .col-list,.set-cols .col-tool{margin-bottom:0}
+
+  /* 被压住的卡片顶部留出露出高度，并加一道分隔阴影，层次更清楚 */
+  .set-cols .col-form,.set-cols .col-list,.set-cols .col-tool{
+    padding-top:.35rem;border-top:2px solid var(--c3)}
+}

@@ -141,14 +141,14 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		for _, m := range msgs {
 			beforeChars += wireLen(m.Content)
 		}
-		msgs = compact(msgs, keep, a.maxChars()/2)
+		msgs = compact(msgs, keep, a.compactAt())
 		if before != len(msgs) {
 			afterChars := 0
 			for _, m := range msgs {
 				afterChars += wireLen(m.Content)
 			}
 			logx.Info("compact conv=%s msgs=%d->%d chars=%d->%d budget=%d keep=%d",
-				c.ID, before, len(msgs), beforeChars, afterChars, a.maxChars()/2, keep)
+				c.ID, before, len(msgs), beforeChars, afterChars, a.compactAt(), keep)
 		}
 		if a.profile.System != "" || c.Summary != "" || len(c.KV) > 0 {
 			sys := a.profile.System
@@ -569,7 +569,7 @@ func (a *Agent) ContextSize(c *store.Conversation) (int, int) {
 		keep = a.cfg.KeepMessages
 	}
 	msgs, _ := toWire(c.Messages, reg)
-	msgs = compact(msgs, keep, a.maxChars()/2)
+	msgs = compact(msgs, keep, a.compactAt())
 	if a.profile.System != "" || c.Summary != "" || len(c.KV) > 0 {
 		msgs = append([]llm.Message{{Role: "system", Content: a.profile.System}}, msgs...)
 	}

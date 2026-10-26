@@ -31,3 +31,24 @@ JSON Schema/Required/Run）。加工具必须改代码 + 重新编译。
 - 归档页「恢复」图标已做；删除会话 UI 尚未提供。
 - 设置里显示"上次自动归档时间/数量"。
 - 消息重试、会话重命名。
+
+## 三、已完成但仍需沿用（部署脚本）
+
+`scripts/deploy.sh` 已实现并验证（2026-10-26），部署时一律用它，不再手敲命令：
+
+```
+scripts/deploy.sh              # 构建后端 + 前端 → 重启 → 健康检查
+scripts/deploy.sh --no-front   # 只发后端（前端没改时更快）
+```
+
+它的行为（改脚本时保持这四条）：
+1. `go build -o /tmp/agentd.new.$$ ./cmd/agentd`：先构建到临时文件，构建失败不影响线上。
+2. 未加 `--no-front` 时 `cd web && npm run build`（产物进 `web/dist`，18400 直接读它）。
+3. `systemctl --user stop agentd` → `cp` 到 `~/.local/bin/agentd` → `chmod +x` → `start`。
+4. `curl -s --noproxy '*' http://127.0.0.1:18400/api/health` 必须 200，否则打印
+   `systemctl --user status --no-pager -n 15` 并 `exit 1`。
+
+下一步打算（未做）：
+- `--only-go` / `--only-web` 更细的粒度，避免无谓的整轮重启。
+- 部署前自动跑 `go test ./...`，失败即中止。
+- 部署成功后把 commit 短 id + 耗时写一行到 `~/.data/agentd/agentd.log`（用 `logx` 同款格式）。

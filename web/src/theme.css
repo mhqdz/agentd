@@ -891,7 +891,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 
 /* 三级卡片：提示/说明编辑区（宽窄屏通用） */
 .card .set-area{display:block;width:100%;box-sizing:border-box;flex:0 0 auto;
-  height:auto;min-height:8rem;max-height:62vh;
+  height:auto;min-height:8rem;max-height:none;   /* 上限由卡片 max-height + autoGrow 控制 */
   padding:.7rem .85rem;border:0;outline:none;resize:none;overflow-y:auto;
   font:inherit;font-size:.78rem;line-height:1.85;color:var(--ink);background:#fff;
   white-space:pre-wrap;overflow-wrap:anywhere}

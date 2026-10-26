@@ -509,63 +509,65 @@ export default function App() {
 
 
   // D：SSE 断点续传 —— 刷新后从后端缓冲继续接收（不在前端存状态）
+  // D：SSE 断点续传 —— 后端还在跑就一直跟着；断流/404 时重连，绝不"假装结束"
   const attachStream = async (id) => {
-    let live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
-    let base = null
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms))
+    const running = async () => ((await api('/api/running').catch(() => [])) || []).includes(String(id))
+    const live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
     const push = () => setMsgs(m => {
       const kept = trimDup(m.filter(x => !x.__live), live)
       return [...kept, { ...live, tools: [...live.tools], __live: true }]
     })
-    try {
-      const resp = await fetch('/api/conv/' + id + '/stream?from=0')
-      if (!resp.ok) { setSyncing(false); setStatus('已同步'); return }
+    let done = false
+    const finish = async (msg) => {
+      if (done) return
+      done = true
+      const cc = await api('/api/conv/' + id).catch(() => null)
+      if (cc && convIdRef.current === id) setMsgs(normalize(cc.messages || []))
+      setSyncing(false); setStatus(msg || '已同步'); refresh()
+    }
+    for (let attempt = 0; attempt < 60 && !done; attempt++) {
+      if (convIdRef.current !== id) return
+      let resp = null
+      try {
+        resp = await fetch('/api/conv/' + id + '/stream?from=0')
+      } catch (e) {
+        if (convIdRef.current !== id) return
+        await sleep(800); continue              // 网络抖动 / 连接被断 → 重连
+      }
+      if (!resp.ok) {
+        if (await running()) { await sleep(900); continue }   // 还没注册或刚结束 → 再试
+        await finish('已同步'); return
+      }
       const reader = resp.body.getReader(); const dec = new TextDecoder()
       let buf = ''
-      // 看门狗：8 秒没有任何帧且已经不在运行 → 认为结束，避免"正在接上…"卡死
-      let lastFrame = Date.now()
-      const guard = setInterval(async () => {
-        if (Date.now() - lastFrame < 8000) return
-        const r2 = await api('/api/running').catch(() => [])
-        if (!(r2 || []).includes(String(id))) {
-          clearInterval(guard)
-          const cc = await api('/api/conv/' + id).catch(() => null)
-          if (cc) setMsgs(normalize(cc.messages || []))
-          setSyncing(false); setStatus('已同步'); refresh()
-        }
-      }, 2000)
-      for (;;) {
-        const { value, done } = await reader.read(); if (done) break
-        buf += dec.decode(value, { stream: true })
-        let i
-        while ((i = buf.indexOf('\n\n')) >= 0) {
-          const block = buf.slice(0, i); buf = buf.slice(i + 2)
-          let ev = '', data = ''
-          for (const line of block.split('\n')) {
-            if (line.startsWith('event: ')) ev = line.slice(7)
-            else if (line.startsWith('data: ')) data = line.slice(6)
+      const guard = setInterval(async () => { if (!done && !(await running())) finish('已同步') }, 2500)
+      try {
+        for (;;) {
+          const r = await reader.read(); if (r.done) break
+          buf += dec.decode(r.value, { stream: true })
+          let i
+          while ((i = buf.indexOf('\n\n')) >= 0) {
+            const block = buf.slice(0, i); buf = buf.slice(i + 2)
+            let ev = '', data = ''
+            for (const line of block.split('\n')) {
+              if (line.startsWith('event: ')) ev = line.slice(7)
+              else if (line.startsWith('data: ')) data = line.slice(6)
+            }
+            let d = {}; try { d = JSON.parse(data) } catch { }
+            if (ev === 'reasoning') { live.reasoning += d.text || ''; push() }
+            else if (ev === 'delta') { live.content += d.text || ''; push() }
+            else if (ev === 'tool') { live.tools.push(d); push() }
           }
-          let d = {}; try { d = JSON.parse(data) } catch { }
-          lastFrame = Date.now()          // 心跳也算活动 ✓
-          if (ev) lastFrame = Date.now()
-          if (ev === 'reasoning') { live.reasoning += d.text || ''; push() }
-          else if (ev === 'delta') { live.content += d.text || ''; push() }
-          else if (ev === 'tool') { live.tools.push(d); push() }
-          else if (ev === 'done') { /* 结束时统一重载 */}
         }
-      }
-      clearInterval(guard)
-      const cc = await api('/api/conv/' + id).catch(() => null)
-      if (cc) setMsgs(normalize(cc.messages || []))
-      setSyncing(false); setStatus('已同步'); refresh()
-    } catch (e) {
-      setSyncing(false)
-      // 切换会话/刷新导致的 abort、或过期请求：不算失败
-      if (e.name === 'AbortError' || /aborted|network error/i.test(e.message || '') || convIdRef.current !== id) {
-        setStatus('已同步')
-        return
-      }
-      setStatus('同步失败：' + e.message + '（可刷新重试）')
+      } catch (e) {
+        /* 读流中断：下面按运行状态决定重连还是收尾 */
+      } finally { clearInterval(guard) }
+      if (convIdRef.current !== id) return
+      if (await running()) { await sleep(600); continue }     // 服务端提前关流 → 重连
+      await finish('已同步'); return
     }
+    await finish('已同步')
   }
 
   const send = async () => {

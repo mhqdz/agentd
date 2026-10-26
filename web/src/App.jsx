@@ -462,6 +462,14 @@ export default function App() {
     return out
   }
 
+  // 滚到会话底部（新消息/进入会话时用）
+  const scrollToBottom = () => {
+    requestAnimationFrame(() => {
+      const th = threadRef.current
+      if (th) th.scrollTop = th.scrollHeight
+    })
+  }
+
   const openConv = async (id) => {
     setConvId(id)
     // A：会话 id 进 URL，刷新后能回到同一会话（也便于分享/重开）
@@ -470,6 +478,7 @@ export default function App() {
     if (!id) { setMsgs([]); setTitle('新会话'); return }
     const c = await api('/api/conv/' + id)
     setMsgs(normalize(c.messages || [])); setTitle(c.title || '会话')
+    scrollToBottom()   // 进入会话定位到最新消息
     // 后台仍在跑？轮询直到结束（刷新页面后能"接上"）
     // 单一事实来源：直接请求续传流。没内容/已结束会立刻返回，不会挂着
     attachStream(id)
@@ -541,6 +550,7 @@ export default function App() {
     const ac = new AbortController()
     abortRef.current = ac
     setMsgs(m => [...m, { role: 'user', content: t, at: now() }])
+    scrollToBottom()   // 发送后回到最新位置
     let cur = convId
     try {
       const resp = await fetch('/api/chat', {

@@ -443,7 +443,11 @@ export default function App() {
       if (pn) {
         const list = await api('/api/profiles')
         const pr = (list || []).find(x => x.name === pn)
-        if (pr) setEditP({ ...pr, tools: (pr.tools || []).join(',') })
+        if (pr) {
+          setEditP({ ...pr, tools: (pr.tools || []).join(',') })
+          const fld = q.get('field')                 // ?field=system 直接打开提示编辑
+          if (fld) { setEditOriginal(pr[fld] || ''); setEditField(fld) }
+        }
       }
     })
   }, [])
@@ -933,7 +937,7 @@ export default function App() {
               <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}
                 onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
                 {(editField || toolEdit) ? (
-                  <div className="card col-editor">
+                  <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
                     <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="返回" title="返回"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M12 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter"/></svg></button>{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</div>
                     <textarea className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
                       onInput={e => autoGrow(e.target)}

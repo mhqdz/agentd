@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"agentd/internal/config"
 	"agentd/internal/llm"
@@ -530,15 +531,17 @@ func splitResult(v any) (string, []string) {
 }
 
 // wireLen：Content 可能是 string 或 []parts，估算字符数即可（只用于预算判断）。
+// 统一按"字符(rune)"计数：中文 1 字 = 1，不再用字节数
+// （之前 len(string) 是字节数，中文会被放大 ~3 倍，导致 token 估算虚高、raw 与 chars 不可比）
 func wireLen(v any) int {
 	switch t := v.(type) {
 	case string:
-		return len(t)
+		return utf8.RuneCountInString(t)
 	case []map[string]any:
 		n := 0
 		for _, p := range t {
 			if s, ok := p["text"].(string); ok {
-				n += len(s)
+				n += utf8.RuneCountInString(s)
 			}
 		}
 		return n

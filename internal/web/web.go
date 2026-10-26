@@ -479,6 +479,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		s.convMu.Unlock()
 	}()
 	start := time.Now()
+	toolStart := start
 	logx.Info("chat.start conv=%s profile=%s chars=%d", convID, ag.Profile().Name, len([]rune(in.Text)))
 	err = ag.SendWithTools(ctx, c, in.Text,
 		func(content, reasoning string) {
@@ -507,7 +508,8 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 				text = str
 			}
 			logx.Info("tool.call name=%s ms=%d image=%v out=%d",
-				name, time.Since(start).Milliseconds(), hasImage, len([]rune(text)))
+				name, time.Since(toolStart).Milliseconds(), hasImage, len([]rune(text)))
+			toolStart = time.Now()
 			send("tool", map[string]any{"name": name, "args": args, "text": text, "image": hasImage})
 		})
 	if err != nil {

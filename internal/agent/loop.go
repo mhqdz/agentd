@@ -77,8 +77,9 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 
 	limit := a.MaxRounds
 	if limit <= 0 {
-		limit = int(^uint(0) >> 1) // 关闭限制 = 不设上限（由用户自行掌控）
+		limit = 300 // 关闭上限时的硬保险：防止模型无限探索（跑飞会几小时没有结果）
 	}
+	lastSig, sameCallStreak := "", 0
 	for round := 0; round < limit; round++ {
 		// 中途插话：把用户新消息插进本轮上下文（模型这一轮就能看到）
 		if a.Drain != nil {
@@ -185,6 +186,25 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(), ReasoningMs: reasonMs})
 			return a.st.Save(c)
 		}
+		// 跑飞检测：连续 3 轮调用完全相同的工具与参数 → 视为空转，收尾并说明
+		if len(calls) > 0 {
+			sig := calls[0].Function.Name + calls[0].Function.Arguments
+			if sig == lastSig {
+				sameCallStreak++
+			} else {
+				lastSig, sameCallStreak = sig, 1
+			}
+			if sameCallStreak >= 3 {
+				note := "（检测到连续 3 轮调用同一个工具、同样参数，已中止以免空转。可以换个说法让我继续。）"
+				c.Messages = append(c.Messages, store.Message{Role: "assistant", Content: note})
+				_ = a.st.Save(c)
+				if onDelta != nil {
+					onDelta(note, "")
+				}
+				return nil
+			}
+		}
+
 		// 记录带 tool_calls 的助手消息
 		c.Messages = append(c.Messages, store.Message{
 			Role: "assistant", Content: strings.TrimSpace(content.String()),

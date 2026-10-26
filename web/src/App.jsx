@@ -355,9 +355,15 @@ export default function App() {
   const autoGrow = (el) => {
     if (!el) return
     el.style.height = 'auto'
-    const h = el.scrollHeight + 2
+    let h = el.scrollHeight + 2
+    if (el.classList.contains('set-area')) {
+      // 有共同的高度上限：最多到可视高度的 62%，再长就在框内滚动
+      const cap = Math.max(220, Math.round(window.innerHeight * 0.62))
+      el.style.overflowY = h > cap ? 'auto' : 'hidden'
+      h = Math.min(h, cap)
+    }
     el.style.setProperty('--h', h + 'px')
-    el.style.height = h + 'px'      // .set-area 直接吃像素高度（随内容长高，不折叠）
+    el.style.height = h + 'px'
   }
 
   // 阅读位置：滚到哪条消息，就显示第几条

@@ -43,6 +43,23 @@ func Registry() map[string]*Spec {
 		{Name: "kb_search", Description: "检索本机知识库（权威事实与经验）。写知识库前先读约定：kb help --write。",
 			Params:   map[string]any{"query": map[string]any{"type": "string"}, "max_results": map[string]any{"type": "integer"}},
 			Required: []string{"query"}, Run: runKBSearch},
+		{Name: "kb_get", Description: "按 id 读取知识库条目全文（kb_get 返回正文；写之前先 kb_search 找 id）。",
+			Params:   map[string]any{"id": map[string]any{"type": "string", "description": "条目 id，如 010600"}},
+			Required: []string{"id"}, Run: runKBGet},
+		{Name: "web_search", Description: "联网搜索（经本机 websvc/SearXNG）。返回标题+URL+摘要，每条带来源引擎；" +
+			"得到结论时在回答末尾列出用到的 URL。",
+			Params: map[string]any{
+				"query":      map[string]any{"type": "string", "description": "搜索词"},
+				"n":          map[string]any{"type": "integer", "description": "结果条数，默认 8"},
+				"time_range": map[string]any{"type": "string", "enum": []string{"day", "week", "month", "year"}, "description": "时间范围（各引擎遵守不一）"}},
+			Required: []string{"query"}, Run: runWebSearch},
+		{Name: "web_fetch", Description: "抓取网页正文（经本机 websvc）。支持批量 URL；截断时会提示剩余字符与下一跳 offset。",
+			Params: map[string]any{
+				"urls":      map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "一个或多个 http(s) 地址"},
+				"raw":       map[string]any{"type": "boolean", "description": "返回原始内容（HTML 等），默认提取正文"},
+				"offset":    map[string]any{"type": "integer", "description": "从第 N 个字符续读（无状态，会重新抓取）"},
+				"max_chars": map[string]any{"type": "integer", "description": "最多返回多少字符，默认 20000"}},
+			Required: []string{"urls"}, Run: runWebFetch},
 		{Name: "recall", Description: "在**本会话**历史里检索（不跨会话）。默认在消息正文里按关键词 OR 匹配，返回命中的片段与序号。" +
 			"需要正则时加 re=true（Go RE2 语法，示例: (鹈鹕|pelican).*(车|bike)）。" +
 			"想看某条附近上下文用 around=<序号>。level=raw 才返回整段原文（贵，慎用）。" +
@@ -177,6 +194,86 @@ func runKBSearch(ctx context.Context, args map[string]any, _ *Env) (any, error) 
 		return "✗ kb search 失败：" + string(o), nil
 	}
 	return tail(string(o), 6000), nil
+}
+
+func runKBGet(ctx context.Context, args map[string]any, _ *Env) (any, error) {
+	id := strings.TrimSpace(str(args, "id"))
+	if id == "" {
+		return "[error] 缺少 id", nil
+	}
+	home, _ := os.UserHomeDir()
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+	c := exec.CommandContext(ctx, filepath.Join(home, ".local/bin/kb"), "get", id)
+	o, err := c.CombinedOutput()
+	if err != nil {
+		return "✗ kb get 失败：" + string(o), nil
+	}
+	return tail(string(o), 12000), nil
+}
+
+func runWebSearch(ctx context.Context, args map[string]any, _ *Env) (any, error) {
+	q := strings.TrimSpace(str(args, "query"))
+	if q == "" {
+		return "[error] 缺少 query", nil
+	}
+	n := 8
+	if v, ok := args["n"].(float64); ok && v > 0 {
+		n = int(v)
+	}
+	cmdArgs := []string{"search", q, "-n", fmt.Sprint(n)}
+	if r := strings.TrimSpace(str(args, "time_range")); r != "" {
+		cmdArgs = append(cmdArgs, "--range", r)
+	}
+	home, _ := os.UserHomeDir()
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+	c := exec.CommandContext(ctx, filepath.Join(home, ".local/bin/websvc"), cmdArgs...)
+	o, err := c.CombinedOutput()
+	if err != nil {
+		return "✗ websvc search 失败（后端不可用？用 websvc status 检查）：" + string(o), nil
+	}
+	return tail(string(o), 12000), nil
+}
+
+func runWebFetch(ctx context.Context, args map[string]any, _ *Env) (any, error) {
+	var urls []string
+	switch v := args["urls"].(type) {
+	case []any:
+		for _, x := range v {
+			if s, ok := x.(string); ok && strings.TrimSpace(s) != "" {
+				urls = append(urls, strings.TrimSpace(s))
+			}
+		}
+	case string:
+		if strings.TrimSpace(v) != "" {
+			urls = []string{strings.TrimSpace(v)}
+		}
+	}
+	if len(urls) == 0 {
+		return "[error] 缺少 urls", nil
+	}
+	maxChars := 20000
+	if v, ok := args["max_chars"].(float64); ok && v > 0 {
+		maxChars = int(v)
+	}
+	cmdArgs := append([]string{"fetch"}, urls...)
+	cmdArgs = append(cmdArgs, "--max-chars", fmt.Sprint(maxChars))
+	if v, ok := args["offset"].(float64); ok && v > 0 {
+		cmdArgs = append(cmdArgs, "--offset", fmt.Sprint(int(v)))
+	}
+	if b, ok := args["raw"].(bool); ok && b {
+		cmdArgs = append(cmdArgs, "--raw")
+	}
+	home, _ := os.UserHomeDir()
+	ctx, cancel := context.WithTimeout(ctx, 90*time.Second)
+	defer cancel()
+	c := exec.CommandContext(ctx, filepath.Join(home, ".local/bin/websvc"), cmdArgs...)
+	o, err := c.CombinedOutput()
+	if err != nil {
+		return "✗ websvc fetch 失败：" + string(o), nil
+	}
+	return tail(string(o), maxChars*2), nil
 }
 
 func tail(s string, n int) string {

@@ -301,7 +301,7 @@ body{background:var(--paper);color:var(--ink);
 
 .card-actions{display:flex;align-items:center;gap:.5rem}
 .card .btn{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:.74rem;
-  padding:.28rem .6rem;cursor:pointer;border-radius:0;
+  padding:.28rem .6rem;cursor:pointer;border-radius:0;box-sizing:border-box;
   clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%)}   /* 切角 = 可点击 ✓ */
 .card .btn:hover{border-color:var(--sage-d);color:var(--sage-d)}
 .card .btn.primary{background:var(--signal);border-color:var(--signal);color:var(--on-signal)}

@@ -42,6 +42,14 @@ func (a *Agent) maxTokens() int {
 // MaxTokens：该 profile 的输入 token 上限（供接口展示）
 func (a *Agent) MaxTokens() int { return a.maxTokens() }
 
+// maxTokensOut：单次生成上限（含思考），默认 8192 —— 防止上游无限思考
+func (a *Agent) maxTokensOut() int {
+	if a.profile.MaxTokensOut > 0 {
+		return a.profile.MaxTokensOut
+	}
+	return 8192
+}
+
 func (a *Agent) maxChars() int { return int(float64(a.maxTokens()) * charsPerToken) }
 
 // ContextWindow：该模型的窗口（tokens）
@@ -184,7 +192,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		var content, reasoning strings.Builder
 		var reasonStart, reasonMs int64
 		var calls []llm.ToolCall
-		err := a.llm.StreamWithTools(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, Tools: specs, ReasoningEffort: a.profile.ReasoningEffort},
+		err := a.llm.StreamWithTools(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, Tools: specs, MaxTokens: a.maxTokensOut(), ReasoningEffort: a.profile.ReasoningEffort},
 			func(ch llm.Chunk) error {
 				if ch.Done {
 					return nil

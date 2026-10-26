@@ -472,10 +472,11 @@ export default function App() {
 
   // 滚到会话底部（新消息/进入会话时用）
   const scrollToBottom = () => {
-    requestAnimationFrame(() => {
-      const th = threadRef.current
-      if (th) th.scrollTop = th.scrollHeight
-    })
+    const stick = () => { const th = threadRef.current; if (th) th.scrollTop = th.scrollHeight }
+    requestAnimationFrame(stick)
+    setTimeout(stick, 60)
+    setTimeout(stick, 250)   // 图片/字体撑开高度后再校正一次
+    setTimeout(stick, 800)
   }
 
   // 截图占用统计（设置卡里显示）
@@ -778,7 +779,7 @@ export default function App() {
                           <pre className="think">{m.reasoning}</pre>
                         </details>
                       ) : null}
-                      {m.content ? <Sections text={m.content} /> : null}
+                      {m.content && m.role !== 'tool' ? <Sections text={m.content} /> : null}
                       {m.role === 'tool' ? (
                         <div>
                           <div style={{ fontSize: '.72rem', color: 'var(--ink3)', marginBottom: '.2rem' }}>

@@ -310,16 +310,31 @@ func compact(msgs []llm.Message, keep int, budget int) []llm.Message {
 	if keep <= 0 {
 		keep = 12
 	}
-	if total <= budget && len(body) <= keep {
+	// 只在"超出预算"时才压缩（对齐 Open WebUI 的按比例保留）：
+	// 之前是 len(body) > keep 就砍到 16 条 ✗ 工具轮很快就把最近几步砍掉了 ✓
+	if total <= budget {
 		return msgs
 	}
-	cut := len(body) - keep
+	// 从最早开始砍，直到剩余内容不超过预算的一半（保留最近一大段上下文）
+	cut := 0
+	remain := total
+	for cut < len(body) && remain > budget/2 {
+		remain -= wireLen(body[cut].Content)
+		cut++
+	}
+	// 至少保留 keep 条（预算再小也要留下最近几步）
+	if max := len(body) - keep; cut > max {
+		cut = max
+	}
 	if cut <= 0 {
 		return msgs
 	}
-	// 边界必须落在 user 消息上，避免把 tool 结果和它的 tool_call 拆开
-	for cut < len(body) && body[cut].Role != "user" {
-		cut++
+	// 边界对齐到 user，且**向前**退（不能往后推，否则会超过保留下限）
+	for cut > 0 && body[cut].Role != "user" {
+		cut--
+	}
+	if cut <= 0 {
+		return msgs
 	}
 	var done []string
 	for _, m := range body[:cut] {

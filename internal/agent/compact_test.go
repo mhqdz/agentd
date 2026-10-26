@@ -37,8 +37,8 @@ func TestCompactKeepsRecentAndSystem(t *testing.T) {
 	if !strings.Contains(out[1].Content.(string), "上下文压缩") {
 		t.Fatalf("应有省略提示: %v", out[1].Content)
 	}
-	if len(out) > 13 {
-		t.Fatalf("应保留约 keep 条: %d", len(out))
+	if len(out) > 41 {
+		t.Fatalf("不应超过原长度: %d", len(out))
 	}
 	// 保留的尾部要与原尾部一致
 	if out[len(out)-1].Content.(string) != in[len(in)-1].Content.(string) {
@@ -48,9 +48,18 @@ func TestCompactKeepsRecentAndSystem(t *testing.T) {
 
 func TestCompactBoundaryIsUser(t *testing.T) {
 	in := mk(30)
-	out := compact(in, 5, 1)
+	out := compact(in, 5, 3) // 预算很小，强制压缩
 	// 省略提示之后的第一条应当是 user（否则会把 tool_call 与结果拆开）
-	if out[2].Role != "user" {
+	if len(out) > 2 && out[2].Role != "user" {
 		t.Fatalf("切点应落在 user 上，得到 %q", out[2].Role)
+	}
+}
+
+func TestCompactKeepsMoreWhenBudgetAllows(t *testing.T) {
+	in := mk(40) // 40*100 = 4000 字符
+	out := compact(in, 10, 3000)
+	// 4000 < 3000/2? 否 → 会压缩，但应保留"预算的一半"这一大段，而不是固定 10 条
+	if len(out) <= 12 {
+		t.Fatalf("按预算应保留更多，实际 %d 条", len(out))
 	}
 }

@@ -146,7 +146,9 @@ body{background:var(--paper);color:var(--ink);
 .card{flex:0 0 var(--card-w);width:var(--card-w);max-width:var(--card-w);height:fit-content;max-height:100%;
   display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid var(--line);
   box-shadow:0 6px 18px rgba(58,65,66,.08)}
-.card-hd{flex:0 0 auto;display:flex;align-items:center;gap:.6rem;padding:.55rem .85rem .5rem;
+/* 标题栏统一高度（含带按钮的那一层），保证所有卡片标题栏等高 */
+.card-hd{flex:0 0 auto;display:flex;align-items:center;gap:.6rem;box-sizing:border-box;
+  height:36px;min-height:36px;padding:0 .85rem;
   border-bottom:1px solid var(--line);font-size:.66rem;letter-spacing:.18em;color:var(--ink3)}
 .card-bd{flex:1 1 auto;min-height:0;overflow-y:auto;padding:.7rem .85rem;
   display:grid;grid-template-columns:minmax(0,1fr);gap:.7rem;align-content:start}
@@ -932,7 +934,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 /* ═══ 窄屏设置：更紧凑 + 三级填满可用高度（提升小屏可读性）═══ */
 @media (max-width:1399px){
     .set-cols{padding:.5rem .45rem}
-  .set-cols .card-hd{padding:.5rem .7rem .45rem;font-size:.68rem}
+  .set-cols .card-hd{padding:0 .7rem;height:36px;min-height:36px;font-size:.68rem}
   .set-cols .card-bd{padding:.6rem .7rem;gap:.55rem}
   .set-cols .field>span{font-size:.68rem}
   .set-cols .field input,.set-cols .field select,.set-cols .field textarea{font-size:.82rem}
@@ -958,7 +960,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 
 /* 一级卡片标题栏右侧动作（取消 / 保存）：终末地风格，无黄色 */
 .title-actions{display:inline-flex;align-items:center;gap:.45rem}
-.title-actions .btn{padding:.12rem .5rem;font-size:.66rem;letter-spacing:.06em}
+.title-actions .btn{padding:0 .5rem;height:22px;line-height:20px;font-size:.66rem;letter-spacing:.06em}
 .title-actions .btn.save{border-color:var(--c5);color:var(--c6);background:var(--panel)}
 .title-actions .btn.save:hover{border-color:var(--c7);background:var(--c1);color:var(--c7)}
 .title-actions .btn.save::before,.title-actions .btn.save::after{border-color:var(--c6)}

@@ -41,6 +41,8 @@ type ChatRequest struct {
 	Stream          bool      `json:"stream"`
 	Tools           any       `json:"tools,omitempty"`
 	ReasoningEffort string    `json:"reasoning_effort,omitempty"`
+	// Strata 扩展：本轮思考的 token 预算（0=引擎默认，即不设上限）
+	ReasoningBudget int `json:"reasoning_budget_tokens,omitempty"`
 }
 
 type Chunk struct {

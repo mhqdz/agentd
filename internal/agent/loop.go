@@ -50,6 +50,14 @@ func (a *Agent) maxTokensOut() int {
 	return 8192
 }
 
+// reasoningBudget：单轮思考 token 预算（默认 4096）—— 引擎默认是"不限"，会跑飞
+func (a *Agent) reasoningBudget() int {
+	if a.profile.ReasoningBudget > 0 {
+		return a.profile.ReasoningBudget
+	}
+	return 4096
+}
+
 func (a *Agent) maxChars() int { return int(float64(a.maxTokens()) * charsPerToken) }
 
 // ContextWindow：该模型的窗口（tokens）
@@ -192,7 +200,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		var content, reasoning strings.Builder
 		var reasonStart, reasonMs int64
 		var calls []llm.ToolCall
-		err := a.llm.StreamWithTools(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, Tools: specs, MaxTokens: a.maxTokensOut(), ReasoningEffort: a.profile.ReasoningEffort},
+		err := a.llm.StreamWithTools(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, Tools: specs, MaxTokens: a.maxTokensOut(), ReasoningEffort: a.profile.ReasoningEffort, ReasoningBudget: a.reasoningBudget()},
 			func(ch llm.Chunk) error {
 				if ch.Done {
 					return nil

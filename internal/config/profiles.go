@@ -23,6 +23,7 @@ type Profile struct {
 	Summarizer      string   `json:"summarizer,omitempty"`        // 用哪个 profile 写摘要；空=自己
 	MaxPromptTokens int      `json:"max_prompt_tokens,omitempty"` // 该模型的输入 token 上限；0 = 默认 105000（模型窗口 131072 的 80%）
 	ContextWindow   int      `json:"context_window,omitempty"`    // 该模型的窗口(tokens)；0 = 自动读上游 /models 的 meta.n_ctx
+	ReasoningBudget int      `json:"reasoning_budget,omitempty"`  // 单轮思考 token 预算；0 = 默认 4096
 	MaxTokensOut    int      `json:"max_tokens_out,omitempty"`    // 单次回复(含思考)的输出上限；0 = 默认 8192
 	CompactPct      int      `json:"compact_pct,omitempty"`       // 达到上限的百分之几时自动压缩/摘要；0 = 默认 80
 	Builtin         bool     `json:"builtin,omitempty"`

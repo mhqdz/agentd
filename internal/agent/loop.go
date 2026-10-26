@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -134,7 +135,10 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				})
 			}
 			// 中断：保留半截内容，并在末尾追加一句中断说明（是数据，不是状态）
-			note := "\n\n——（中断：" + err.Error() + "）"
+			note := "\n\n——（已停止）"
+			if !errors.Is(err, context.Canceled) {
+				note = "\n\n——（中断：" + err.Error() + "）"
+			}
 			if len(c.Messages) > 0 && c.Messages[len(c.Messages)-1].Role == "assistant" {
 				last := &c.Messages[len(c.Messages)-1]
 				last.Content = strings.TrimRight(last.Content, "\n") + note

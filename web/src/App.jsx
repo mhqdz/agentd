@@ -107,6 +107,16 @@ function normalize(arr) {
     if (m.role === 'tool' && used.has(m)) continue
     out.push(m)
   }
+  // 中断说明单独成条时，并回上一条"只有工具调用、没有正文"的 assistant（避免两个 Agent 气泡）
+  for (let i = 0; i < out.length - 1; i++) {
+    const a = out[i], b = out[i + 1]
+    if (a.role === 'assistant' && !(a.content || '').trim() && (a.tools || []).length &&
+        b.role === 'assistant' && /^\s*——（(中断|已停止)/.test(b.content || '')) {
+      out[i] = { ...a, content: b.content }
+      out.splice(i + 1, 1)
+      break
+    }
+  }
   return out
 }
 

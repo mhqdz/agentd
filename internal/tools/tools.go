@@ -38,7 +38,7 @@ func Registry() map[string]*Spec {
 				"timeout": map[string]any{"type": "integer", "description": "超时秒数，默认 180，最大 600"}},
 			Required: []string{"command"}, Run: runBash},
 		{Name: "screenshot", Description: "截屏并返回文字说明 + 截屏原图（模型能看到像素）。用于判断窗口内容/排版/报错。",
-			Params: map[string]any{"question": map[string]any{"type": "string", "description": "想让它重点看什么，可留空"}},
+			Params: map[string]any{"question": map[string]any{"type": "string", "description": "可留空；留空只返回截图，填了也不会回显"}},
 			Run:    runScreenshot},
 		{Name: "kb_search", Description: "检索本机知识库（权威事实与经验）。写知识库前先读约定：kb help --write。",
 			Params:   map[string]any{"query": map[string]any{"type": "string"}, "max_results": map[string]any{"type": "integer"}},
@@ -158,10 +158,7 @@ func runBash(ctx context.Context, args map[string]any, _ *Env) (any, error) {
 }
 
 func runScreenshot(ctx context.Context, args map[string]any, _ *Env) (any, error) {
-	q := str(args, "question")
-	if q == "" {
-		q = "先逐字抄出每个窗口的标题和其中可读的文字，再描述布局。只报看到的东西，不要猜显示器排列。"
-	}
+	_ = strings.TrimSpace(str(args, "question")) // 参数保留但不再回显（问题已在用户消息里）
 	img := filepath.Join("/tmp", fmt.Sprintf("agentd-shot-%d.png", time.Now().UnixNano()))
 	env := append(os.Environ(), "XDG_RUNTIME_DIR=/run/user/"+fmt.Sprint(os.Getuid()), "WAYLAND_DISPLAY=wayland-1")
 	grim := exec.CommandContext(ctx, "grim", img)
@@ -176,7 +173,7 @@ func runScreenshot(ctx context.Context, args map[string]any, _ *Env) (any, error
 	}
 	// 返回 content parts：文本 + 图片。上层（llm/web）按需展开。
 	return []map[string]any{
-		{"type": "text", "text": "截屏完成，请基于下图回答：" + q},
+		{"type": "text", "text": "截屏完成：当前屏幕截图如下。"},
 		{"type": "image", "url": "data:image/png;base64," + base64.StdEncoding.EncodeToString(b)},
 	}, nil
 }

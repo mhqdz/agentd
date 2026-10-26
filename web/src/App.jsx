@@ -357,10 +357,19 @@ export default function App() {
     el.style.height = 'auto'
     let h = el.scrollHeight + 2
     if (el.classList.contains('set-area')) {
-      // 有共同的高度上限：最多到可视高度的 62%，再长就在框内滚动
-      const cap = Math.max(220, Math.round(window.innerHeight * 0.62))
+      // 上限来自卡片自身的 max-height（由 CSS 决定，宽窄屏一致），减去标题与字数栏
+      const card = el.closest('.card')
+      let cap = Infinity
+      if (card) {
+        const mh = getComputedStyle(card).maxHeight
+        if (mh && mh !== 'none') {
+          const hd = card.querySelector('.card-hd')
+          const ft = card.querySelector('.set-col-foot')
+          cap = parseFloat(mh) - (hd ? hd.offsetHeight : 0) - (ft ? ft.offsetHeight : 0) - 2
+        }
+      }
       el.style.overflowY = h > cap ? 'auto' : 'hidden'
-      h = Math.min(h, cap)
+      h = Math.min(h, Math.max(160, cap))
     }
     el.style.setProperty('--h', h + 'px')
     el.style.height = h + 'px'

@@ -906,3 +906,27 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   .settings.three{max-width:100vw}
   .set-cols.three{justify-content:flex-end}
 }
+
+/* ═══ 窄屏设置：更紧凑 + 三级填满可用高度（提升小屏可读性）═══ */
+@media (max-width:1399px){
+  .set-hd{flex:0 0 40px;padding:0 .7rem}
+  .set-cols{padding:.35rem .45rem .6rem}
+  .set-cols .card-hd{padding:.5rem .7rem .45rem;font-size:.68rem}
+  .set-cols .card-bd{padding:.6rem .7rem;gap:.55rem}
+  .set-cols .field>span{font-size:.68rem}
+  .set-cols .field input,.set-cols .field select,.set-cols .field textarea{font-size:.82rem}
+  .set-cols .item{padding:.5rem 0}
+  .set-cols .item-title{font-size:.82rem}
+  .set-cols .item-desc,.set-cols .set-meta{font-size:.7rem}
+  .set-cols .choices{gap:.35rem}
+  .set-cols .card .set-col-foot{padding:.35rem .7rem}
+
+  /* 卡片统一高度上限：不超过可视区域，内容短就短、长则框内滚动 */
+  .set-cols .card{max-height:calc(100vh - 36px - 40px - 1.6rem)}
+  .set-cols .col-editor .set-area{max-height:none}
+}
+
+/* 宽屏同样：卡片不超过可视高度 */
+@media (min-width:1400px){
+  .set-cols .card{max-height:calc(100vh - 46px - 1.6rem)}
+}

@@ -143,7 +143,7 @@ func runBash(ctx context.Context, args map[string]any, _ *Env) (any, error) {
 		if c.Process != nil {
 			_ = syscall.Kill(-c.Process.Pid, syscall.SIGKILL)
 		}
-		return fmt.Sprintf("[timeout] 命令超过 %d 秒，已杀掉进程组\n%s", t, tail(out.String(), 4000)), nil
+		return fmt.Sprintf("[timeout] 命令超过 %d 秒，已杀掉进程组\n%s", t, clipOutput(out.String(), 4000)), nil
 	}
 	code := 0
 	if err != nil {
@@ -153,7 +153,7 @@ func runBash(ctx context.Context, args map[string]any, _ *Env) (any, error) {
 			return "[error] " + err.Error(), nil
 		}
 	}
-	return fmt.Sprintf("%s\n[exit %d]", tail(out.String(), 8000), code), nil
+	return fmt.Sprintf("%s\n[exit %d]", clipOutput(out.String(), 8000), code), nil
 }
 
 func runScreenshot(ctx context.Context, args map[string]any, _ *Env) (any, error) {
@@ -271,6 +271,28 @@ func runWebFetch(ctx context.Context, args map[string]any, _ *Env) (any, error) 
 		return "✗ websvc fetch 失败：" + string(o), nil
 	}
 	return tail(string(o), maxChars*2), nil
+}
+
+// clipOutput：超长时保留首尾并标明"省略了多少、完整内容在哪"，绝不静默丢弃
+func clipOutput(s string, limit int) string {
+	r := []rune(s)
+	if len(r) <= limit || limit <= 0 {
+		return s
+	}
+	home, _ := os.UserHomeDir()
+	dir := filepath.Join(home, ".data", "agentd", "out")
+	_ = os.MkdirAll(dir, 0o755)
+	name := fmt.Sprintf("%d.txt", time.Now().UnixNano())
+	full := filepath.Join(dir, name)
+	if err := os.WriteFile(full, []byte(s), 0o644); err != nil {
+		return string(r[:limit]) + fmt.Sprintf("\n…（还有 %d 字符未显示）", len(r)-limit)
+	}
+	head := limit * 6 / 10
+	tailN := limit - head
+	return string(r[:head]) +
+		fmt.Sprintf("\n…（中间省略 %d 字符）\n完整输出已存 %s（共 %d 字符），需要看某段用 sed -n '起,止p' %s\n…\n",
+			len(r)-limit, full, len(r), full) +
+		string(r[len(r)-tailN:])
 }
 
 func tail(s string, n int) string {

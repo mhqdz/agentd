@@ -1137,15 +1137,15 @@ export default function App() {
             </div>
             <div className="rail-group">
               <span className="rail-status"><span className={'dot' + (busy ? ' busy' : '')} />{busy ? '运行中' : '空闲'}</span>
+              {tps > 0 ? (
+                <span className="rail-tps"><b>{Math.round(tps)}</b> tok/s</span>
+              ) : null}
               {ctx ? (
                 <span
                   title={Math.round((ctx.est_tokens || 0) / 1000) + ' / ' + Math.round((ctx.limit_tokens || 105000) / 1000) + 'k tokens'}
                   className={'rail-ctx' + ((((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100) >= (ctx.compact_pct || 80) ? ' hot' : '')}>
                   <b>{Math.round(((ctx.est_tokens || 0) / (ctx.limit_tokens || 105000)) * 100)}%</b>
                 </span>
-              ) : null}
-              {tps > 0 ? (
-                <span className="rail-tps"><b>{Math.round(tps)}</b> tok/s</span>
               ) : null}
             </div>
           </div>

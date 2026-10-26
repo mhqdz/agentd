@@ -770,3 +770,12 @@ body{background:var(--paper);color:var(--ink);
 /* 消息里的图片：等比缩放，最高 60vh，不溢出屏幕 */
 .msg-img{display:block;max-width:100%;max-height:60vh;object-fit:contain;
   margin-top:.4rem;border:1px solid var(--c3);background:var(--c1)}
+
+/* 状态栏右侧：上下文占用（按阈值变色：50% 温、80% 热） */
+.status{display:flex;align-items:center;gap:.6rem;justify-content:space-between}
+.status .ctx{font-size:.7rem;color:var(--c5);font-variant-numeric:tabular-nums;white-space:nowrap}
+.status .ctx .ctx-pct{color:var(--c4);margin-left:.25rem}
+.status .ctx .ctx-raw{margin-left:.5rem;color:var(--c4)}
+.status .ctx.warm{color:var(--c6)}
+.status .ctx.hot{color:var(--c7);font-weight:600}
+.status .ctx.hot .ctx-pct,.status .ctx.hot .ctx-raw{color:var(--c6)}

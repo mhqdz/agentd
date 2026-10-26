@@ -415,3 +415,40 @@ func inlineImage(img string) string {
 	}
 	return img
 }
+
+// ContextSize 返回"当前会发给模型的字符数"与上限（与循环里的限额检查同一算法）。
+// 供前端显示上下文占用，判断大概什么时候会被截断/压缩。
+func (a *Agent) ContextSize(c *store.Conversation) (int, int) {
+	reg := tools.Registry()
+	if len(a.profile.Tools) > 0 {
+		for name := range reg {
+			keep := false
+			for _, t := range a.profile.Tools {
+				if t == name {
+					keep = true
+					break
+				}
+			}
+			if !keep {
+				delete(reg, name)
+			}
+		}
+	}
+	keep := a.profile.KeepMessages
+	if keep <= 0 {
+		keep = a.cfg.KeepMessages
+	}
+	msgs, _ := toWire(c.Messages, reg)
+	msgs = compact(msgs, keep, a.cfg.MaxPromptChars/2)
+	if a.profile.System != "" || c.Summary != "" || len(c.KV) > 0 {
+		msgs = append([]llm.Message{{Role: "system", Content: a.profile.System}}, msgs...)
+	}
+	total := 0
+	for _, m := range msgs {
+		total += wireLen(m.Content)
+		for _, tc := range m.ToolCalls {
+			total += len(tc.Function.Arguments)
+		}
+	}
+	return total, a.cfg.MaxPromptChars
+}

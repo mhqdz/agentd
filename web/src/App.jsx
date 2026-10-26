@@ -60,6 +60,9 @@ const api = (p, opt) => fetch(p, opt).then(r => r.json())
 const pad = n => String(n).padStart(2, '0')
 const now = () => new Date().toTimeString().slice(0, 5)
 
+// 字符数简写：12.3k / 240k
+const fmtK = (n) => n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : String(n)
+
 // 最后活跃时间：今天显示 HH:MM，否则 MM.DD
 const fmtActive = (iso) => {
   if (!iso) return ''
@@ -186,6 +189,7 @@ export default function App() {
   const [readingIdx, setReadingIdx] = useState(0)
   const [peek, setPeek] = useState({ open: false, idx: -1, top: 0 })
   const [shotInfo, setShotInfo] = useState('')
+  const [ctx, setCtx] = useState(null)   // 上下文占用 {chars,max,pct,raw}
   const suppressPeekClose = useRef(false)
   const suppressTimer = useRef(null)
   const [editField, setEditField] = useState(null)
@@ -474,6 +478,13 @@ export default function App() {
   }
 
   // 截图占用统计（设置卡里显示）
+  // 上下文占用：当前会发给模型的字符数 / 上限（还有未压缩的原始字符数）
+  const loadCtx = async (id) => {
+    if (!id) { setCtx(null); return }
+    const r = await api('/api/context?conv=' + id + '&profile=' + encodeURIComponent(profile)).catch(() => null)
+    setCtx(r && !r.error ? r : null)
+  }
+
   const loadShotStats = async () => {
     const r = await api('/api/shots/stats').catch(() => null)
     if (r) setShotInfo(`当前 ${r.count} 张，占用 ${r.size_mb.toFixed(1)} MB`)
@@ -488,6 +499,7 @@ export default function App() {
     const c = await api('/api/conv/' + id)
     setMsgs(normalize(c.messages || [])); setTitle(c.title || '会话')
     scrollToBottom()   // 进入会话定位到最新消息
+      loadCtx(id)
     // 后台仍在跑？轮询直到结束（刷新页面后能"接上"）
     // 单一事实来源：直接请求续传流。没内容/已结束会立刻返回，不会挂着
     attachStream(id)
@@ -607,7 +619,7 @@ export default function App() {
         if (cur) { const cc = await api('/api/conv/' + cur).catch(() => null); if (cc) setMsgs(normalize(cc.messages || [])) }
       }
       else setStatus('✗ ' + e.message + '（可重试）')
-    } finally { abortRef.current = null; setBusy(false); refresh() }   // 中断/报错也刷新列表，避免会话"看不见"
+    } finally { abortRef.current = null; setBusy(false); refresh(); loadCtx(cur) }   // 中断/报错也刷新列表，避免会话"看不见"
   }
 
   const act = async (kind, id, e) => {
@@ -772,7 +784,17 @@ export default function App() {
               </div>
             )}
           </div>
-          <div className="status" onWheel={onComposerWheel}>{status}</div>
+          <div className="status" onWheel={onComposerWheel}>
+            <span>{status}</span>
+            {ctx ? (
+              <span className={'ctx' + (ctx.pct >= 80 ? ' hot' : ctx.pct >= 50 ? ' warm' : '')}
+                title={'会发给模型的字符数 / 上限（括号内是未压缩的原始体量）'}>
+                上下文 {fmtK(ctx.chars)} / {fmtK(ctx.max)}
+                <span className="ctx-pct">（{ctx.pct.toFixed(1)}%）</span>
+                <span className="ctx-raw">原 {fmtK(ctx.raw)}</span>
+              </span>
+            ) : null}
+          </div>
           <div className="composer" onWheel={onComposerWheel}>
             <div className="row1">
               <span className="eb" style={{ display: 'inline', letterSpacing: '.14em' }}>PROFILE</span>

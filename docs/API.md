@@ -87,3 +87,18 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 消息里只存 `/shots/<name>.png` 路径；发给模型时由 `toWire` 读盘转 data URL。
 自动清理：`settings.shots_auto_clean` + `shots_keep_days`（默认开 + 7 天），
 启动与每小时巡检时执行一次。
+
+## 上下文占用
+
+`GET /api/context?conv=<id>&profile=<name>`
+
+```json
+{"chars":4061, "max":240000, "pct":1.69, "raw":213204, "messages":136, "summary":true}
+```
+
+- `chars` 是**实际会发给模型的字符数**（已按 keep_messages 压缩、已含 system 与摘要）
+- `max` 是上限（`AGENTD_MAX_PROMPT_CHARS`，默认 240000），超过即中止该轮并提示新开会话
+- `raw` 是未压缩的原始体量（消息正文 + 思考），用于判断"对话本身有多大"
+- `summary` 表示该会话已有压缩摘要
+
+前端在状态栏显示：`上下文 4.1k / 240k（1.7%） 原 213k`，50% 起变灰、80% 起变深并加粗。

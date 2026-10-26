@@ -97,6 +97,35 @@ func (s *Server) Handler() http.Handler {
 		}
 		writeJSON(w, 200, map[string]any{"count": n, "size_mb": float64(bytes) / 1024 / 1024})
 	})
+	mux.HandleFunc("/api/context", func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("conv")
+		name := r.URL.Query().Get("profile")
+		if name == "" {
+			name = r.URL.Query().Get("p")
+		}
+		prof, ok := config.GetProfile(name)
+		if !ok {
+			writeJSON(w, 400, map[string]string{"error": "需要 profile"})
+			return
+		}
+		ag := agent.New(s.cfg, s.st, prof)
+		c, err := s.st.Get(id)
+		if err != nil {
+			writeJSON(w, 404, map[string]string{"error": err.Error()})
+			return
+		}
+		chars, max := ag.ContextSize(c)
+		raw := 0 // 未压缩时的字符数（给人看真实体量）
+		for _, m := range c.Messages {
+			raw += len([]rune(m.Content)) + len([]rune(m.Reasoning))
+		}
+		pct := 0.0
+		if max > 0 {
+			pct = float64(chars) / float64(max) * 100
+		}
+		writeJSON(w, 200, map[string]any{"chars": chars, "max": max, "pct": pct, "raw": raw,
+			"messages": len(c.Messages), "summary": c.Summary != ""})
+	})
 	mux.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:

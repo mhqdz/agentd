@@ -189,6 +189,7 @@ export default function App() {
   const [readingIdx, setReadingIdx] = useState(0)
   const [peek, setPeek] = useState({ open: false, idx: -1, top: 0 })
   const [shotInfo, setShotInfo] = useState('')
+  const convIdRef = useRef(null)   // 当前会话 id，用于丢弃过期的续流请求
   const [ctx, setCtx] = useState(null)   // 上下文占用 {chars,max,pct,raw}
   const suppressPeekClose = useRef(false)
   const suppressTimer = useRef(null)
@@ -491,6 +492,7 @@ export default function App() {
   }
 
   const openConv = async (id) => {
+    convIdRef.current = id
     setConvId(id)
     // A：会话 id 进 URL，刷新后能回到同一会话（也便于分享/重开）
     if (id) history.replaceState(null, '', '?conv=' + id)
@@ -556,7 +558,13 @@ export default function App() {
       if (cc) setMsgs(normalize(cc.messages || []))
       setSyncing(false); setStatus('已同步'); refresh()
     } catch (e) {
-      setSyncing(false); setStatus('同步失败：' + e.message)
+      setSyncing(false)
+      // 切换会话/刷新导致的 abort、或过期请求：不算失败
+      if (e.name === 'AbortError' || /aborted|network error/i.test(e.message || '') || convIdRef.current !== id) {
+        setStatus('已同步')
+        return
+      }
+      setStatus('同步失败：' + e.message + '（可刷新重试）')
     }
   }
 

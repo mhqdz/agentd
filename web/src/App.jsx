@@ -98,7 +98,8 @@ function normalize(arr) {
       call[tc.id] = { name: tc.function?.name || '工具', args: tc.function?.arguments || '' }
     }
   }
-  return arr.map(m => {
+  return arr.filter(m => !(m.role === 'user' && (m.images || []).length && /^（上一个工具的截图/.test(m.content || '')))
+    .map(m => {
     if (m.role === 'tool') {
       const c = call[m.tool_call_id] || {}
       return { ...m, toolName: c.name, toolArgs: c.args }
@@ -744,6 +745,7 @@ export default function App() {
                           <div style={{ fontSize: '.72rem', color: 'var(--ink3)', marginBottom: '.2rem' }}>
                             {(m.toolName || '工具') + (m.toolArgs ? ' · ' + String(m.toolArgs).slice(0, 120) : '')}
                           </div>
+                          {(m.images || []).map((u, k) => <img key={k} className="msg-img" src={u} alt="tool" />)}
                           {(m.content || '').length > 300 ? (
                             <details className="fold">
                               <summary>输出 · {String(m.content).length} 字</summary>
@@ -754,7 +756,7 @@ export default function App() {
                           )}
                         </div>
                       ) : null}
-                      {(m.images || []).map((u, k) => <img key={k} src={u} style={{ maxWidth: '100%', marginTop: '.5rem', border: '1px solid var(--line)' }} />)}
+                      {(m.images || []).map((u, k) => <img key={k} className="msg-img" src={u} alt="image" />)}
                     </div>
                   </div>
                 ))}

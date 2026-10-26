@@ -358,15 +358,16 @@ export default function App() {
     let h = el.scrollHeight + 2
     if (el.classList.contains('set-area')) {
       // 上限来自卡片自身的 max-height（由 CSS 决定，宽窄屏一致），减去标题与字数栏
+      // 可用高度 = 容器内容区高度 − 卡片上下留白（padding）− 卡片标题/字数栏 − 边框
       const card = el.closest('.card')
       let cap = Infinity
-      if (card) {
-        const mh = getComputedStyle(card).maxHeight
-        if (mh && mh !== 'none') {
-          const hd = card.querySelector('.card-hd')
-          const ft = card.querySelector('.set-col-foot')
-          cap = parseFloat(mh) - (hd ? hd.offsetHeight : 0) - (ft ? ft.offsetHeight : 0) - 2
-        }
+      if (card && card.parentElement) {
+        const box = card.parentElement
+        const cs = getComputedStyle(box)
+        const inner = box.clientHeight - parseFloat(cs.paddingTop || 0) - parseFloat(cs.paddingBottom || 0)
+        const hd = card.querySelector('.card-hd')
+        const ft = card.querySelector('.set-col-foot')
+        cap = inner - (hd ? hd.offsetHeight : 0) - (ft ? ft.offsetHeight : 0) - 4
       }
       el.style.overflowY = h > cap ? 'auto' : 'hidden'
       h = Math.min(h, Math.max(160, cap))

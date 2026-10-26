@@ -939,7 +939,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 /* ═══ 窄屏设置：更紧凑 + 三级填满可用高度（提升小屏可读性）═══ */
 @media (max-width:1399px){
   .set-hd{flex:0 0 40px;padding:0 .7rem}
-  .set-cols{padding:.35rem .45rem .6rem}
+  .set-cols{padding:.5rem .45rem}
   .set-cols .card-hd{padding:.5rem .7rem .45rem;font-size:.68rem}
   .set-cols .card-bd{padding:.6rem .7rem;gap:.55rem}
   .set-cols .field>span{font-size:.68rem}
@@ -951,13 +951,13 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   .set-cols .card .set-col-foot{padding:.35rem .7rem}
 
   /* 卡片统一高度上限：不超过可视区域，内容短就短、长则框内滚动 */
-  .set-cols .card{max-height:calc(100vh - 36px - .9rem)}
+  .set-cols .card{max-height:100%}
   .set-cols .col-editor .set-area{max-height:none}
 }
 
 /* 宽屏同样：卡片不超过可视高度 */
 @media (min-width:1400px){
-  .set-cols .card{max-height:calc(100vh - .9rem)}
+  .set-cols .card{max-height:100%}
 }
 
 /* 显隐：.icon-x 自身 display:grid 会盖掉 .narrow-only，这里显式声明 */

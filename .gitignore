@@ -1,0 +1,5 @@
+agentd
+*.log
+node_modules/
+/tmp/
+web/dist/

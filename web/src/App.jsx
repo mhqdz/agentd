@@ -624,6 +624,15 @@ export default function App() {
       }
       await refresh(); if (cur) await openConv(cur)
     } catch (e) {
+        // 不是用户主动停：若后端仍在跑，说明只是流断了 → 重新接上（而不是假装结束）
+        if (!aborted && cur) {
+          const rr = await api('/api/running').catch(() => [])
+          if ((rr || []).includes(String(cur))) {
+            setStatus('连接断开，正在重连…')
+            await attachStream(cur)
+            return
+          }
+        }
       if (e.name === 'AbortError') {
         setStatus('已停止')
         if (cur) { const cc = await api('/api/conv/' + cur).catch(() => null); if (cc) setMsgs(normalize(cc.messages || [])) }

@@ -414,6 +414,26 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 	}
 
+	// 心跳：工具执行可能几十秒没有任何帧，不加心跳连接会被浏览器/系统判为空闲断掉 ✗
+	// 只写注释帧 ": ping"，不会进入事件流解析（前端忽略）
+	stopBeat := make(chan struct{})
+	go func() {
+		t := time.NewTicker(5 * time.Second)
+		defer t.Stop()
+		for {
+			select {
+			case <-stopBeat:
+				return
+			case <-t.C:
+				sendMu.Lock()
+				fmt.Fprint(w, ": ping\n\n")
+				flusher.Flush()
+				sendMu.Unlock()
+			}
+		}
+	}()
+	defer close(stopBeat)
+
 	ag := s.a
 	set := config.LoadSettings()
 	if set.ToolRoundsEnabled {

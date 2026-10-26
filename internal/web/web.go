@@ -44,6 +44,11 @@ func New(cfg config.Config, a *agent.Agent, st store.Store) *Server {
 
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/shots/", func(w http.ResponseWriter, r *http.Request) {
+		home, _ := os.UserHomeDir()
+		w.Header().Set("Cache-Control", "no-store")
+		http.FileServer(http.Dir(filepath.Join(home, ".data", "agentd"))).ServeHTTP(w, r)
+	})
 	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 200, map[string]any{"ok": true, "model": s.cfg.Model, "base_url": s.cfg.BaseURL})
 	})

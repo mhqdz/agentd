@@ -3,7 +3,6 @@ package tools
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -159,22 +158,23 @@ func runBash(ctx context.Context, args map[string]any, _ *Env) (any, error) {
 
 func runScreenshot(ctx context.Context, args map[string]any, _ *Env) (any, error) {
 	_ = strings.TrimSpace(str(args, "question")) // 参数保留但不再回显（问题已在用户消息里）
-	img := filepath.Join("/tmp", fmt.Sprintf("agentd-shot-%d.png", time.Now().UnixNano()))
+	home, _ := os.UserHomeDir()
+	dir := filepath.Join(home, ".data", "agentd", "shots")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return "✗ 建截图目录失败：" + err.Error(), nil
+	}
+	name := fmt.Sprintf("%d.png", time.Now().UnixNano())
+	img := filepath.Join(dir, name)
 	env := append(os.Environ(), "XDG_RUNTIME_DIR=/run/user/"+fmt.Sprint(os.Getuid()), "WAYLAND_DISPLAY=wayland-1")
 	grim := exec.CommandContext(ctx, "grim", img)
 	grim.Env = env
 	if err := grim.Run(); err != nil {
 		return "✗ 截图失败：" + err.Error(), nil
 	}
-	defer os.Remove(img)
-	b, err := os.ReadFile(img)
-	if err != nil {
-		return "✗ 读截图失败：" + err.Error(), nil
-	}
-	// 返回 content parts：文本 + 图片。上层（llm/web）按需展开。
+	// 消息里只存 URL（前端/模型侧都用它）；读盘转 data URL 由 toWire 负责 ✓
 	return []map[string]any{
 		{"type": "text", "text": "截屏完成：当前屏幕截图如下。"},
-		{"type": "image", "url": "data:image/png;base64," + base64.StdEncoding.EncodeToString(b)},
+		{"type": "image", "url": "/shots/" + name},
 	}, nil
 }
 

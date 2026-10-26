@@ -2,9 +2,12 @@ package agent
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -224,7 +227,7 @@ func toWire(msgs []store.Message, reg map[string]*tools.Spec) ([]llm.Message, bo
 		if len(m.Images) > 0 {
 			parts := []map[string]any{{"type": "text", "text": m.Content}}
 			for _, img := range m.Images {
-				parts = append(parts, map[string]any{"type": "image_url", "image_url": map[string]string{"url": img}})
+				parts = append(parts, map[string]any{"type": "image_url", "image_url": map[string]string{"url": inlineImage(img)}})
 			}
 			content = parts
 		}
@@ -395,4 +398,20 @@ func wireLen(v any) int {
 		return n
 	}
 	return 0
+}
+
+// inlineImage：把 /shots/… 读成 data URL；本来就是 data: 的原样返回
+func inlineImage(img string) string {
+	if strings.HasPrefix(img, "data:") || img == "" {
+		return img
+	}
+	if strings.HasPrefix(img, "/shots/") {
+		home, _ := os.UserHomeDir()
+		b, err := os.ReadFile(filepath.Join(home, ".data", "agentd", img))
+		if err != nil {
+			return ""
+		}
+		return "data:image/png;base64," + base64.StdEncoding.EncodeToString(b)
+	}
+	return img
 }

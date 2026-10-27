@@ -398,6 +398,14 @@ export default function App() {
 
 
   // 缩略图导航：悬停 36/36 → 右侧栏左侧弹出 5 条，中心对应当前阅读位置
+  // 实时消息（还没落库）没有 seq：用 maxSeq+序号 给个临时编号，保证列表编号连续
+  const maxSeq = msgs.reduce((a, m) => Math.max(a, m.seq || 0), 0)   // 含工具消息，避免编号撞号
+  const liveNo = new Map()
+  {
+    let n = maxSeq
+    for (const m of visible) if (!m.seq) liveNo.set(m, ++n)
+  }
+
   const idxOfSeq = (seq) => visible.findIndex(m => (m.seq || 0) === seq)
   const curIdx = () => {
     return Math.max(0, Math.min(visible.length - 1, (readingIdx || 1) - 1))
@@ -592,7 +600,13 @@ export default function App() {
             let d = {}; try { d = JSON.parse(data) } catch { }
             if (ev === 'reasoning') { live.reasoning += d.text || ''; push() }
             else if (ev === 'delta') { live.content += d.text || ''; push() }
-            else if (ev === 'tool') { live.tools.push(d); push() }
+            else if (ev === 'tool') {
+              const doneLive = { ...live }
+              live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
+              setMsgs(m => [...m.filter(x => !x.__live), doneLive,
+                { role: 'tool', toolName: d.name, toolArgs: d.args, content: d.text || '', at: now(), __liveTool: true }])
+              push()
+            }
               else if (ev === 'usage') { if (d.tps > 0) setTps(d.tps) }
           }
         }
@@ -626,7 +640,7 @@ export default function App() {
         signal: ac.signal,
       })
       const reader = resp.body.getReader(); const dec = new TextDecoder()
-      let buf = '', asst = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
+      let buf = '', asst = { role: 'assistant', content: '', reasoning: '', at: now() }
       const push = () => setMsgs(m => [...m.filter(x => !x.__live), { ...asst, tools: [...asst.tools], __live: true }])
       for (;;) {
         const { value, done } = await reader.read(); if (done) break
@@ -652,7 +666,14 @@ export default function App() {
             push()
           }
           else if (ev === 'delta') { asst.content += d.text || ''; push() }
-          else if (ev === 'tool') { asst.tools.push(d); push() }
+          else if (ev === 'tool') {
+            // 当前轮定稿（保留正文/思考），工具结果单独成气泡，再开新一轮，避免"只看到一块"
+            const doneAsst = { ...asst }
+            asst = { role: 'assistant', content: '', reasoning: '', at: now() }
+            setMsgs(m => [...m.filter(x => !x.__live), doneAsst,
+              { role: 'tool', toolName: d.name, toolArgs: d.args, content: d.text || '', at: now(), __liveTool: true }])
+            push()
+          }
           else if (ev === 'error') { asst.content += '\n✗ ' + (d.error || ''); push() }
           else if (ev === 'interject') { setStatus('模型已收到插话：' + (d.text || '').slice(0, 30)) }
           else if (ev === 'done') { setSecs(d.secs); setStatus(`完成 · ${(d.secs || 0).toFixed(1)}s`) }
@@ -858,7 +879,7 @@ export default function App() {
                         <span className={'av' + (m.role === 'user' ? ' u' : m.role === 'tool' ? ' t' : '')}>{m.role === 'user' ? '用' : m.role === 'tool' ? 'T' : '◈'}</span>
                         <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? (m.toolName || '工具') : 'Agent'}</b>
                         {m.interject ? <span className="ef-tag">插话</span> : null}
-                        {m.seq ? <span className="ef-tag">No.{String(m.seq).padStart(3, '0')}</span> : null}
+                        {(m.seq || liveNo.get(m)) ? <span className="ef-tag">No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}</span> : null}
                         <span className="ef-field">{m.at || ''}</span>
                         {m.role === 'assistant' && m.content ? (
                           <span className="mact" onClick={() => navigator.clipboard?.writeText(m.content)}>复制</span>

@@ -903,10 +903,14 @@ export default function App() {
                           <pre className="think">{m.reasoning}</pre>
                           <button className="fold-close" onClick={e => {
                             const d = e.currentTarget.closest('details')
-                            const sum = d && d.querySelector('summary')
+                            const box = d && d.closest('.msg')
                             if (d) d.open = false
-                            // 收起后回到"思考过程 · N 字"这一行，不用再往回滚
-                            if (sum) requestAnimationFrame(() => sum.scrollIntoView({ block: 'nearest' }))
+                            // 收起后回到这条消息的开头（比"思考过程"那一行再高一点）
+                            if (box) requestAnimationFrame(() => {
+                              box.scrollIntoView({ block: 'start' })
+                              const th = threadRef.current
+                              if (th) th.scrollTop -= 12
+                            })
                           }}>
                             <span className="arw"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="square"/></svg></span>
                             收起思考

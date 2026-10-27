@@ -562,7 +562,7 @@ export default function App() {
     let live = { role: 'assistant', content: '', reasoning: '', at: now() }
     const push = () => setMsgs(m => {
       const kept = trimDup(m.filter(x => !x.__live), live)
-      return [...kept, { ...live, tools: [...live.tools], __live: true }]
+      return [...kept, { ...live, __live: true }]
     })
     let done = false
     const finish = async (msg) => {
@@ -645,7 +645,7 @@ export default function App() {
       })
       const reader = resp.body.getReader(); const dec = new TextDecoder()
       let buf = '', asst = { role: 'assistant', content: '', reasoning: '', at: now() }
-      const push = () => setMsgs(m => [...m.filter(x => !x.__live), { ...asst, tools: [...asst.tools], __live: true }])
+      const push = () => setMsgs(m => [...m.filter(x => !x.__live), { ...asst, __live: true }])
       for (;;) {
         const { value, done } = await reader.read(); if (done) break
         buf += dec.decode(value, { stream: true })

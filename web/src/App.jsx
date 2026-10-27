@@ -877,7 +877,7 @@ export default function App() {
               <div className="col">
                 {msgs.map((m, i) => isSysNote(m) ? (
                   <div key={i} className="sysnote">
-                    {(m.seq || liveNo.get(m)) ? <span className="sysnote-no">{String(m.seq || liveNo.get(m)).padStart(3, '0')}</span> : null}
+                    {(m.seq || liveNo.get(m)) ? <span className="sysnote-no">[No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}]</span> : null}
                     <span className="sysnote-t">{m.content}</span>
                     <span className="sysnote-line" />
                   </div>

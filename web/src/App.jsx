@@ -901,7 +901,13 @@ export default function App() {
                             (m.reasoning_ms || (m.rsecs ? m.rsecs * 1000 : 0))
                               ? ' · ' + ((m.reasoning_ms || m.rsecs * 1000) / 1000).toFixed(1) + 's' : ''}</summary>
                           <pre className="think">{m.reasoning}</pre>
-                          <button className="fold-close" onClick={e => { const d = e.currentTarget.closest('details'); if (d) d.open = false }}>
+                          <button className="fold-close" onClick={e => {
+                            const d = e.currentTarget.closest('details')
+                            const sum = d && d.querySelector('summary')
+                            if (d) d.open = false
+                            // 收起后回到"思考过程 · N 字"这一行，不用再往回滚
+                            if (sum) requestAnimationFrame(() => sum.scrollIntoView({ block: 'nearest' }))
+                          }}>
                             <span className="arw"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="square"/></svg></span>
                             收起思考
                           </button>

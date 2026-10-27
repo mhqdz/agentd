@@ -95,7 +95,7 @@ body{background:var(--paper);color:var(--ink);
 .msg .mact{opacity:0;cursor:pointer;font-size:.66rem;border:1px solid var(--line);padding:0 .3rem;color:var(--ink2)}
 .msg:hover .mact{opacity:1}
 .prose,.ef-prose{white-space:pre-wrap;word-break:break-word;margin:.15rem 0;font-size:15px;line-height:1.78}
-.think{border-left:2px solid var(--line);padding-left:.7rem;margin:.3rem 0 .2rem;color:var(--ink2);
+.think{margin:.3rem 0 .2rem;color:var(--ink2);
   font-size:.78rem;line-height:1.85;white-space:pre-wrap;max-height:none;overflow:visible}
 .fold{border-left:2px solid var(--line);margin:.35rem 0 .6rem;padding-left:.7rem}
 .fold>summary{cursor:pointer;font-size:.7rem;letter-spacing:.1em;color:var(--ink3);list-style:none}
@@ -972,7 +972,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .sysnote{position:relative;display:flex;align-items:center;gap:.55rem;
   margin:.15rem 0 1rem;padding:.38rem .8rem .38rem .85rem;max-width:var(--colw,960px);
   color:var(--c5);font-size:.72rem;letter-spacing:.03em;line-height:1.75;
-  background:linear-gradient(90deg,rgba(196,206,207,.28),rgba(196,206,207,.06) 55%,transparent)}
+  background:rgba(196,206,207,.14)}
 .sysnote::before,.sysnote::after{content:"";position:absolute;width:6px;height:6px;
   border:0 solid var(--c4);pointer-events:none}
 .sysnote::before{left:0;top:0;border-left-width:2px;border-top-width:2px}
@@ -981,15 +981,14 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   font-variant-numeric:tabular-nums;font-weight:500}
 .sysnote-no{margin-right:.1rem}
 .sysnote-t{min-width:0;overflow-wrap:anywhere;color:var(--c6)}
-.sysnote-line{flex:1 1 auto;height:1px;background:linear-gradient(90deg,var(--c3),transparent)}
+.sysnote-line{flex:1 1 auto;height:1px;background:var(--c3)}
 
 /* 思考正文底部的收起条：细线 + 小箭头，风格克制（终末地：线/角标，不用彩色） */
 .fold-close{display:flex;align-items:center;gap:.5rem;width:100%;margin:.15rem 0 .6rem;
   padding:.25rem 0 .2rem;background:none;border:0;cursor:pointer;
   color:var(--c4);font:inherit;font-size:.66rem;letter-spacing:.14em;
   border-top:1px solid var(--line);transition:color .12s}
-.fold-close::after{content:"";flex:1 1 auto;height:1px;
-  background:linear-gradient(90deg,var(--c3),transparent)}
+.fold-close::after{content:"";flex:1 1 auto;height:0}
 .fold-close .arw{display:inline-grid;place-items:center;width:14px;height:14px;
   color:var(--c4);transition:color .12s,transform .14s ease}
 .fold-close .arw svg{width:11px;height:11px}

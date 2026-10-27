@@ -965,3 +965,7 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .title-actions .btn.save:hover{border-color:var(--c7);background:var(--c1);color:var(--c7)}
 .title-actions .btn.save::before,.title-actions .btn.save::after{border-color:var(--c6)}
 .title-actions .btn.save:hover::before,.title-actions .btn.save:hover::after{border-color:var(--c7)}
+
+/* 系统级提示（工具轮次上限 / 已停止 / 中断）：一行灰字，不占编号、不套气泡 */
+.sysnote{margin:.1rem 0 .9rem;padding:.3rem 0 .3rem .9rem;max-width:var(--colw,960px);
+  border-left:2px solid var(--c3);color:var(--c5);font-size:.72rem;letter-spacing:.02em;line-height:1.7}

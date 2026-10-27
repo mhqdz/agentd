@@ -976,6 +976,9 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   border:0 solid var(--c4);pointer-events:none}
 .sysnote::before{left:0;top:0;border-left-width:2px;border-top-width:2px}
 .sysnote::after{right:0;bottom:0;border-right-width:2px;border-bottom-width:2px}
-.sysnote .ef-tag{flex:0 0 auto;background:var(--c4);color:#fff;letter-spacing:.06em}
+.sysnote-no{flex:0 0 auto;color:var(--c3);font-size:.62rem;letter-spacing:.12em;
+  font-variant-numeric:tabular-nums;font-weight:500}
+.sysnote-no::after{content:"";display:inline-block;width:1px;height:.72em;margin-left:.55rem;
+  vertical-align:-1px;background:var(--c3)}
 .sysnote-t{min-width:0;overflow-wrap:anywhere;color:var(--c6)}
 .sysnote-line{flex:1 1 auto;height:1px;background:linear-gradient(90deg,var(--c3),transparent)}

@@ -967,8 +967,15 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .title-actions .btn.save:hover::before,.title-actions .btn.save:hover::after{border-color:var(--c7)}
 
 /* 系统级提示（工具轮次上限 / 已停止 / 中断）：一行灰字，不占编号、不套气泡 */
-.sysnote{display:flex;align-items:baseline;gap:.5rem;margin:.1rem 0 .9rem;padding:.3rem 0 .3rem .9rem;
-  max-width:var(--colw,960px);border-left:2px solid var(--c3);
-  color:var(--c5);font-size:.72rem;letter-spacing:.02em;line-height:1.7}
-.sysnote .ef-tag{flex:0 0 auto}
-.sysnote-t{min-width:0;overflow-wrap:anywhere}
+/* 系统级提示（终末地风格）：无气泡，四角角标 + 渐隐底 + 尾部细线 */
+.sysnote{position:relative;display:flex;align-items:center;gap:.55rem;
+  margin:.15rem 0 1rem;padding:.38rem .8rem .38rem .85rem;max-width:var(--colw,960px);
+  color:var(--c5);font-size:.72rem;letter-spacing:.03em;line-height:1.75;
+  background:linear-gradient(90deg,rgba(196,206,207,.28),rgba(196,206,207,.06) 55%,transparent)}
+.sysnote::before,.sysnote::after{content:"";position:absolute;width:6px;height:6px;
+  border:0 solid var(--c4);pointer-events:none}
+.sysnote::before{left:0;top:0;border-left-width:2px;border-top-width:2px}
+.sysnote::after{right:0;bottom:0;border-right-width:2px;border-bottom-width:2px}
+.sysnote .ef-tag{flex:0 0 auto;background:var(--c4);color:#fff;letter-spacing:.06em}
+.sysnote-t{min-width:0;overflow-wrap:anywhere;color:var(--c6)}
+.sysnote-line{flex:1 1 auto;height:1px;background:linear-gradient(90deg,var(--c3),transparent)}

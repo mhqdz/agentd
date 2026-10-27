@@ -879,6 +879,7 @@ export default function App() {
                   <div key={i} className="sysnote">
                     {(m.seq || liveNo.get(m)) ? <span className="ef-tag">No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}</span> : null}
                     <span className="sysnote-t">{m.content}</span>
+                    <span className="sysnote-line" />
                   </div>
                 ) : (
                   <div key={i} data-vidx={m.role === 'tool' ? undefined : (visible.findIndex(v => v === m) + 1)}

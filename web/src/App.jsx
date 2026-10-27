@@ -876,7 +876,10 @@ export default function App() {
             ) : (
               <div className="col">
                 {msgs.map((m, i) => isSysNote(m) ? (
-                  <div key={i} className="sysnote">{m.content}</div>
+                  <div key={i} className="sysnote">
+                    {(m.seq || liveNo.get(m)) ? <span className="ef-tag">No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}</span> : null}
+                    <span className="sysnote-t">{m.content}</span>
+                  </div>
                 ) : (
                   <div key={i} data-vidx={m.role === 'tool' ? undefined : (visible.findIndex(v => v === m) + 1)}
                       className={'msg ef-panel cut-tl ' + m.role}>

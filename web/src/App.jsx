@@ -555,7 +555,7 @@ export default function App() {
   const attachStream = async (id) => {
     const sleep = (ms) => new Promise(r => setTimeout(r, ms))
     const running = async () => ((await api('/api/running').catch(() => [])) || []).includes(String(id))
-    const live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
+    let live = { role: 'assistant', content: '', reasoning: '', at: now() }
     const push = () => setMsgs(m => {
       const kept = trimDup(m.filter(x => !x.__live), live)
       return [...kept, { ...live, tools: [...live.tools], __live: true }]

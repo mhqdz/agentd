@@ -983,12 +983,12 @@ export default function App() {
                 onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
                 {(editField || toolEdit) ? (
                   <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
-                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button><span className="ef-label"><span className="ef-label-t">{toolEdit ? ('工具说明 · ' + toolEdit.name) : '系统提示'}</span></span>
+                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button><span className="ef-label"><span className="ef-label-t">{toolEdit ? ('tool · ' + toolEdit.name) : 'system'}</span></span>
                         <span style={{ flex: 1 }} />
                         {narrow ? dirtyActions : null}</div>
                     <textarea ref={el => { if (el) autoGrow(el) }} className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
                       onInput={e => autoGrow(e.target)}
-                      placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的系统提示…'}
+                      placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的 system 提示…'}
                       onChange={e => {
                         if (toolEdit) setToolEdit({ ...toolEdit, description: e.target.value })
                         else setEditP({ ...editP, [editField]: e.target.value })
@@ -1066,7 +1066,7 @@ export default function App() {
                         </div>
                       </div>
                       <div className="item" onClick={() => { setEditOriginal(editP.system || ''); setEditField('system'); setToolEdit(null) }}>
-                        <span className="item-title">系统提示</span>
+                        <span className="item-title">system</span>
                         <span className="item-desc">{editP.system || '（空）'}</span>
                       </div>
                       {!editP._new ? (

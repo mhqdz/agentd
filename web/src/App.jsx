@@ -258,7 +258,7 @@ export default function App() {
     if (!r.ok) { setStatus('✗ 插话失败'); return }
     setText('')
     setMsgs(m => [...m, { role: 'user', content: t, at: now(), interject: true }])
-    setStatus('已插话：有工具轮次时本轮生效，否则下一轮生效')
+    setStatus('已插话')
   }
 
   // 停止生成：中断 fetch → 后端 r.Context() 被取消 → 上游请求结束

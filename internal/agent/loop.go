@@ -97,6 +97,25 @@ func (a *Agent) compactAt() int {
 	return a.maxChars() * a.CompactPct() / 100
 }
 
+// flushInterjects：把队列中尚未消费的插话落库（作为 user 消息）。
+// 场景：本轮没有工具轮次可插入，插话没有机会被 Drain ✓ 不落库就会丢/延迟到下一次请求。
+func (a *Agent) flushInterjects(c *store.Conversation) {
+	if a.Drain == nil {
+		return
+	}
+	n := 0
+	for _, t := range a.Drain() {
+		if strings.TrimSpace(t) == "" {
+			continue
+		}
+		c.Messages = append(c.Messages, store.Message{Role: "user", Content: t})
+		n++
+	}
+	if n > 0 {
+		_ = a.st.Save(c)
+	}
+}
+
 // SendWithTools 带上工具跑一轮（含多轮工具调用）。并行执行同一轮里的多个工具。
 func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text string,
 	onDelta func(content, reasoning string), onTool func(name, args string, result any)) error {
@@ -248,12 +267,17 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				c.Messages = append(c.Messages, store.Message{Role: "assistant", Content: strings.TrimSpace(note)})
 			}
 			_ = a.st.Save(c) // 中断也要留住上下文（用户消息 / 已完成的工具轮次）
+			a.flushInterjects(c)
 			return err
 		}
 		if len(calls) == 0 {
 			c.Messages = append(c.Messages, store.Message{
 				Role: "assistant", Content: strings.TrimSpace(content.String()), Reasoning: reasoning.String(), ReasoningMs: reasonMs})
-			return a.st.Save(c)
+			if err := a.st.Save(c); err != nil {
+				return err
+			}
+			a.flushInterjects(c) // 本轮没有工具轮次 → 未消费的插话落库，下轮可见
+			return nil
 		}
 		// 跑飞检测：连续 3 轮调用完全相同的工具与参数 → 视为空转，收尾并说明
 		if len(calls) > 0 {
@@ -326,6 +350,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 	if err := a.st.Save(c); err != nil {
 		return err
 	}
+	a.flushInterjects(c)
 	if onDelta != nil {
 		onDelta(note, "")
 	}

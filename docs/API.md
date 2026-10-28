@@ -95,7 +95,13 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
  "command":["~/Workspace/agentd/scripts/tools/kb_get"],"timeoutMs":20000}
 ```
 
-调用约定：直接 exec（不经 shell）；参数以 `AGENTD_ARG_<NAME>` 环境变量传入（数组用换行连接），
+常驻形态：清单加 `"persistent": true` → 进程只启动一次，走 JSON-RPC 2.0 over stdio
+（`initialize` / `tools/list` / `tools/call`），**一个进程可以暴露多个工具**（与 MCP 同构）。
+`tools/list` 返回的 `{name,description,params,required}` 会覆盖清单里的同名字段；
+结果支持 `{"content":[{"type":"text","text":…},{"type":"image","url":"data:…"}]}`。
+示例：`scripts/tools/demo_persist.py` + `scripts/tools.d/demo_persist.json.example`。
+
+一次性形态：直接 exec（不经 shell）；参数以 `AGENTD_ARG_<NAME>` 环境变量传入（数组用换行连接），
 stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 `{"text":…,"images":[…]}`。
 可用性仍由 `profiles.json.tools` 决定。
 

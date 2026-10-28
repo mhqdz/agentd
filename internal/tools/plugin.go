@@ -33,6 +33,7 @@ type manifest struct {
 	Required    []string          `json:"required"`
 	Command     []string          `json:"command"`
 	TimeoutMs   int               `json:"timeoutMs"`
+	Persistent  bool              `json:"persistent"` // true = 常驻进程，JSON-RPC over stdio
 	Env         map[string]string `json:"env"`
 }
 
@@ -61,6 +62,45 @@ func LoadPlugins(dir string) (map[string]*Spec, []string) {
 		}
 		if strings.TrimSpace(m.Name) == "" || len(m.Command) == 0 {
 			warns = append(warns, fmt.Sprintf("%s: 缺少 name 或 command", e.Name()))
+			continue
+		}
+		if m.Persistent {
+			p, tl, err := ensureProc(m, path)
+			if err != nil {
+				warns = append(warns, fmt.Sprintf("%s: 常驻插件启动失败: %v", e.Name(), err))
+				continue
+			}
+			for _, t := range tl {
+				name := t.Name
+				if name == "" {
+					name = m.Name
+				}
+				params := t.Params
+				if len(params) == 0 {
+					params = m.Params
+				}
+				req := t.Required
+				if len(req) == 0 {
+					req = m.Required
+				}
+				desc := t.Description
+				if desc == "" {
+					desc = m.Description
+				}
+				proc, toolName := p, name
+				out[name] = &Spec{
+					Name: name, Description: desc, Params: params, Required: req,
+					Source: "plugin", Path: path,
+					Run: func(ctx context.Context, args map[string]any, _ *Env) (any, error) {
+						for _, k := range req {
+							if args[k] == nil || strings.TrimSpace(fmt.Sprint(args[k])) == "" {
+								return "[error] 缺少参数 " + k, nil
+							}
+						}
+						return proc.callTool(ctx, toolName, args)
+					},
+				}
+			}
 			continue
 		}
 		sp := &Spec{

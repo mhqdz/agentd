@@ -23,6 +23,7 @@ import (
 	"agentd/internal/llm"
 	"agentd/internal/logx"
 	"agentd/internal/store"
+	"agentd/internal/tools"
 	"agentd/internal/web"
 )
 
@@ -82,6 +83,7 @@ func main() {
 			ch := make(chan os.Signal, 1)
 			signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 			<-ch
+			tools.ShutdownPlugins()
 			if n := s.CancelAll(); n > 0 {
 				logx.Info("shutdown cancel_running=%d", n)
 				time.Sleep(3 * time.Second)

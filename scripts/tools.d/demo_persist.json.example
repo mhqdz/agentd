@@ -1,0 +1,7 @@
+{
+  "name": "demo_persist",
+  "description": "常驻插件示例（JSON-RPC over stdio）：一个进程暴露多个工具",
+  "command": ["~/Workspace/agentd/scripts/tools/demo_persist.py"],
+  "persistent": true,
+  "timeoutMs": 5000
+}

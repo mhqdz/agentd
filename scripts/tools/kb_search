@@ -1,0 +1,5 @@
+#!/bin/bash
+# 外置插件：kb search（参数来自 AGENTD_ARG_*）
+set -o pipefail
+n="${AGENTD_ARG_MAX_RESULTS:-5}"
+exec "$HOME/.local/bin/kb" search "$AGENTD_ARG_QUERY" -n "$n"

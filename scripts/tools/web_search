@@ -1,0 +1,5 @@
+#!/bin/bash
+set -o pipefail
+args=("search" "$AGENTD_ARG_QUERY" "-n" "${AGENTD_ARG_N:-8}")
+[ -n "$AGENTD_ARG_TIME_RANGE" ] && args+=(--range "$AGENTD_ARG_TIME_RANGE")
+exec "$HOME/.local/bin/websvc" "${args[@]}"

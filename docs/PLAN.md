@@ -1,11 +1,13 @@
 # agentd 计划与待办
 
-## 一、工具/插件体系（设计已定，暂不实现）
+## 一、工具/插件体系（已实现 · 2026-10-28）
 
 现状：工具全部是 Go 内置（`internal/tools/tools.go` 的 `Registry()`，一条 Spec = name/description/
 JSON Schema/Required/Run）。加工具必须改代码 + 重新编译。
 
-决策（2026-10-25）：**不引入插件体系**，保持内置平铺。理由：Go 的 `plugin` 包只有 Linux、
+决策（2026-10-28 更新）：**已引入**，分两层——内置（bash / screenshot / recall，Go 内指定）与
+外置插件（kb_search / kb_get / web_search / web_fetch，清单 + 脚本，`~/.data/agentd/tools.d/*.json`）。
+原先"不引入"的决策（2026-10-25）作废；保留下面的调研结论作为协议依据。理由：Go 的 `plugin` 包只有 Linux、
 要求构建参数完全一致、不能卸载；要达到 DSH（npm 包 + YAML 预设）那种效果只能走"独立进程 + 协议"，
 当前 4 个工具的体量不值得付出这层复杂度。
 

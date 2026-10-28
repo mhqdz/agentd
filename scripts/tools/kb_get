@@ -1,0 +1,3 @@
+#!/bin/bash
+set -o pipefail
+exec "$HOME/.local/bin/kb" get "$AGENTD_ARG_ID"

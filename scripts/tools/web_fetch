@@ -1,0 +1,9 @@
+#!/bin/bash
+set -o pipefail
+args=(fetch)
+# urls 以换行分隔传入
+while IFS= read -r u; do [ -n "$u" ] && args+=("$u"); done <<< "$AGENTD_ARG_URLS"
+[ "$AGENTD_ARG_RAW" = "true" ] && args+=(--raw)
+[ -n "$AGENTD_ARG_OFFSET" ] && args+=(--offset "$AGENTD_ARG_OFFSET")
+[ -n "$AGENTD_ARG_MAX_CHARS" ] && args+=(--max-chars "$AGENTD_ARG_MAX_CHARS")
+exec "$HOME/.local/bin/websvc" "${args[@]}"

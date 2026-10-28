@@ -994,3 +994,8 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .fold-close .arw svg{width:11px;height:11px}
 .fold-close:hover{color:var(--c7)}
 .fold-close:hover .arw{color:var(--c7);transform:translateY(-1px)}
+
+/* 工具来源标记：内置 / 插件 */
+.src-tag{margin-left:.45rem;padding:.02rem .3rem;font-size:.58rem;letter-spacing:.08em;
+  border:1px solid var(--c3);color:var(--c5);vertical-align:1px}
+.src-tag.plugin{border-style:dashed;color:var(--c6)}

@@ -76,6 +76,29 @@ curl -s -N -X POST http://127.0.0.1:18400/api/chat \
 curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 ```
 
+## 工具
+
+`GET /api/tools` → 每个工具含 `name / description / params / source / path`：
+
+```json
+[{"name":"bash","source":"builtin","path":""},
+ {"name":"kb_search","source":"plugin","path":"~/.data/agentd/tools.d/kb_search.json"}]
+```
+
+- `source=builtin`：Go 内置（`internal/tools/tools.go` 里用 Spec 指定），编译期确定
+- `source=plugin`：外置插件（`~/.data/agentd/tools.d/*.json` 清单 + 可执行脚本），改完即生效、无需重编译
+
+清单格式：
+
+```json
+{"name":"kb_get","description":"…","params":{…},"required":["id"],
+ "command":["~/Workspace/agentd/scripts/tools/kb_get"],"timeoutMs":20000}
+```
+
+调用约定：直接 exec（不经 shell）；参数以 `AGENTD_ARG_<NAME>` 环境变量传入（数组用换行连接），
+stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 `{"text":…,"images":[…]}`。
+可用性仍由 `profiles.json.tools` 决定。
+
 ## 截图文件
 
 | 方法 | 路径 | 说明 |

@@ -79,6 +79,12 @@ func LoadPlugins(dir string) (map[string]*Spec, []string) {
 
 func pluginRun(m manifest) func(ctx context.Context, args map[string]any, env *Env) (any, error) {
 	return func(ctx context.Context, args map[string]any, _ *Env) (any, error) {
+		// 必填参数先校验，不白起进程
+		for _, k := range m.Required {
+			if strings.TrimSpace(fmt.Sprint(args[k])) == "" || args[k] == nil {
+				return "[error] 缺少参数 " + k, nil
+			}
+		}
 		argv, err := expandArgv(m.Command, args)
 		if err != nil {
 			return "[error] " + err.Error(), nil

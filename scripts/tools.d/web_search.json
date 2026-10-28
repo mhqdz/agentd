@@ -1,0 +1,31 @@
+{
+  "name": "web_search",
+  "description": "联网搜索（经本机 websvc/SearXNG）。返回标题+URL+摘要；得到结论时在回答末尾列出用到的 URL。",
+  "params": {
+    "query": {
+      "type": "string",
+      "description": "搜索词"
+    },
+    "n": {
+      "type": "integer",
+      "description": "结果条数，默认 8"
+    },
+    "time_range": {
+      "type": "string",
+      "enum": [
+        "day",
+        "week",
+        "month",
+        "year"
+      ],
+      "description": "时间范围"
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "command": [
+    "@REPO@/scripts/tools/web_search"
+  ],
+  "timeoutMs": 60000
+}

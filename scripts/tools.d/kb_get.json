@@ -1,0 +1,17 @@
+{
+  "name": "kb_get",
+  "description": "按 id 读取知识库条目全文（kb_get 返回正文；写之前先 kb_search 找 id）。",
+  "params": {
+    "id": {
+      "type": "string",
+      "description": "条目 id，如 010600"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "command": [
+    "@REPO@/scripts/tools/kb_get"
+  ],
+  "timeoutMs": 20000
+}

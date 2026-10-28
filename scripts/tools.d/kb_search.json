@@ -1,0 +1,21 @@
+{
+  "name": "kb_search",
+  "description": "检索本机知识库（权威事实与经验）。写知识库前先读约定：kb help --write。",
+  "params": {
+    "query": {
+      "type": "string",
+      "description": "关键词"
+    },
+    "max_results": {
+      "type": "integer",
+      "description": "条数，默认 5"
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "command": [
+    "@REPO@/scripts/tools/kb_search"
+  ],
+  "timeoutMs": 20000
+}

@@ -1,0 +1,32 @@
+{
+  "name": "web_fetch",
+  "description": "抓取网页正文（经本机 websvc）。支持批量 URL；截断时会提示剩余字符与下一跳 offset。",
+  "params": {
+    "urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "一个或多个 http(s) 地址"
+    },
+    "raw": {
+      "type": "boolean",
+      "description": "返回原始内容（HTML 等），默认提取正文"
+    },
+    "offset": {
+      "type": "integer",
+      "description": "从第 N 个字符续读"
+    },
+    "max_chars": {
+      "type": "integer",
+      "description": "最多返回多少字符，默认 20000"
+    }
+  },
+  "required": [
+    "urls"
+  ],
+  "command": [
+    "@REPO@/scripts/tools/web_fetch"
+  ],
+  "timeoutMs": 90000
+}

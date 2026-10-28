@@ -480,6 +480,11 @@ export default function App() {
           if (fld) { setEditOriginal(pr[fld] || ''); setEditField(fld) }
         }
       }
+      const tl = q.get('tool')                    // ?tool=kb_search 直接打开工具卡
+      if (tl) {
+        const t = (await api('/api/tools').catch(() => []))?.find(x => x.name === tl)
+        if (t) setToolCfg({ ...t, enabled: true, subtools: [] })
+      }
     })
   }, [])
   useEffect(() => { setOpenRef.current = showSet }, [showSet])
@@ -978,7 +983,7 @@ export default function App() {
           {showSet ? (
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               {toolCfg ? (
-                <div className="card col-tool">
+                <div className={"card col-tool" + (toolCfg && !toolEdit && !editField ? " is-top" : "")}>
                   <div className="card-hd">
                     <span>{'工具配置 · ' + toolCfg.name}</span>
                     <span style={{ flex: 1 }} />
@@ -989,6 +994,21 @@ export default function App() {
                       <span className="item-title">说明</span>
                       <span className="item-desc">{toolCfg.description || '（空）'}</span>
                     </div>
+                    <div className="set-section">来源</div>
+                    <div className="item static">
+                      <span className="item-title">{toolCfg.source === 'plugin' ? '外置插件' : '内置工具'}</span>
+                      <span className="item-desc">{toolCfg.source === 'plugin' ? '清单 + 脚本，改完即生效' : 'Go 内置，改需重编译'}</span>
+                    </div>
+                    {toolCfg.source === 'plugin' ? (
+                      <>
+                        <div className="field"><span>清单</span>
+                          <div className="tool-meta">{toolCfg.path}</div></div>
+                        <div className="field"><span>超时</span>
+                          <div className="tool-meta">{toolCfg.timeout_ms ? toolCfg.timeout_ms + ' ms' : '默认（20s）'}
+                            {toolCfg.persistent ? ' · 常驻进程（JSON-RPC over stdio）' : ' · 一次性进程'}</div></div>
+                      </>
+                    ) : null}
+
                     <div className="set-section">启用情况</div>
                     <div className="item static">
                       <span className="item-title">由 profile 决定</span>

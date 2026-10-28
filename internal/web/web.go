@@ -211,7 +211,8 @@ func (s *Server) Handler() http.Handler {
 		out := make([]map[string]any, 0, len(reg))
 		for _, sp := range reg {
 			out = append(out, map[string]any{"name": sp.Name, "description": sp.Description,
-				"params": sp.Params, "source": sp.Source, "path": sp.Path})
+				"params": sp.Params, "source": sp.Source, "path": sp.Path,
+				"timeout_ms": sp.TimeoutMs, "persistent": sp.Persistent})
 		}
 		sort.Slice(out, func(i, j int) bool { return out[i]["name"].(string) < out[j]["name"].(string) })
 		writeJSON(w, 200, out)

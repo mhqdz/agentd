@@ -81,8 +81,8 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 `GET /api/tools` → 每个工具含 `name / description / params / source / path`：
 
 ```json
-[{"name":"bash","source":"builtin","path":""},
- {"name":"kb_search","source":"plugin","path":"~/.data/agentd/tools.d/kb_search.json"}]
+[{"name":"bash","source":"builtin","path":"","timeout_ms":0,"persistent":false},
+ {"name":"kb_search","source":"plugin","path":"~/.data/agentd/tools.d/kb_search.json","timeout_ms":20000,"persistent":false}]
 ```
 
 - `source=builtin`：Go 内置（`internal/tools/tools.go` 里用 Spec 指定），编译期确定

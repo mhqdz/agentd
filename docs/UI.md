@@ -170,3 +170,26 @@ scripts/ui-test/   WebDriver（geckodriver，无 selenium）驱动 Firefox headl
       任务展开与深链滚动 / 打开会话在底部 / 最后一条消息不被输入框遮挡 / JS 无错误
 截图：/tmp/uitest/*.png（宽屏三卡、工具表单、任务详情、窄屏单卡、编辑卡）
 ```
+
+## 13. 前端架构（2026-10-30 定：方案 A）
+
+```
+数据层（无 JSX）
+  conversation/streamStore.js   流式缓冲，React 之外；useSyncExternalStore 订阅
+  conversation/useConversation  会话 reducer + hooks（消息/上下文/任务）
+展示层（纯组件 + memo）
+  components/MessageCard.jsx    已完成消息（memo：seq/content/reasoning/ms）
+  components/ToolGroup.jsx      工具组（默认收拢）
+  components/SysNote.jsx        系统提示
+  components/Settings/*.jsx     设置卡片
+App.jsx                       只做布局、URL、快捷键、装配
+```
+
+迁移步骤（每步可独立回滚，tag：backup-web-20261030）：
+
+```
+Step 1  流式缓冲移出 React state（streamStore），历史消息不再随 delta 重算
+Step 2  消息卡抽组件 + React.memo（自定义比较）
+Step 3  App 只留装配；设置面板按卡片拆
+验收：流式中每秒渲染 ≤10、只有尾部与状态栏重渲染；500 条会话滚动/新增不掉帧
+```

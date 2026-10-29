@@ -137,7 +137,7 @@ func (a *Agent) flushInterjects(c *store.Conversation) {
 
 // SendWithTools 带上工具跑一轮（含多轮工具调用）。并行执行同一轮里的多个工具。
 func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text string,
-	onDelta func(content, reasoning string), onTool func(name, args string, result any)) error {
+	onDelta func(content, reasoning string), onTool func(name, args string, result any, ms int64)) error {
 	reg := tools.Registry()
 	if len(a.profile.Tools) > 0 {
 		for name := range reg {
@@ -324,6 +324,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		_ = a.st.Save(c) // 工具轮：先落库，再执行（中断也不丢）
 		// 并行执行
 		results := make([]any, len(calls))
+		toolMs := make([]int64, len(calls))
 		var wg sync.WaitGroup
 		for i, call := range calls {
 			wg.Add(1)
@@ -342,13 +343,17 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				if a.OnToolStart != nil {
 					a.OnToolStart(call.Function.Name, call.Function.Arguments)
 				}
+				t0 := time.Now()
 				res, err := spec.Run(ctx, args, &tools.Env{Messages: c.Messages, SpawnTask: a.SpawnTask, FailTask: a.FailTask})
+				ms := time.Since(t0).Milliseconds()
+				toolMs[i] = ms
+				logx.Info("tool.run name=%s ms=%d", call.Function.Name, ms)
 				if err != nil {
 					res = "✗ " + err.Error()
 				}
 				results[i] = res
 				if onTool != nil {
-					onTool(call.Function.Name, call.Function.Arguments, res)
+					onTool(call.Function.Name, call.Function.Arguments, res, ms)
 				}
 			}(i, call)
 			_ = toolMsgs
@@ -357,7 +362,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		for i, call := range calls {
 			textOut, imgs := splitResult(results[i])
 			c.Messages = append(c.Messages, store.Message{
-				Role: "tool", ToolCallID: call.ID, Content: textOut, ToolResult: results[i], Images: imgs})
+				Role: "tool", ToolCallID: call.ID, Content: textOut, ToolResult: results[i], Images: imgs, ToolMs: toolMs[i]})
 			if len(imgs) > 0 {
 				// OpenAI 的 tool 消息不能带图 → 用一条 user 消息把像素喂给模型
 				c.Messages = append(c.Messages, store.Message{

@@ -134,6 +134,8 @@ stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 
 
 `PUT /api/tools/<name> {"description":"…"}`：内置工具写 `tools.json` 覆盖；外置插件直接改清单里的 description。
 
+消息里的工具耗时：`messages.tool_ms`（毫秒，仅 tool 消息有），前端在工具卡头部显示 `· 11ms`。
+
 ## 上下文统计
 
 `GET /api/context?conv=<id>&profile=<name>`
@@ -159,7 +161,7 @@ stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 
 | `reasoning` | `{text}` | 思考增量 |
 | `delta` | `{text}` | 正文增量 |
 | `tool_start` | `{name,args}` | 工具开始执行（前端显示"执行中…"计时卡，长工具不再看起来像卡死） |
-| `tool` | `{name,args,text,image}` | 一次工具调用完成（前端渲染成独立工具气泡） |
+| `tool` | `{name,args,text,image,ms}` | 一次工具调用完成（`ms` 是工具自身的实测耗时） |
 | `interject` | `{text}` | 本轮接收到的插话回显 |
 | `usage` | `{tps,completion,prompt,cached}` | 上游 `usage/timings`（右栏 tok/s 用） |
 | `error` | `{error}` | 本轮失败/被中止 |

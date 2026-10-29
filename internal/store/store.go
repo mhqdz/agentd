@@ -23,7 +23,8 @@ type Message struct {
 	ToolResult  any            `json:"tool_result,omitempty"`
 	Images      []string       `json:"images,omitempty"` // data:image/...;base64（工具返回的图 ✓）
 	CreatedAt   time.Time      `json:"created_at"`
-	Origin      string         `json:"origin,omitempty"` // user | system | timer | handoff
+	Origin      string         `json:"origin,omitempty"`  // user | system | timer | handoff
+	ToolMs      int64          `json:"tool_ms,omitempty"` // 工具执行耗时（tool 消息用）
 }
 
 type Conversation struct {

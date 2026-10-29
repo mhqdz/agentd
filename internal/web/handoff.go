@@ -83,7 +83,7 @@ func (s *Server) runTurn(ctx context.Context, conv int64, text, origin string) e
 	}
 	ag.OnStats = func(llm.Stats) {}
 	ag.MsgOrigin = origin
-	err = ag.SendWithTools(ctx, c, text, func(string, string) {}, func(string, string, any) {})
+	err = ag.SendWithTools(ctx, c, text, func(string, string) {}, func(string, string, any, int64) {})
 	_ = s.st.Save(c)
 	return err
 }
@@ -111,7 +111,7 @@ func (s *Server) runChild(ctx context.Context, parent int64, profileName, card s
 			[]byte(reason+"\n"+evidence), 0o644)
 		return "已记录失败事实", nil
 	}
-	err := ag.SendWithTools(ctx, c, card, func(string, string) {}, func(string, string, any) {})
+	err := ag.SendWithTools(ctx, c, card, func(string, string) {}, func(string, string, any, int64) {})
 	_ = s.st.Save(c)
 	id, _ := strconv.ParseInt(c.ID, 10, 64)
 	last := ""

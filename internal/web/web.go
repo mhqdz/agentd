@@ -577,7 +577,6 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		s.convMu.Unlock()
 	}()
 	start := time.Now()
-	toolStart := start
 	logx.Info("chat.start conv=%s profile=%s chars=%d", convID, ag.Profile().Name, len([]rune(in.Text)))
 	ag.OnToolStart = func(name, args string) {
 		send("tool_start", map[string]any{"name": name, "args": args})
@@ -591,7 +590,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 				send("reasoning", map[string]string{"text": reasoning})
 			}
 		},
-		func(name, args string, result any) {
+		func(name, args string, result any, ms int64) {
 			text := ""
 			hasImage := false
 			if parts, ok := result.([]map[string]any); ok {
@@ -608,10 +607,8 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 			} else if str, ok := result.(string); ok {
 				text = str
 			}
-			logx.Info("tool.call name=%s ms=%d image=%v out=%d",
-				name, time.Since(toolStart).Milliseconds(), hasImage, len([]rune(text)))
-			toolStart = time.Now()
-			send("tool", map[string]any{"name": name, "args": args, "text": text, "image": hasImage})
+			logx.Info("tool.call name=%s ms=%d image=%v out=%d", name, ms, hasImage, len([]rune(text)))
+			send("tool", map[string]any{"name": name, "args": args, "text": text, "image": hasImage, "ms": ms})
 		})
 	if err != nil {
 		logx.Error("chat.error conv=%s err=%v", in.ConvID, err)

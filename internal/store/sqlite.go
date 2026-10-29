@@ -18,6 +18,7 @@ type SQLiteStore struct{ db *sql.DB }
 
 func ensureReasoningMs(db *sql.DB) {
 	db.Exec(`ALTER TABLE messages ADD COLUMN reasoning_ms INTEGER NOT NULL DEFAULT 0`)
+	db.Exec(`ALTER TABLE messages ADD COLUMN tool_ms INTEGER NOT NULL DEFAULT 0`)
 }
 
 func NewSQLite(dir string) (*SQLiteStore, error) {
@@ -101,7 +102,7 @@ func (s *SQLiteStore) Get(id string) (*Conversation, error) {
 }
 
 func (s *SQLiteStore) messages(convID int) ([]Message, error) {
-	rows, err := s.db.Query(`SELECT seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at,origin
+	rows, err := s.db.Query(`SELECT seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at,origin,tool_ms
 		FROM messages WHERE conv_id=? ORDER BY seq`, convID)
 	if err != nil {
 		return nil, err
@@ -112,7 +113,7 @@ func (s *SQLiteStore) messages(convID int) ([]Message, error) {
 		var m Message
 		var tc, tr, im, ca string
 		var seq int
-		if err := rows.Scan(&seq, &m.Role, &m.Content, &m.Reasoning, &m.ReasoningMs, &tc, &m.ToolCallID, &tr, &im, &ca, &m.Origin); err != nil {
+		if err := rows.Scan(&seq, &m.Role, &m.Content, &m.Reasoning, &m.ReasoningMs, &tc, &m.ToolCallID, &tr, &im, &ca, &m.Origin, &m.ToolMs); err != nil {
 			return nil, err
 		}
 		m.Seq = seq
@@ -184,8 +185,8 @@ func (s *SQLiteStore) Save(c *Conversation) error {
 		if origin == "" {
 			origin = "user"
 		}
-		res, err := tx.Exec(`INSERT INTO messages(conv_id,seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at,origin)
-			VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`, c.ID, nextSeq, m.Role, m.Content, m.Reasoning, m.ReasoningMs, string(tc), m.ToolCallID, tr, string(im), nStr, origin)
+		res, err := tx.Exec(`INSERT INTO messages(conv_id,seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at,origin,tool_ms)
+			VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`, c.ID, nextSeq, m.Role, m.Content, m.Reasoning, m.ReasoningMs, string(tc), m.ToolCallID, tr, string(im), nStr, origin, m.ToolMs)
 		if err != nil {
 			return err
 		}

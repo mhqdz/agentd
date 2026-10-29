@@ -33,3 +33,14 @@
 
 修法：改用 `crypto/rand.Read`。教训：读"随机源"永远不要用 ReadFile，测试里也别用无超时的
 外部调用（`go test -timeout` 是唯一的兜底）。
+
+## 2026-10-30 「kb_search 要 32 秒」是假的
+
+现象：日志里 `tool.call name=kb_search ms=32261`，看起来本地检索极慢；但直接跑 `kb search` 是 0.00s。
+
+原因：`handleChat` 里的 `toolStart` 是**跨工具共享**的，而工具是并行的；`onTool` 每完成一个就
+`time.Since(toolStart)` 再重置 → 记到的是"距上一个工具完成的时间"，里面混进了下一轮的模型生成时间。
+
+修法：耗时在 agent 的工具 goroutine 里就地测量（`tool.run ms=…`），随 `onTool` 传给 web，
+写进 SSE（`tool.ms`）与 `messages.tool_ms`。实测 kb_search 11~16ms、kb_get 9~11ms。
+教训：**并行任务的共享计时器一定会撒谎**，计时必须在任务自己内部做。

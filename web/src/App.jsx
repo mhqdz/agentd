@@ -105,7 +105,7 @@ function normalize(arr) {
     .map(m => {
     if (m.role === 'tool') {
       const c = call[m.tool_call_id] || {}
-      return { ...m, toolName: c.name, toolArgs: c.args }
+      return { ...m, toolName: c.name, toolArgs: c.args, ms: m.tool_ms || 0 }
     }
     const { tools, ...rest } = m    // assistant 不再内嵌工具列表
     return rest
@@ -674,7 +674,7 @@ export default function App() {
               const doneLive = { ...live }
               live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
               setMsgs(m => [...m.filter(x => !x.__live), doneLive,
-                { role: 'tool', toolName: d.name, toolArgs: d.args, content: d.text || '', at: now(), __liveTool: true }])
+                { role: 'tool', toolName: d.name, toolArgs: d.args, content: d.text || '', ms: d.ms || 0, at: now(), __liveTool: true }])
               push()
             }
               else if (ev === 'usage') { if (d.tps > 0) setTps(d.tps) }
@@ -745,7 +745,7 @@ export default function App() {
             const doneAsst = { ...asst }
             asst = { role: 'assistant', content: '', reasoning: '', at: now() }
             setMsgs(m => [...m.filter(x => !x.__live), doneAsst,
-              { role: 'tool', toolName: d.name, toolArgs: d.args, content: d.text || '', at: now(), __liveTool: true }])
+              { role: 'tool', toolName: d.name, toolArgs: d.args, content: d.text || '', ms: d.ms || 0, at: now(), __liveTool: true }])
             push()
           }
           else if (ev === 'error') { asst.content += '\n✗ ' + (d.error || ''); push() }
@@ -998,7 +998,7 @@ export default function App() {
                         <b>{m.role === 'user' ? '用户' : m.role === 'tool' ? (m.toolName || '工具') : 'Agent'}</b>
                         {m.interject ? <span className="ef-tag">插话</span> : null}
                         {(m.seq || liveNo.get(m)) ? <span className="ef-tag">No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}</span> : null}
-                        <span className="ef-field">{m.at || ''}</span>
+                        <span className="ef-field">{m.at || ''}{m.role === 'tool' && m.ms ? ' · ' + (m.ms < 1000 ? m.ms + 'ms' : (m.ms / 1000).toFixed(1) + 's') : ''}</span>
                         {m.role === 'assistant' && m.content ? (
                           <span className="mact" onClick={() => navigator.clipboard?.writeText(m.content)}>复制</span>
                         ) : null}

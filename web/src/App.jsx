@@ -854,13 +854,23 @@ export default function App() {
     return k
   }
   const runStats = (start) => {
-    let n = 0, chars = 0, ms = 0
+    let n = 0, chars = 0, ms = 0, thinks = 0, from = 0, to = 0
     for (let k = start; k < msgs.length; k++) {
-      if (isGhostMsg(msgs[k])) continue
+      if (isGhostMsg(msgs[k])) { if ((msgs[k].reasoning || '').trim()) thinks++; continue }
       if (msgs[k].role !== 'tool') break
       n++; chars += (msgs[k].content || '').length; ms += msgs[k].ms || 0
+      const no = msgs[k].seq || 0
+      if (no) { if (!from) from = no; to = no }
     }
-    return { n, chars, ms }
+    return { n, chars, ms, thinks, from, to }
+  }
+  // 这条工具前面紧挨着的空正文 assistant（思考）
+  const thinkBefore = (i) => {
+    let k = i - 1
+    while (k >= 0 && isGhostMsg(msgs[k])) k--
+    const out = []
+    for (let j = k + 1; j < i; j++) if ((msgs[j].reasoning || '').trim()) out.push(msgs[j].reasoning)
+    return out.join('\n')
   }
 
   return (
@@ -1026,11 +1036,17 @@ export default function App() {
                             <span className="tn-tag">Tool</span>
                             <span className="tn-fold">{open ? '▾' : '▸'}</span>
                             <span className="tn-sp" />
-                            <span className="tn-stats">{st.n}{st.chars ? ' · ' + (st.chars >= 1000 ? (st.chars / 1000).toFixed(1) + 'k' : st.chars) + ' 字' : ''}</span>
+                            <span className="tn-stats">{st.from ? (st.to && st.to !== st.from ? 'No.' + String(st.from).padStart(3, '0') + '–' + String(st.to).padStart(3, '0') : 'No.' + String(st.from).padStart(3, '0')) : ''}{st.thinks ? ' · 思考 ' + st.thinks : ''} · {st.n}{st.chars ? ' · ' + (st.chars >= 1000 ? (st.chars / 1000).toFixed(1) + 'k' : st.chars) + ' 字' : ''}</span>
                           </div>
                         ) : null}
                         {open ? (
                           <>
+                            {thinkBefore(i) ? (
+                              <details className="tn-think">
+                                <summary>思考 · {thinkBefore(i).length} 字</summary>
+                                <pre className="think">{thinkBefore(i)}</pre>
+                              </details>
+                            ) : null}
                             <div className="tn-row">
                               <span className="tn-no">{(m.seq || liveNo.get(m)) ? 'No.' + String(m.seq || liveNo.get(m)).padStart(3, '0') : '··'}</span>
                               <span className="tn-name">{m.toolName || '工具'}</span>

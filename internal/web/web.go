@@ -579,6 +579,9 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	toolStart := start
 	logx.Info("chat.start conv=%s profile=%s chars=%d", convID, ag.Profile().Name, len([]rune(in.Text)))
+	ag.OnToolStart = func(name, args string) {
+		send("tool_start", map[string]any{"name": name, "args": args})
+	}
 	err = ag.SendWithTools(ctx, c, in.Text,
 		func(content, reasoning string) {
 			if content != "" {

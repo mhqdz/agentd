@@ -133,6 +133,17 @@ function EditorCol({ value, onChange, onDone, onCancel, placeholder }) {
   )
 }
 
+// 执行中计时器（只在自己内部 re-render，不带动整页）
+function Elapsed({ t0 }) {
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 500)
+    return () => clearInterval(t)
+  }, [])
+  const s = Math.max(0, (now - t0) / 1000)
+  return <span className="ef-field">{s.toFixed(1)}s</span>
+}
+
 // 把回复按 markdown 标题切成"01 / 标题"编号段落；无标题则整段输出
 function Sections({ text }) {
   const lines = String(text || '').split('\n')
@@ -190,6 +201,7 @@ export default function App() {
   const [toolCfg, setToolCfg] = useState(null)   // 工具配置卡（只读信息）
   const [toolForm, setToolForm] = useState(null) // 插件表单（新建/编辑）
   const [tasks, setTasks] = useState([])         // 交接任务
+  const [pendingTools, setPendingTools] = useState([])  // 正在执行的工具（tool_start 到 tool 之间）
   const [recipes, setRecipes] = useState([])
   const [taskActive, setTaskActive] = useState(0)
   const [taskDetail, setTaskDetail] = useState(null)
@@ -612,6 +624,7 @@ export default function App() {
     })
     let done = false
     const finish = async (msg) => {
+      setPendingTools([])
       if (done) return
       done = true
       const cc = await api('/api/conv/' + id).catch(() => null)
@@ -653,7 +666,11 @@ export default function App() {
             let d = {}; try { d = JSON.parse(data) } catch { }
             if (ev === 'reasoning') { live.reasoning += d.text || ''; push() }
             else if (ev === 'delta') { live.content += d.text || ''; push() }
+            else if (ev === 'tool_start') {
+              setPendingTools(p => [...p, { id: Math.random().toString(36).slice(2), name: d.name, args: d.args, t0: Date.now() }])
+            }
             else if (ev === 'tool') {
+              setPendingTools(p => { const key = d.name + '|' + (d.args || ''); const k = p.findIndex(x => x.name + '|' + (x.args || '') === key); return k >= 0 ? p.filter((_, idx) => idx !== k) : p.slice(1) })
               const doneLive = { ...live }
               live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
               setMsgs(m => [...m.filter(x => !x.__live), doneLive,
@@ -719,8 +736,12 @@ export default function App() {
             push()
           }
           else if (ev === 'delta') { asst.content += d.text || ''; push() }
+          else if (ev === 'tool_start') {
+            setPendingTools(p => [...p, { id: Math.random().toString(36).slice(2), name: d.name, args: d.args, t0: Date.now() }])
+          }
           else if (ev === 'tool') {
             // 当前轮定稿（保留正文/思考），工具结果单独成气泡，再开新一轮，避免"只看到一块"
+            setPendingTools(p => { const key = d.name + '|' + (d.args || ''); const k = p.findIndex(x => x.name + '|' + (x.args || '') === key); return k >= 0 ? p.filter((_, idx) => idx !== k) : p.slice(1) })
             const doneAsst = { ...asst }
             asst = { role: 'assistant', content: '', reasoning: '', at: now() }
             setMsgs(m => [...m.filter(x => !x.__live), doneAsst,
@@ -953,7 +974,16 @@ export default function App() {
               </div>
             ) : (
               <div className="col">
-                {msgs.map((m, i) => isSysNote(m) ? (
+                {msgs.map((m, i) => (m.role === 'assistant' && !(m.content || '').trim() && !m.__live &&
+                    (m.tool_calls?.length || m.toolCalls?.length)) ? (
+                  // 工具轮的 assistant 只有思考和 tool_calls，正文是空的：不占 Agent 卡，只留一行可展开的思考
+                  (m.reasoning || '').trim() ? (
+                    <details key={i} className="ghost-think">
+                      <summary>思考 · {m.reasoning.trim().length} 字</summary>
+                      <pre className="think">{m.reasoning}</pre>
+                    </details>
+                  ) : null
+                ) : isSysNote(m) ? (
                   <div key={i} className="sysnote">
                     {(m.seq || liveNo.get(m)) ? <span className="sysnote-no">[No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}]</span> : null}
                     <span className="sysnote-t">{m.content}</span>
@@ -1013,6 +1043,19 @@ export default function App() {
                         </div>
                       ) : null}
                       {(m.images || []).map((u, k) => <img key={k} className="msg-img" src={u} alt="image" />)}
+                    </div>
+                  </div>
+                ))}
+                {pendingTools.map(p => (
+                  <div key={p.id} className="msg ef-panel cut-tl tool pending-tool">
+                    <div>
+                      <div className="mhead">
+                        <span className="av t">T</span>
+                        <b>{p.name}</b>
+                        <span className="ef-field">执行中…</span>
+                        <Elapsed t0={p.t0} />
+                      </div>
+                      <div className="tool-args">{(p.args || '').slice(0, 160)}</div>
                     </div>
                   </div>
                 ))}

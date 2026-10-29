@@ -22,6 +22,8 @@ type Agent struct {
 	Drain       func() []string
 	OnInterject func(string)
 	OnStats     func(llm.Stats) // 每轮结束后的上游速度/用量（可为 nil）
+	// OnToolStart：工具开始执行（前端显示"执行中"卡片，长工具不至于看起来像卡死）
+	OnToolStart func(name, args string)
 	// 交接：父会话派发任务 / 子会话汇报失败
 	MsgOrigin string // 本轮用户消息的来源（user/system/timer/handoff）
 	SpawnTask func(kind string, card map[string]any) (int64, error)

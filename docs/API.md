@@ -158,6 +158,7 @@ stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 
 | `meta` | `{conv_id,title}` | 会话建立/标题 |
 | `reasoning` | `{text}` | 思考增量 |
 | `delta` | `{text}` | 正文增量 |
+| `tool_start` | `{name,args}` | 工具开始执行（前端显示"执行中…"计时卡，长工具不再看起来像卡死） |
 | `tool` | `{name,args,text,image}` | 一次工具调用完成（前端渲染成独立工具气泡） |
 | `interject` | `{text}` | 本轮接收到的插话回显 |
 | `usage` | `{tps,completion,prompt,cached}` | 上游 `usage/timings`（右栏 tok/s 用） |

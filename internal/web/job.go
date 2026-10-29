@@ -77,7 +77,8 @@ func (s *Server) streamFrom(w http.ResponseWriter, r *http.Request, convID strin
 	running := s.convCancel[convID] != nil
 	s.convMu.Unlock()
 	j := s.job(convID)
-	if !running && j.length() <= from {
+	if !running {
+		// 没在跑：历史用 /api/conv 读；不要回放旧帧（前端会误判成"正在运行"）
 		writeJSON(w, 404, map[string]string{"error": "这一轮已经结束，或没有可续传的内容"})
 		return
 	}

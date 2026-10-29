@@ -977,12 +977,24 @@ export default function App() {
                 {msgs.map((m, i) => (m.role === 'assistant' && !(m.content || '').trim() && !m.__live &&
                     (m.tool_calls?.length || m.toolCalls?.length)) ? (
                   // 工具轮的 assistant 只有思考和 tool_calls，正文是空的：不占 Agent 卡，只留一行可展开的思考
-                  (m.reasoning || '').trim() ? (
-                    <details key={i} className="ghost-think">
-                      <summary>思考 · {m.reasoning.trim().length} 字</summary>
-                      <pre className="think">{m.reasoning}</pre>
-                    </details>
-                  ) : null
+                  null
+                ) : m.role === 'tool' ? (
+                  <div className="toolnote" key={i}>
+                    <div className="toolnote-hd">
+                      {(m.seq || liveNo.get(m)) ? <span className="sysnote-no">[No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}]</span> : null}
+                      <span className="toolnote-name">{m.toolName || '工具'}</span>
+                      <span className="toolnote-args">{m.toolArgs ? (() => { try { return JSON.stringify(JSON.parse(String(m.toolArgs))).slice(0, 140) } catch { return String(m.toolArgs).slice(0, 140) } })() : ''}</span>
+                      <span className="toolnote-ms">{m.ms ? (m.ms < 1000 ? m.ms + 'ms' : (m.ms / 1000).toFixed(1) + 's') : ''}</span>
+                      <span className="sysnote-line" />
+                    </div>
+                    {(m.images || []).map((u, k2) => <img key={k2} className="msg-img" src={u} alt="tool" />)}
+                    {(m.content || '').trim() ? (
+                      <details className="fold toolnote-out">
+                        <summary>输出 · {String(m.content).length} 字</summary>
+                        <pre className="out">{m.content}</pre>
+                      </details>
+                    ) : null}
+                  </div>
                 ) : isSysNote(m) ? (
                   <div key={i} className="sysnote">
                     {(m.seq || liveNo.get(m)) ? <span className="sysnote-no">[No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}]</span> : null}

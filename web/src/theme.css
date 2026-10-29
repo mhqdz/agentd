@@ -1123,3 +1123,17 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 /* 执行中的工具卡：呼吸点 + 计时 */
 .msg.pending-tool{border-left-color:var(--c4);opacity:.95}
 .msg.pending-tool .mhead b::after{content:" ·";animation:pulse 1.1s infinite}
+
+/* 工具调用：仿系统提示的一行（编号 + 名称 + 参数 + 耗时），输出折叠在下面 */
+.toolnote{margin:.15rem 0;padding:.2rem 0 .2rem .55rem;border-left:2px solid var(--line);
+  font-size:.7rem;color:var(--ink3)}
+.toolnote-hd{display:flex;align-items:baseline;gap:.45rem;flex-wrap:wrap}
+.toolnote .sysnote-no{flex:0 0 auto;color:var(--c5);font-size:.6rem}
+.toolnote-name{color:var(--ink);font-size:.72rem}
+.toolnote-args{color:var(--c6);font-size:.66rem;overflow-wrap:anywhere;max-width:60rem}
+.toolnote-ms{color:var(--c5);font-size:.6rem;white-space:nowrap}
+.toolnote .sysnote-line{flex:1 1 auto;height:1px;background:var(--line)}
+.toolnote-out{margin:.15rem 0 .1rem .2rem}
+.toolnote-out>summary{font-size:.64rem;color:var(--c5)}
+.toolnote-out .out{margin:.2rem 0 0;font-size:.68rem;max-height:12rem;overflow:auto}
+.toolnote .msg-img{margin-top:.25rem}

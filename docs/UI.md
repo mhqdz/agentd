@@ -188,8 +188,8 @@ App.jsx                       只做布局、URL、快捷键、装配
 迁移步骤（每步可独立回滚，tag：backup-web-20261030）：
 
 ```
-Step 1  流式缓冲移出 React state（streamStore），历史消息不再随 delta 重算
-Step 2  消息卡抽组件 + React.memo（自定义比较）
+Step 1  ✅ 流式缓冲移出 React state（streamStore + LiveBubble），历史消息不再随 delta 重算
+Step 2  消息卡抽组件 + React.memo（自定义比较）——待做
 Step 3  App 只留装配；设置面板按卡片拆
 验收：流式中每秒渲染 ≤10、只有尾部与状态栏重渲染；500 条会话滚动/新增不掉帧
 ```

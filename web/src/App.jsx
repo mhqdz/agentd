@@ -581,7 +581,7 @@ export default function App() {
     if (!busy) { setQuip(''); return }
     let i = 0
     setQuip(lines[0])
-    const t = setInterval(() => { i = (i + 1) % lines.length; setQuip(lines[i]) }, 4000)
+    const t = setInterval(() => { i = (i + 1) % lines.length; setQuip(lines[i]) }, 10000)
     return () => clearInterval(t)
   }, [busy, uiCfg])
 
@@ -1138,9 +1138,9 @@ export default function App() {
                       </div>
                       {m.reasoning ? (
                         <details className="fold">
-                          <summary>思考过程 · {String(m.reasoning).length} 字{
+                          <summary className="think-sum">思考过程 · <span className="num">{String(m.reasoning).length}</span> 字{
                             (m.reasoning_ms || (m.rsecs ? m.rsecs * 1000 : 0))
-                              ? ' · ' + ((m.reasoning_ms || m.rsecs * 1000) / 1000).toFixed(1) + 's' : ''}</summary>
+                              ? <>{' · '}<span className="num">{Math.round((m.reasoning_ms || m.rsecs * 1000) / 1000)}</span>{'s'}</> : null}</summary>
                           <pre className="think">{m.reasoning}</pre>
                           <button className="fold-close" onClick={e => {
                             const d = e.currentTarget.closest('details')

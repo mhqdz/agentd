@@ -412,6 +412,14 @@ export default function App() {
   const isSysNote = (m) => !(m.reasoning || '').trim() && (m.origin === 'timer' || m.origin === 'handoff' || (m.role === 'assistant' &&
     /^\s*(——)?\s*（(已达到工具轮次上限|已停止|中断|检测到连续|任务回报|任务已派发)/.test(m.content || '')))
 
+  const fmtTime = (s) => {
+    if (!s) return ''
+    const d = new Date(s)
+    if (isNaN(d)) return s
+    const p2 = (n) => String(n).padStart(2, '0')
+    return `${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`
+  }
+
   const maxSeq = msgs.reduce((a, m) => Math.max(a, m.seq || 0), 0)   // 含工具消息，避免编号撞号
   const liveNo = new Map()
   {
@@ -490,7 +498,14 @@ export default function App() {
         }
       }
       const tq = q.get('task')                     // ?task=3 直接看任务详情
-      if (tq) { const d = await api('/api/tasks/' + tq).catch(() => null); if (d && d.task) setTaskDetail(d) }
+      if (tq) {
+          const d = await api('/api/tasks/' + tq).catch(() => null)
+          if (d && d.task) {
+            setTaskDetail(d)
+            // 详情在列表卡深处：等渲染后滚过去（否则深链打开等于没开）
+            setTimeout(() => { const el = document.querySelector('.task-step'); if (el) el.scrollIntoView({ block: 'center' }) }, 350)
+          }
+        }
       const tl = q.get('tool')                    // ?tool=kb_search 直接打开工具卡
       if (tl) {
         const t = (await api('/api/tools').catch(() => []))?.find(x => x.name === tl)
@@ -991,7 +1006,8 @@ export default function App() {
                 text.trim()
                   ? <button className="send interject" onClick={interject} aria-label="插话" title="插话" />
                   : <button className="send stop" onClick={stop} aria-label="中断" title="中断" />
-              ) : <button className="send" onClick={send} aria-label="发送" title="发送" />}
+              ) : <button className="send" onClick={send} disabled={!text.trim()}
+                    aria-label="发送" title={text.trim() ? '发送' : '先输入内容'} />}
             </div>
           </div>
           {showSet ? (
@@ -1325,7 +1341,7 @@ export default function App() {
                             <b className="item-title">#{t.id} {t.kind}
                               <span className={'src-tag ' + (t.status === 'done' ? 'builtin' : 'plugin')}>{t.status}</span>
                             </b>
-                            <span className="item-desc">{t.child_conv ? '子会话 ↳#' + t.child_conv + ' · ' : ''}{t.error || t.created_at}</span>
+                            <span className="item-desc">{t.child_conv ? '子会话 ↳#' + t.child_conv + ' · ' : ''}{t.error || fmtTime(t.created_at)}</span>
                           </div>
                         ))}
                         {taskDetail ? (

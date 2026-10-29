@@ -108,3 +108,12 @@ body: 14px/1.7 "Maple Mono NF CN", ui-monospace, …
 .icon-x.back  22×22 角标热区 + 细线 ×；悬停显边框
 .src-tag      工具来源徽标，仅内置显示
 切角（clip-path）/ 渐变虚化线：已移除（除会话栏那条阅读辅助线外不再用）
+
+## 12. 自动化检查（排版 + 交互）
+
+```
+scripts/ui-test/   WebDriver（geckodriver，无 selenium）驱动 Firefox headless
+断言：无横向溢出 / 右栏 64px / 设置三级卡显隐与互斥 / 卡片同宽 / 思考展开无内滚 + 收起回滚 /
+      任务展开与深链滚动 / 打开会话在底部 / 最后一条消息不被输入框遮挡 / JS 无错误
+截图：/tmp/uitest/*.png（宽屏三卡、工具表单、任务详情、窄屏单卡、编辑卡）
+```

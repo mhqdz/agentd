@@ -149,6 +149,9 @@ M1 已验证的链路：
   · /api/wake（token）→ outbox → 会话内 FIFO 投递 → 消息 origin=timer，界面按系统提示渲染
   · 重启：running → interrupted（启动时日志提示），任务区给「执行收尾」按钮
 
+前端排版与交互已用 WebDriver（`scripts/ui-test/`）自动验证：宽屏三卡/互斥/同宽、窄屏单卡、
+思考展开无内滚与收起回滚、任务展开与深链滚动、会话打开在底部、最后一条消息不被输入框遮挡、JS 无错误。
+
 M1 已知缺口：任务详情需点击展开才加载；无重试/取消按钮；任务列表未按父会话过滤；
              投递与父会话的 profile 绑定（KV.profile），旧会话没有该字段时用默认 profile
 M2：cancel / retry / restore 按钮、产物缩略、任务通知

@@ -3,6 +3,7 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import NumberFlow from '@number-flow/react'
 import { stream, useLiveMsg } from './conversation/streamStore'
+import { isGhostMsg as isGhostM, neighborRole, runStart, runStats, thinkBefore } from './conversation/messageGroups'
 
 marked.setOptions({ gfm: true, breaks: true })
 
@@ -918,43 +919,12 @@ export default function App() {
     </span>
   ) : null
 
-  const isGhostMsg = (m) => !!m && m.role === 'assistant' && !(m.content || '').trim() && !m.__live
-  // 工具块的首/尾：跳过不渲染的空正文 assistant
-  const neighborRole = (from, step) => {
-    for (let k = from; k >= 0 && k < msgs.length; k += step) {
-      const m = msgs[k]
-      if (isGhostMsg(m)) continue
-      return m.role
-    }
-    return null
-  }
-
-  // 工具组：起始下标（跳过不渲染的空正文 assistant）与组内统计
-  const runStart = (i) => {
-    let k = i
-    while (k - 1 >= 0 && (msgs[k - 1].role === 'tool' || isGhostMsg(msgs[k - 1]))) k--
-    while (k < msgs.length && isGhostMsg(msgs[k])) k++   // 跳过组前的空正文 assistant，落在第一个 tool 上
-    return k
-  }
-  const runStats = (start) => {
-    let n = 0, chars = 0, ms = 0, thinks = 0, from = 0, to = 0
-    for (let k = start; k < msgs.length; k++) {
-      if (isGhostMsg(msgs[k])) { if ((msgs[k].reasoning || '').trim()) thinks++; continue }
-      if (msgs[k].role !== 'tool') break
-      n++; chars += (msgs[k].content || '').length; ms += msgs[k].ms || 0
-      const no = msgs[k].seq || 0
-      if (no) { if (!from) from = no; to = no }
-    }
-    return { n, chars, ms, thinks, from, to }
-  }
-  // 这条工具前面紧挨着的空正文 assistant（思考）
-  const thinkBefore = (i) => {
-    let k = i - 1
-    while (k >= 0 && isGhostMsg(msgs[k])) k--
-    const out = []
-    for (let j = k + 1; j < i; j++) if ((msgs[j].reasoning || '').trim()) out.push(msgs[j].reasoning)
-    return out.join('\n')
-  }
+  // 分组/统计已抽到 conversation/messageGroups.js（纯函数，供 Step 2 的组件使用）
+  const isGhostMsg = isGhostM
+  const neighbor = (from, step) => neighborRole(msgs, from, step)
+  const runStartAt = (i) => runStart(msgs, i)
+  const runStatsAt = (s0) => runStats(msgs, s0)
+  const thinkBeforeAt = (i) => thinkBefore(msgs, i)
 
   return (
     <div className="app">
@@ -1101,12 +1071,12 @@ export default function App() {
                   // 工具轮的 assistant 只有思考和 tool_calls，正文是空的：不占 Agent 卡，只留一行可展开的思考
                   null
                 ) : m.role === 'tool' ? (() => {
-                    const gstart = runStart(i)
+                    const gstart = runStartAt(i)
                     const first = gstart === i
                     const open = openRuns.has(gstart)
-                    const st = runStats(gstart)
+                    const st = runStatsAt(gstart)
                     if (!first && !open) return null
-                    const last = neighborRole(i + 1, 1) !== 'tool'
+                    const last = neighbor(i + 1, 1) !== 'tool'
                     let args = ''
                     if (m.toolArgs) { try { args = JSON.stringify(JSON.parse(String(m.toolArgs))) } catch { args = String(m.toolArgs) } }
                     const meta = [m.ms ? (m.ms < 1000 ? m.ms + 'ms' : (m.ms / 1000).toFixed(1) + 's') : '', m.content ? String(m.content).length + ' 字' : ''].filter(Boolean).join(' · ')
@@ -1125,10 +1095,10 @@ export default function App() {
                         ) : null}
                         {open ? (
                           <>
-                            {thinkBefore(i) ? (
+                            {thinkBeforeAt(i) ? (
                               <details className="tn-think">
-                                <summary>思考 · {thinkBefore(i).length} 字</summary>
-                                <pre className="think">{thinkBefore(i)}</pre>
+                                <summary>思考 · {thinkBeforeAt(i).length} 字</summary>
+                                <pre className="think">{thinkBeforeAt(i)}</pre>
                               </details>
                             ) : null}
                             <div className="tn-row">

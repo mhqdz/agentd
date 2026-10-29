@@ -66,14 +66,14 @@ export default React.memo(MessageCard, (a, b) =>
 )
 ```
 
-### 2.4 App.jsx 侧需要预备的纯函数（现在已有，搬出去即可）
+### 2.4 纯函数（✅ 已完成：conversation/messageGroups.js）
 
 ```
-isGhostMsg(m)          空正文 assistant 判定
-runStart(i)            工具组起点（跳过 ghost）
-runStats(start)        { n, chars, thinks, from, to }
-thinkBefore(i)         该工具前紧邻的思考文本
-neighborRole(from,step) 相邻消息角色（跳过 ghost）
+已抽到 web/src/conversation/messageGroups.js（纯函数，msgs 作为参数传入）：
+  isGhostMsg(m) / neighborRole(msgs,from,step) / runStart(msgs,i)
+  runStats(msgs,start) / thinkBefore(msgs,i)
+App.jsx 里只留薄包装：neighbor / runStartAt / runStatsAt / thinkBeforeAt
+（抽出后 run.py、run3.py 回归均无失败）
 ```
 ⚠️ 这些函数依赖 `msgs` 数组，抽取组件时要把「计算好的结果」作为 props 传入，
 不要让组件自己去访问全局 msgs（否则 memo 永远失效）。

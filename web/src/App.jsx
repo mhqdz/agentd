@@ -572,7 +572,9 @@ export default function App() {
     fetch('/ui.json').then(r => r.ok ? r.json() : null).then(c => c && setUiCfg(c)).catch(() => {})
   }, [])
   useEffect(() => {
-    const lines = (uiCfg && Array.isArray(uiCfg.quips) && uiCfg.quips.length) ? uiCfg.quips : [
+    let local = []
+    try { local = JSON.parse(localStorage.getItem('ui.quips') || '[]') } catch { local = [] }
+    const lines = local.length ? local : (uiCfg && Array.isArray(uiCfg.quips) && uiCfg.quips.length) ? uiCfg.quips : [
       '「我是吃白饭的大肥鱼」',
       '「DeepSleep...」',
     ]
@@ -1484,6 +1486,15 @@ export default function App() {
                       ) : null}
                     </div>
 
+                    <div className="set-card">
+                      <div className="item static">
+                        <span className="item-title">界面 · 运行中提示</span>
+                      </div>
+                      <div className="set-meta">运行中状态栏轮播的句子，一行一条；存在本机 localStorage（不进后端）</div>
+                      <textarea className="ui-quips" defaultValue={(() => { try { return (JSON.parse(localStorage.getItem('ui.quips') || '[]') || (uiCfg?.quips || [])).join('\n') } catch { return (uiCfg?.quips || []).join('\n') } })()}
+                        onChange={e => { const arr = e.target.value.split('\n').map(x => x.trim()).filter(Boolean); try { localStorage.setItem('ui.quips', JSON.stringify(arr)) } catch {} }} />
+                      <div className="set-meta">改完刷新页面生效；留空则回到 ui.json 的默认值</div>
+                    </div>
                     <div className="set-card">
                       <div className="item static">
                         <span className="item-title">截图清理</span>

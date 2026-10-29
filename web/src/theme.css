@@ -1169,3 +1169,6 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 /* 执行中的临时工具卡：保留卡片，但去掉顶部伪元素与呼吸动画 */
 .msg.pending-tool::before{display:none}
 .msg.pending-tool .mhead b::after{content:"";animation:none}
+.ui-quips{width:100%;box-sizing:border-box;min-height:6rem;margin:.35rem 0 .25rem;padding:.4rem .5rem;
+  border:1px solid var(--line);background:#fff;font:inherit;font-size:.72rem;line-height:1.7;
+  resize:vertical;outline:none;white-space:pre}

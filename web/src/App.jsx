@@ -206,6 +206,7 @@ export default function App() {
     const r = await api('/api/tasks').catch(() => null)
     if (r && !Array.isArray(r)) { setTasks(r.tasks || []); setRecipes(r.recipes || []); setTaskActive(r.active || 0) }
   }
+  const atBottomRef = useRef(true)   // 是否贴在底部（决定新内容是否跟随）
   const suppressPeekClose = useRef(false)
   const suppressTimer = useRef(null)
   const [editField, setEditField] = useState(null)
@@ -401,6 +402,11 @@ export default function App() {
       if (el.getBoundingClientRect().top < bottom) idx = Number(el.dataset.vidx) || idx
     })
     setReadingIdx(idx)
+    {
+      const th = threadRef.current
+      // 严格判定"在底部"：留 6px 容差；用户一旦上翻就不再跟随（直到自己滚回底部）
+      if (th) atBottomRef.current = th.scrollHeight - th.scrollTop - th.clientHeight <= 6
+    }
     if (suppressPeekClose.current) {
       clearTimeout(suppressTimer.current)
       suppressTimer.current = setTimeout(() => { suppressPeekClose.current = false }, 260)
@@ -609,7 +615,10 @@ export default function App() {
       if (done) return
       done = true
       const cc = await api('/api/conv/' + id).catch(() => null)
-      if (cc && convIdRef.current === id) { setMsgs(normalize(cc.messages || [])); scrollToBottom() }
+      if (cc && convIdRef.current === id) {
+        setMsgs(normalize(cc.messages || []))
+        if (isAtBottom()) scrollToBottom()   // 用户没在底部就别把他拽回去
+      }
       setSyncing(false); setBusy(false); setStatus(msg || '已同步'); refresh()
     }
     for (let attempt = 0; attempt < 60 && !done; attempt++) {

@@ -201,7 +201,8 @@ export default function App() {
   const [toolCfg, setToolCfg] = useState(null)   // 工具配置卡（只读信息）
   const [toolForm, setToolForm] = useState(null) // 插件表单（新建/编辑）
   const [tasks, setTasks] = useState([])         // 交接任务
-  const [pendingTools, setPendingTools] = useState([])  // 正在执行的工具（tool_start 到 tool 之间）
+  const [pendingTools, setPendingTools] = useState([])
+  const [openRuns, setOpenRuns] = useState(() => new Set())   // 已展开的工具组（默认全收拢）  // 正在执行的工具（tool_start 到 tool 之间）
   const [recipes, setRecipes] = useState([])
   const [taskActive, setTaskActive] = useState(0)
   const [taskDetail, setTaskDetail] = useState(null)
@@ -846,6 +847,23 @@ export default function App() {
     return null
   }
 
+  // 工具组：起始下标（跳过不渲染的空正文 assistant）与组内统计
+  const runStart = (i) => {
+    let k = i
+    while (k - 1 >= 0 && (msgs[k - 1].role === 'tool' || isGhostMsg(msgs[k - 1]))) k--
+    while (k < msgs.length && isGhostMsg(msgs[k])) k++   // 跳过组前的空正文 assistant，落在第一个 tool 上
+    return k
+  }
+  const runStats = (start) => {
+    let n = 0, chars = 0, ms = 0
+    for (let k = start; k < msgs.length; k++) {
+      if (isGhostMsg(msgs[k])) continue
+      if (msgs[k].role !== 'tool') break
+      n++; chars += (msgs[k].content || '').length; ms += msgs[k].ms || 0
+    }
+    return { n, chars, ms }
+  }
+
   return (
     <div className="app">
       <div className="topbar">
@@ -991,13 +1009,16 @@ export default function App() {
                   // 工具轮的 assistant 只有思考和 tool_calls，正文是空的：不占 Agent 卡，只留一行可展开的思考
                   null
                 ) : m.role === 'tool' ? (() => {
-                    const first = neighborRole(i - 1, -1) !== 'tool'
+                    const gstart = runStart(i)
+                    const first = gstart === i
+                    const open = openRuns.has(gstart)
+                    const st = runStats(gstart)
+                    if (!first && !open) return null
                     const last = neighborRole(i + 1, 1) !== 'tool'
-                    let n = 0
-                    for (let k = i; k < msgs.length; k++) { if (isGhostMsg(msgs[k])) continue; if (msgs[k].role !== 'tool') break; n++ }
                     let args = ''
                     if (m.toolArgs) { try { args = JSON.stringify(JSON.parse(String(m.toolArgs))) } catch { args = String(m.toolArgs) } }
-                    const meta = [m.ms ? (m.ms < 1000 ? m.ms + 'ms' : (m.ms / 1000).toFixed(1) + 's') : '', m.content ? '输出 ' + String(m.content).length + ' 字' : ''].filter(Boolean).join(' · ')
+                    const meta = [m.ms ? (m.ms < 1000 ? m.ms + 'ms' : (m.ms / 1000).toFixed(1) + 's') : '', m.content ? String(m.content).length + ' 字' : ''].filter(Boolean).join(' · ')
+                    const toggle = () => setOpenRuns(prev => { const n = new Set(prev); n.has(gstart) ? n.delete(gstart) : n.add(gstart); return n })
                     return (
                       <div className={'toolnote' + (first ? ' run-start' : '') + (last ? ' run-end' : '')} key={i}>
                         {first ? <span className="tn-c tl" /> : null}
@@ -1005,23 +1026,29 @@ export default function App() {
                         {last ? <span className="tn-c bl" /> : null}
                         {last ? <span className="tn-c br" /> : null}
                         {first ? (
-                          <div className="tn-hd">
+                          <div className="tn-hd" onClick={toggle} role="button" title={open ? '收起' : '展开'}>
                             <span className="tn-tag">Tool</span>
-                            <span className="tn-count">{n > 1 ? n + ' 次调用' : ''}</span>
+                            <span className="tn-fold">{open ? '▾' : '▸'}</span>
+                            <span className="tn-sp" />
+                            <span className="tn-stats">{st.n}{st.chars ? ' · ' + (st.chars >= 1000 ? (st.chars / 1000).toFixed(1) + 'k' : st.chars) + ' 字' : ''}</span>
                           </div>
                         ) : null}
-                        <div className="tn-row">
-                          <span className="tn-no">{(m.seq || liveNo.get(m)) ? 'No.' + String(m.seq || liveNo.get(m)).padStart(3, '0') : '··'}</span>
-                          <span className="tn-name">{m.toolName || '工具'}</span>
-                          <span className="tn-meta">{meta}</span>
-                        </div>
-                        {args ? <div className="tn-arg" title={args}>{args}</div> : null}
-                        {(m.images || []).map((u, k2) => <img key={k2} className="msg-img" src={u} alt="tool" />)}
-                        {(m.content || '').trim() ? (
-                          <details className="tn-out">
-                            <summary>输出</summary>
-                            <pre className="out">{m.content}</pre>
-                          </details>
+                        {open ? (
+                          <>
+                            <div className="tn-row">
+                              <span className="tn-no">{(m.seq || liveNo.get(m)) ? 'No.' + String(m.seq || liveNo.get(m)).padStart(3, '0') : '··'}</span>
+                              <span className="tn-name">{m.toolName || '工具'}</span>
+                              <span className="tn-meta">{meta}</span>
+                            </div>
+                            {args ? <div className="tn-arg" title={args}>{args}</div> : null}
+                            {(m.images || []).map((u, k2) => <img key={k2} className="msg-img" src={u} alt="tool" />)}
+                            {(m.content || '').trim() ? (
+                              <details className="tn-out">
+                                <summary>输出</summary>
+                                <pre className="out">{m.content}</pre>
+                              </details>
+                            ) : null}
+                          </>
                         ) : null}
                       </div>
                     )

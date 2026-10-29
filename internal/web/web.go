@@ -424,8 +424,26 @@ func (s *Server) handleConv(w http.ResponseWriter, r *http.Request) {
 			writeJSON(w, 400, map[string]string{"error": "需要 text"})
 			return
 		}
-		s.pushInterject(id, body.Text)
-		writeJSON(w, 200, map[string]any{"ok": true})
+		// 没有正在跑的回合时，插话会被存进内存等待 drain，而永远不会有人来取 → 消息丢失。
+		// 这时当作一条普通消息：落库并直接起一轮（用户按"继续"就是想要它接着做）。
+		s.convMu.Lock()
+		running := s.convCancel[id] != nil
+		s.convMu.Unlock()
+		if running {
+			s.pushInterject(id, body.Text)
+			writeJSON(w, 200, map[string]any{"ok": true, "mode": "interject"})
+			return
+		}
+		if n, err := strconv.ParseInt(id, 10, 64); err == nil && s.ho != nil {
+			go func() {
+				if err := s.runTurn(context.Background(), n, body.Text, "user"); err != nil {
+					logx.Warn("interject->turn conv=%s: %v", id, err)
+				}
+			}()
+			writeJSON(w, 200, map[string]any{"ok": true, "mode": "turn"})
+			return
+		}
+		writeJSON(w, 200, map[string]any{"ok": false, "error": "会话不在运行且无法起新回合"})
 		return
 	}
 	if strings.HasSuffix(raw, "/restore") && r.Method == http.MethodPost {

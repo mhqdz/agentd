@@ -189,6 +189,9 @@ export default function App() {
   const stageRef = useRef(null)
   const setOpenRef = useRef(false)
   const threadRef = useRef(null)
+  // 是否贴着底部（新内容是否跟随）——之前漏了定义，finish 时会 ReferenceError
+  const isAtBottom = (th = threadRef.current, tol = 40) =>
+    !!th && (th.scrollHeight - th.scrollTop - th.clientHeight) <= tol
   const [inputH, setInputH] = useState(() => Number(localStorage.getItem('inputH')) || (typeof window !== 'undefined' && window.innerWidth < 1400 ? 52 : 92))
   const hDrag = useRef(null)
   const abortRef = useRef(null)

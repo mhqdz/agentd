@@ -4,8 +4,10 @@ package tools
 import (
 	"agentd/internal/logx"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"mime"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -48,6 +50,11 @@ func Registry() map[string]*Spec {
 		{Name: "screenshot", Description: "截屏并返回文字说明 + 截屏原图（模型能看到像素）。用于判断窗口内容/排版/报错。",
 			Params: map[string]any{"question": map[string]any{"type": "string", "description": "可留空；留空只返回截图，填了也不会回显"}},
 			Run:    runScreenshot},
+		{Name: "view_image", Description: "打开本机的一张图片给模型看（png/jpg/webp/gif，≤8MB）。" +
+			"用于验收渲染产物、查看截图文件；支持 ~/ 开头和通配符（取第一个匹配）。",
+			Params: map[string]any{
+				"path": map[string]any{"type": "string", "description": "图片路径（绝对路径或 ~/…）"},
+			}, Required: []string{"path"}, Run: runViewImage},
 		{Name: "spawn_task", Description: "派发一个已注册的后台任务（会换模型/让出显卡，完成后回到本会话回报）。" +
 			"kind 必须是任务注册表里的名字；card 是交接卡内容（目标/输入/约束/产物）。",
 			Params: map[string]any{
@@ -377,4 +384,44 @@ func runHandoffFail(_ context.Context, args map[string]any, e *Env) (any, error)
 		return "[error] " + err.Error(), nil
 	}
 	return msg, nil
+}
+
+// view_image：把本地图片读成 data URL 交给模型（与截图工具同样的 content parts 形态）
+func runViewImage(_ context.Context, args map[string]any, _ *Env) (any, error) {
+	p := strings.TrimSpace(str(args, "path"))
+	if p == "" {
+		return "[error] 缺少 path", nil
+	}
+	if strings.HasPrefix(p, "~/") {
+		if home, err := os.UserHomeDir(); err == nil {
+			p = filepath.Join(home, p[2:])
+		}
+	}
+	if strings.ContainsAny(p, "*?[") {
+		if ms, _ := filepath.Glob(p); len(ms) > 0 {
+			p = ms[0]
+		}
+	}
+	st, err := os.Stat(p)
+	if err != nil {
+		return "✗ 文件不存在：" + p, nil
+	}
+	if st.IsDir() {
+		return "✗ 这是一个目录：" + p, nil
+	}
+	if st.Size() > 8<<20 {
+		return fmt.Sprintf("✗ 图片太大（%.1f MB，上限 8 MB）：%s", float64(st.Size())/1048576, p), nil
+	}
+	mime := mime.TypeByExtension(strings.ToLower(filepath.Ext(p)))
+	if !strings.HasPrefix(mime, "image/") {
+		return "✗ 不支持的图片类型：" + filepath.Ext(p), nil
+	}
+	b, err := os.ReadFile(p)
+	if err != nil {
+		return "✗ 读文件失败：" + err.Error(), nil
+	}
+	return []map[string]any{
+		{"type": "text", "text": fmt.Sprintf("图片：%s（%d KB）", p, st.Size()/1024)},
+		{"type": "image", "url": "data:" + mime + ";base64," + base64.StdEncoding.EncodeToString(b)},
+	}, nil
 }

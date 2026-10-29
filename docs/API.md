@@ -90,6 +90,8 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 
 `GET /api/tools` → 每个工具含 `name / description / params / source / path`：
 
+内置工具：bash / screenshot / recall / view_image / spawn_task（handoff_fail 只在子会话里，不在列表里暴露）。
+
 ```json
 [{"name":"bash","source":"builtin","path":"","timeout_ms":0,"persistent":false},
  {"name":"kb_search","source":"plugin","path":"~/.data/agentd/tools.d/kb_search.json","timeout_ms":20000,"persistent":false}]

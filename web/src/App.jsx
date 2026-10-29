@@ -835,8 +835,7 @@ export default function App() {
     </span>
   ) : null
 
-  const isGhostMsg = (m) => !!m && m.role === 'assistant' && !(m.content || '').trim() && !m.__live &&
-    (m.tool_calls?.length || m.toolCalls?.length)
+  const isGhostMsg = (m) => !!m && m.role === 'assistant' && !(m.content || '').trim() && !m.__live
   // 工具块的首/尾：跳过不渲染的空正文 assistant
   const neighborRole = (from, step) => {
     for (let k = from; k >= 0 && k < msgs.length; k += step) {
@@ -1004,8 +1003,7 @@ export default function App() {
               </div>
             ) : (
               <div className="col">
-                {msgs.map((m, i) => (m.role === 'assistant' && !(m.content || '').trim() && !m.__live &&
-                    (m.tool_calls?.length || m.toolCalls?.length)) ? (
+                {msgs.map((m, i) => isGhostMsg(m) ? (
                   // 工具轮的 assistant 只有思考和 tool_calls，正文是空的：不占 Agent 卡，只留一行可展开的思考
                   null
                 ) : m.role === 'tool' ? (() => {

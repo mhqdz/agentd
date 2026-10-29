@@ -7,10 +7,10 @@ import { stream, useLiveMsg } from './conversation/streamStore'
 marked.setOptions({ gfm: true, breaks: true })
 
 // 实时气泡：订阅 streamStore，只它随 delta 重渲染（历史消息不参与）
-function LiveBubble() {
+function LiveBubble({ busy }) {
   const live = useLiveMsg()
   const has = live && ((live.content || '').trim() || (live.reasoning || '').trim())
-  if (!has) return null
+  if (!has && !busy) return null
   return (
     <div className="msg ef-panel cut-tl assistant">
       <div>
@@ -19,14 +19,14 @@ function LiveBubble() {
           <b>Agent</b>
           <span className="ef-field">生成中…</span>
         </div>
-        {(live.reasoning || '').trim() ? (
+        {(live && (live.reasoning || '').trim()) ? (
           <details className="fold" open>
             <summary className="think-sum">思考过程 · <span className="num">{live.reasoning.length}</span> 字{
               live.rsecs ? <>{' · '}<span className="num">{live.rsecs.toFixed(1)}</span>{'s'}</> : null}</summary>
             <pre className="think">{live.reasoning}</pre>
           </details>
         ) : null}
-        {(live.content || '').trim() ? <Sections text={live.content} /> : null}
+        {(live && (live.content || '').trim()) ? <Sections text={live.content} /> : <div className="live-wait">等待模型响应…</div>}
       </div>
     </div>
   )
@@ -1209,6 +1209,7 @@ export default function App() {
                     </div>
                   </div>
                 ))}
+                <LiveBubble busy={busy} />
                 {pendingTools.map(p => (
                   <div key={p.id} className="msg ef-panel cut-tl tool pending-tool">
                     <div>

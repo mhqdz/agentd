@@ -1173,3 +1173,4 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   border:1px solid var(--line);background:#fff;font:inherit;font-size:.72rem;line-height:1.7;
   resize:vertical;outline:none;white-space:pre}
 .think-sum .num{font-variant-numeric:tabular-nums}
+.live-wait{color:var(--c5);font-size:.72rem;padding:.2rem 0 .3rem;letter-spacing:.04em}

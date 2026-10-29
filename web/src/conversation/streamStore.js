@@ -18,3 +18,6 @@ export const stream = {
 export function useLiveMsg() {
   return useSyncExternalStore(stream.subscribe, stream.get, stream.get)
 }
+
+// 调试用（浏览器控制台可见）：__stream.get()
+if (typeof window !== 'undefined') window.__stream = stream

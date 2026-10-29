@@ -337,9 +337,27 @@ func (s *Server) handleConvs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	type row struct {
-		ID, Title string
-		UpdatedAt time.Time
-		N         int
+		ID        string    `json:"ID"`
+		Title     string    `json:"Title"`
+		UpdatedAt time.Time `json:"UpdatedAt"`
+		N         int       `json:"N"`
+		ParentID  int64     `json:"ParentID"`
+		Kind      string    `json:"Kind"`
+		Seq       int       `json:"Seq"` // 在父会话下的序号（↳#N）
+	}
+	// 子会话序号：按 id 升序在兄弟间编号
+	seqOf := map[string]int{}
+	byParent := map[int64][]*store.Conversation{}
+	for _, c := range list {
+		if c.ParentID > 0 {
+			byParent[c.ParentID] = append(byParent[c.ParentID], c)
+		}
+	}
+	for _, kids := range byParent {
+		sort.Slice(kids, func(i, j int) bool { return kids[i].ID < kids[j].ID })
+		for i, k := range kids {
+			seqOf[k.ID] = i + 1
+		}
 	}
 	out := make([]row, 0, len(list))
 	for _, c := range list {
@@ -347,7 +365,7 @@ func (s *Server) handleConvs(w http.ResponseWriter, r *http.Request) {
 		if n == 0 {
 			n = len(c.Messages)
 		}
-		out = append(out, row{c.ID, c.Title, c.UpdatedAt, n})
+		out = append(out, row{c.ID, c.Title, c.UpdatedAt, n, c.ParentID, c.Kind, seqOf[c.ID]})
 	}
 	writeJSON(w, 200, out)
 }

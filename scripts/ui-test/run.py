@@ -1,5 +1,5 @@
 import sys, time, json, urllib.request
-sys.path.insert(0, __import__('os').path.dirname(__file__))
+sys.path.insert(0, '/tmp/uitest')
 from wd import Session, req
 
 FAIL = []

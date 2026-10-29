@@ -1096,3 +1096,17 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   .side-toggle .st-icon,.side-toggle.collapsed .st-icon{transition:transform .22s cubic-bezier(.2,.8,.2,1)}
   .side-toggle{z-index:1200}
 }
+
+/* 抽屉里的子会话：缩进 + 虚线引导；父会话保持原样 */
+.drawer .ef-records .ef-record.child{padding-left:1.1rem;position:relative}
+.drawer .ef-records .ef-record.child::before{content:"";position:absolute;left:.45rem;top:0;bottom:0;width:1px;background:var(--line)}
+.drawer .ef-records .ef-record.child .ef-tag{color:var(--c5)}
+
+/* 打开子会话时顶部的归属条 */
+.childbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:.5rem;
+  padding:.25rem .8rem;background:var(--c1);border-bottom:1px solid var(--line);
+  font-size:.66rem;color:var(--c6);letter-spacing:.04em}
+.childbar-tag{color:var(--ink2);border:1px solid var(--line);padding:0 .3rem}
+.childbar a{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+
+

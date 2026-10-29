@@ -750,7 +750,22 @@ export default function App() {
     refresh()
   }
 
-  const list = tab === 'archive' ? archived : convs
+  const rawList = tab === 'archive' ? archived : convs
+  // 子会话显示在父会话之后（缩进 + ↳#N）；父不在本列表时按顶层显示
+  const byId = new Map(rawList.map(c => [c.ID, c]))
+  const kidsOf = new Map()
+  for (const c of rawList) {
+    if (!c.ParentID) continue
+    const k = String(c.ParentID)
+    if (!kidsOf.has(k)) kidsOf.set(k, [])
+    kidsOf.get(k).push(c)
+  }
+  const list = []
+  for (const c of rawList) {
+    if (c.ParentID && byId.has(String(c.ParentID))) continue
+    list.push(c)
+    for (const k of (kidsOf.get(c.ID) || []).sort((a, b) => a.Seq - b.Seq)) list.push(k)
+  }
   const cur = profiles.find(p => p.name === profile)
   // 轮次进度：本轮工具轮次 / 本会话落库的最大 seq（也即已记录的轮次）
   const dirtyActions = anyDirty ? (
@@ -836,8 +851,9 @@ export default function App() {
               <ol className="ef-records dark">
                 {list.map((c, i) => (
                   <li key={c.ID}>
-                    <a className={'ef-record' + (c.ID === convId ? ' on' : '')} onClick={() => openConv(c.ID)}>
-                      <span className="ef-tag" title={c.ID}>No.{String(c.ID).padStart(4, '0')}</span>
+                    <a className={'ef-record' + (c.ID === convId ? ' on' : '') + (c.ParentID ? ' child' : '')}
+                      onClick={() => openConv(c.ID)} title={c.ParentID ? ('子会话 ↳#' + c.Seq + '（父 #' + c.ParentID + '）') : ''}>
+                      <span className="ef-tag" title={c.ID}>{c.ParentID ? '↳#' + c.Seq : 'No.' + String(c.ID).padStart(4, '0')}</span>
                       <time className="ef-field" title="最后活跃">{fmtActive(c.UpdatedAt)}</time>
                       <span className="name ef-read">{c.Title || '(无标题)'}</span>
                         <span className="ef-field count">{c.N}</span>
@@ -882,6 +898,16 @@ export default function App() {
 
         <main className="stage" ref={stageRef} style={{ '--colw': colW + 'px' }}
           onMouseMove={onStageMove} onMouseLeave={onStageLeave} onMouseDown={onStageDown}>
+        {(() => {
+          const me = convs.find(c => c.ID === convId)
+          if (!me || !me.ParentID) return null
+          return (
+            <div className="childbar">
+              <span className="childbar-tag">↳#{me.Seq}</span>
+              <span className="childbar-txt">子会话 · 父 <a onClick={() => openConv(String(me.ParentID))}>#{me.ParentID}</a></span>
+            </div>
+          )
+        })()}
           <i className="guideline" aria-hidden="true" />
           <div className="thread" ref={threadRef} onScroll={onThreadScroll}>
             {msgs.length === 0 ? (
@@ -1365,6 +1391,11 @@ export default function App() {
                                 {s.output ? <pre className="ts-out">{s.output.slice(0, 300)}</pre> : null}
                               </div>
                             ))}
+                            {taskDetail.task && taskDetail.task.child_conv ? (
+                              <button className="btn" style={{ marginRight: '.4rem' }}
+                                onClick={() => { openConv(String(taskDetail.task.child_conv)); setShowSet(false) }}>
+                                打开子会话 ↳#{taskDetail.task.child_conv}</button>
+                            ) : null}
                             {taskDetail.task && taskDetail.task.status === 'interrupted' ? (
                               <button className="btn" onClick={async () => {
                                 await api('/api/tasks/' + taskDetail.task.id + '/restore', { method: 'POST' })

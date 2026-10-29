@@ -15,6 +15,9 @@
 
 ## 会话
 
+`GET /api/convs` 每行：`{ID, Title, UpdatedAt, N, ParentID, Kind, Seq}`。子会话 `Kind="child"`、
+`ParentID` 指向父会话、`Seq` 是在同父下的序号（界面显示 ↳#N）。
+
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/api/convs` | 未归档列表：`[{ID,Title,UpdatedAt,N}]`（N=消息条数） |

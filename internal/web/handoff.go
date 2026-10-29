@@ -96,13 +96,14 @@ func (s *Server) runChild(ctx context.Context, parent int64, profileName, card s
 	}
 	// 子会话工具固定：bash + handoff_fail（不受配方 profile 的 tools 影响）
 	prof.Tools = []string{"bash", "handoff_fail"}
-	c := &store.Conversation{Title: "↳ " + fmt.Sprint(parent), ParentID: parent, Kind: "child",
+	c := &store.Conversation{Title: childTitle(card, parent), ParentID: parent, Kind: "child",
 		KV: map[string]string{"profile": profileName}}
 	if err := s.st.Save(c); err != nil {
 		return 0, "", err
 	}
 	ag := agent.New(s.cfg, s.st, prof)
 	ag.MsgOrigin = "handoff"
+	card = humanCard(card)
 	ag.MaxRounds = maxRounds
 	ag.SpawnTask = nil // 子会话不能再派发任务（天然两层）
 	ag.FailTask = func(reason, evidence string) (string, error) {
@@ -254,4 +255,49 @@ func (s *Server) handleTasks(w http.ResponseWriter, r *http.Request) {
 	default:
 		writeJSON(w, 404, map[string]string{"error": "未知操作"})
 	}
+}
+
+// humanCard：把交接卡 JSON 变成给子会话读的自然语言（别把原始 JSON 塞进对话）
+func humanCard(raw string) string {
+	var d struct {
+		Kind string         `json:"kind"`
+		Card map[string]any `json:"card"`
+	}
+	if json.Unmarshal([]byte(raw), &d) != nil {
+		return raw
+	}
+	var b strings.Builder
+	b.WriteString("你是执行子会话。按下面的交接卡完成任务；完成后用一两句话汇报结果（做了什么、产物在哪）。\n\n")
+	if g, ok := d.Card["goal"].(string); ok && g != "" {
+		b.WriteString("目标：" + g + "\n")
+	}
+	for k, v := range d.Card {
+		if k == "goal" {
+			continue
+		}
+		b.WriteString(k + "：" + fmt.Sprint(v) + "\n")
+	}
+	b.WriteString("\n工具只有 bash（以及 handoff_fail：无法继续时只写事实）。")
+	return b.String()
+}
+
+// childTitle：用交接卡目标当标题（截断），拿不到就退回"↳ 父 #N"
+func childTitle(card string, parent int64) string {
+	var d struct {
+		Kind string         `json:"kind"`
+		Card map[string]any `json:"card"`
+	}
+	if json.Unmarshal([]byte(card), &d) == nil {
+		if g, _ := d.Card["goal"].(string); strings.TrimSpace(g) != "" {
+			r := []rune(strings.TrimSpace(g))
+			if len(r) > 24 {
+				r = append(r[:24], '…')
+			}
+			return "↳ " + string(r)
+		}
+		if d.Kind != "" {
+			return "↳ " + d.Kind + " (父 #" + fmt.Sprint(parent) + ")"
+		}
+	}
+	return "↳ 父 #" + fmt.Sprint(parent)
 }

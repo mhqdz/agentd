@@ -1028,7 +1028,7 @@ export default function App() {
                     const meta = [m.ms ? (m.ms < 1000 ? m.ms + 'ms' : (m.ms / 1000).toFixed(1) + 's') : '', m.content ? String(m.content).length + ' 字' : ''].filter(Boolean).join(' · ')
                     const toggle = () => setOpenRuns(prev => { const n = new Set(prev); n.has(gstart) ? n.delete(gstart) : n.add(gstart); return n })
                     return (
-                      <div className={'toolnote' + (first ? ' run-start' : '') + (last ? ' run-end' : '')} key={i}>
+                      <div className={'toolnote' + (first ? ' run-start' : '') + ((last || !open) ? ' run-end' : '')} key={i}>
                         {first ? <span className="tn-c tl" /> : null}
                         {(last || !open) ? <span className="tn-c br" /> : null}
                         {first ? (

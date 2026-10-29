@@ -189,6 +189,7 @@ export default function App() {
   const stageRef = useRef(null)
   const setOpenRef = useRef(false)
   const threadRef = useRef(null)
+  const stickRef = useRef(true)   // 是否跟随到底：只有用户没上翻过才跟随
   // 是否贴着底部（新内容是否跟随）——之前漏了定义，finish 时会 ReferenceError
   const isAtBottom = (th = threadRef.current, tol = 40) =>
     !!th && (th.scrollHeight - th.scrollTop - th.clientHeight) <= tol
@@ -424,7 +425,11 @@ export default function App() {
     {
       const th = threadRef.current
       // 严格判定"在底部"：留 6px 容差；用户一旦上翻就不再跟随（直到自己滚回底部）
-      if (th) atBottomRef.current = th.scrollHeight - th.scrollTop - th.clientHeight <= 6
+      if (th) {
+        const at = th.scrollHeight - th.scrollTop - th.clientHeight <= 8
+        atBottomRef.current = at
+        stickRef.current = at   // 用户滚回底部才重新跟随；上翻即解除
+      }
     }
     if (suppressPeekClose.current) {
       clearTimeout(suppressTimer.current)
@@ -558,13 +563,27 @@ export default function App() {
   }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
   useEffect(() => { if (window.innerWidth >= 1400) localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
-  // 自动跟随：仅当用户已在底部附近才滚到底；往上翻阅读历史时不打断
+  // 跟随到底：只有 stickRef 为真（用户没上翻过 / 已滚回底部）才跟随
   useEffect(() => {
     const th = threadRef.current
-    if (!th) return
-    const nearBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 120
-    if (nearBottom) th.scrollTop = th.scrollHeight
+    if (!th || !stickRef.current) return
+    const pin = () => { if (stickRef.current) th.scrollTop = th.scrollHeight }
+    pin()
+    requestAnimationFrame(pin)
   }, [msgs, status])
+
+  // 运行中每帧校正（流式增量不一定触发 effect）；用户上翻后 stickRef=false，立刻停手
+  useEffect(() => {
+    if (!busy) return
+    let raf = 0
+    const tick = () => {
+      const th = threadRef.current
+      if (th && stickRef.current) th.scrollTop = th.scrollHeight
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [busy])
 
   // 续流去重：DB 里已落库的那条（本轮进行中的 assistant）不该与流式副本并存
   const trimDup = (list, live) => {
@@ -580,6 +599,7 @@ export default function App() {
 
   // 滚到会话底部（新消息/进入会话时用）
   const scrollToBottom = () => {
+    stickRef.current = true
     const stick = () => { const th = threadRef.current; if (th) th.scrollTop = th.scrollHeight }
     requestAnimationFrame(stick)
     setTimeout(stick, 60)
@@ -990,7 +1010,8 @@ export default function App() {
           )
         })()}
           <i className="guideline" aria-hidden="true" />
-          <div className="thread" ref={threadRef} onScroll={onThreadScroll}>
+          <div className="thread" ref={threadRef} onScroll={onThreadScroll}
+            onWheel={e => { if (e.deltaY < 0) stickRef.current = false }}>
             {msgs.length === 0 ? (
               <div className="col empty">
                 <div className="eyebrow">LOCAL AGENT CONSOLE</div>

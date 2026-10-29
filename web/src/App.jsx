@@ -990,27 +990,42 @@ export default function App() {
                     (m.tool_calls?.length || m.toolCalls?.length)) ? (
                   // 工具轮的 assistant 只有思考和 tool_calls，正文是空的：不占 Agent 卡，只留一行可展开的思考
                   null
-                ) : m.role === 'tool' ? (
-                  <div className={'toolnote' +
-                      (neighborRole(i - 1, -1) === 'tool' ? '' : ' run-start') +
-                      (neighborRole(i + 1, 1) === 'tool' ? '' : ' run-end')} key={i}>
-                    {neighborRole(i - 1, -1) !== 'tool' ? <div className="toolnote-tag">Tool</div> : null}
-                    <div className="toolnote-hd">
-                      {(m.seq || liveNo.get(m)) ? <span className="sysnote-no">[No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}]</span> : null}
-                      <span className="toolnote-name">{m.toolName || '工具'}</span>
-                      <span className="toolnote-args">{m.toolArgs ? (() => { try { return JSON.stringify(JSON.parse(String(m.toolArgs))).slice(0, 140) } catch { return String(m.toolArgs).slice(0, 140) } })() : ''}</span>
-                      <span className="toolnote-ms">{m.ms ? (m.ms < 1000 ? m.ms + 'ms' : (m.ms / 1000).toFixed(1) + 's') : ''}</span>
-                      <span className="sysnote-line" />
-                    </div>
-                    {(m.images || []).map((u, k2) => <img key={k2} className="msg-img" src={u} alt="tool" />)}
-                    {(m.content || '').trim() ? (
-                      <details className="fold toolnote-out">
-                        <summary>输出 · {String(m.content).length} 字</summary>
-                        <pre className="out">{m.content}</pre>
-                      </details>
-                    ) : null}
-                  </div>
-                ) : isSysNote(m) ? (
+                ) : m.role === 'tool' ? (() => {
+                    const first = neighborRole(i - 1, -1) !== 'tool'
+                    const last = neighborRole(i + 1, 1) !== 'tool'
+                    let n = 0
+                    for (let k = i; k < msgs.length; k++) { if (isGhostMsg(msgs[k])) continue; if (msgs[k].role !== 'tool') break; n++ }
+                    let args = ''
+                    if (m.toolArgs) { try { args = JSON.stringify(JSON.parse(String(m.toolArgs))) } catch { args = String(m.toolArgs) } }
+                    const meta = [m.ms ? (m.ms < 1000 ? m.ms + 'ms' : (m.ms / 1000).toFixed(1) + 's') : '', m.content ? '输出 ' + String(m.content).length + ' 字' : ''].filter(Boolean).join(' · ')
+                    return (
+                      <div className={'toolnote' + (first ? ' run-start' : '') + (last ? ' run-end' : '')} key={i}>
+                        {first ? <span className="tn-c tl" /> : null}
+                        {first ? <span className="tn-c tr" /> : null}
+                        {last ? <span className="tn-c bl" /> : null}
+                        {last ? <span className="tn-c br" /> : null}
+                        {first ? (
+                          <div className="tn-hd">
+                            <span className="tn-tag">Tool</span>
+                            <span className="tn-count">{n > 1 ? n + ' 次调用' : ''}</span>
+                          </div>
+                        ) : null}
+                        <div className="tn-row">
+                          <span className="tn-no">{(m.seq || liveNo.get(m)) ? 'No.' + String(m.seq || liveNo.get(m)).padStart(3, '0') : '··'}</span>
+                          <span className="tn-name">{m.toolName || '工具'}</span>
+                          <span className="tn-meta">{meta}</span>
+                        </div>
+                        {args ? <div className="tn-arg" title={args}>{args}</div> : null}
+                        {(m.images || []).map((u, k2) => <img key={k2} className="msg-img" src={u} alt="tool" />)}
+                        {(m.content || '').trim() ? (
+                          <details className="tn-out">
+                            <summary>输出</summary>
+                            <pre className="out">{m.content}</pre>
+                          </details>
+                        ) : null}
+                      </div>
+                    )
+                  })() : isSysNote(m) ? (
                   <div key={i} className="sysnote">
                     {(m.seq || liveNo.get(m)) ? <span className="sysnote-no">[No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}]</span> : null}
                     <span className="sysnote-t">{m.content}</span>

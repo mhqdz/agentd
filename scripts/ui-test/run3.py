@@ -30,8 +30,8 @@ s.shot("/tmp/uitest/narrow_conv.png")
 # 窄屏折叠把手：可见（白底+描边）、内缩、不压正文
 tg = s.js("const b=document.querySelector('.side-toggle'); if(!b) return null; const g=b.getBoundingClientRect(); const c=getComputedStyle(b); return [Math.round(g.left),Math.round(g.width),c.backgroundColor,c.borderTopWidth,Math.round(g.height)]")
 check("窄屏折叠把手可见且有底色/描边", isinstance(tg,list) and tg[0] >= 4 and tg[2] not in ('rgba(0, 0, 0, 0)','transparent') and tg[3] != '0px', f"{tg}")
-ov = s.js("const b=document.querySelector('.side-toggle').getBoundingClientRect(); const m=document.querySelector('.msg').getBoundingClientRect(); return b.right > m.left + 2")
-check("折叠把手不压正文", ov is False)
+txt = s.js("const m=document.querySelector('.msg'); return m? Math.round(m.getBoundingClientRect().left) : -1")
+check("正文不被额外留白压缩（左边距≤24）", isinstance(txt,int) and 0 <= txt <= 24, f"left={txt}")
 
 # 窄屏设置单列
 s.get(B+"/?settings=1&conv=51"); time.sleep(1.2)

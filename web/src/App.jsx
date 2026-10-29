@@ -566,12 +566,14 @@ export default function App() {
   useEffect(() => { if (window.innerWidth >= 1400) localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
   // 运行中的趣味提示（大肥鱼语录）：不打扰，只做背景信息
   const [quip, setQuip] = useState('')
+  const [uiCfg, setUiCfg] = useState(null)
   useEffect(() => {
-    const lines = [
+    // 前端配置：web/public/ui.json（静态资源，不经后端；改完刷新即可）
+    fetch('/ui.json').then(r => r.ok ? r.json() : null).then(c => c && setUiCfg(c)).catch(() => {})
+  }, [])
+  useEffect(() => {
+    const lines = (uiCfg && Array.isArray(uiCfg.quips) && uiCfg.quips.length) ? uiCfg.quips : [
       '「我是吃白饭的大肥鱼」',
-      '「真当我是便宜货啊」',
-      '「我去吃饭，测完告诉我就行」',
-      '「我操，用户彻底怒了」',
       '「DeepSleep...」',
     ]
     if (!busy) { setQuip(''); return }
@@ -579,7 +581,7 @@ export default function App() {
     setQuip(lines[0])
     const t = setInterval(() => { i = (i + 1) % lines.length; setQuip(lines[i]) }, 4000)
     return () => clearInterval(t)
-  }, [busy])
+  }, [busy, uiCfg])
 
   // 跟随到底：只有 stickRef 为真（用户没上翻过 / 已滚回底部）才跟随
   useEffect(() => {

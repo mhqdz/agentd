@@ -484,6 +484,7 @@ export default function App() {
       if (tl) {
         const t = (await api('/api/tools').catch(() => []))?.find(x => x.name === tl)
         if (t) setToolCfg({ ...t, enabled: true, subtools: [] })
+        if (t && q.get('tooledit')) { setEditOriginal(t.description || ''); setToolEdit({ name: t.name, description: t.description }) }
       }
     })
   }, [])
@@ -984,6 +985,24 @@ export default function App() {
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
               <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : ((editP || toolCfg) ? ' two' : ''))}
                 onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
+                {(editField || toolEdit) ? (
+                  <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
+                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button><span className="ef-label"><span className="ef-label-t">{toolEdit ? ('tool · ' + toolEdit.name) : 'system'}</span></span>
+                        <span style={{ flex: 1 }} />
+                        {narrow ? dirtyActions : null}</div>
+                    <textarea ref={el => { if (el) autoGrow(el) }} className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
+                      onInput={e => autoGrow(e.target)}
+                      placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的 system 提示…'}
+                      onChange={e => {
+                        if (toolEdit) setToolEdit({ ...toolEdit, description: e.target.value })
+                        else setEditP({ ...editP, [editField]: e.target.value })
+                      }} />
+                    <div className="set-col-foot"><span className="set-meta">
+                      {(toolEdit ? (toolEdit.description || '') : (editP[editField] || '')).length} 字
+                    </span></div>
+                  </div>
+                ) : null}
+
                 {toolCfg ? (
                 <div className={"card col-tool" + (toolCfg && !toolEdit && !editField ? " is-top" : "")}>
                   <div className="card-hd">
@@ -1026,24 +1045,6 @@ export default function App() {
                   </div>
                 </div>
                 ) : null}
-                {(editField || toolEdit) ? (
-                  <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
-                    <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button><span className="ef-label"><span className="ef-label-t">{toolEdit ? ('tool · ' + toolEdit.name) : 'system'}</span></span>
-                        <span style={{ flex: 1 }} />
-                        {narrow ? dirtyActions : null}</div>
-                    <textarea ref={el => { if (el) autoGrow(el) }} className="set-area" value={toolEdit ? (toolEdit.description || '') : (editP[editField] || '')}
-                      onInput={e => autoGrow(e.target)}
-                      placeholder={toolEdit ? '工具说明（模型会看到这段文字）…' : '这里写完整的 system 提示…'}
-                      onChange={e => {
-                        if (toolEdit) setToolEdit({ ...toolEdit, description: e.target.value })
-                        else setEditP({ ...editP, [editField]: e.target.value })
-                      }} />
-                    <div className="set-col-foot"><span className="set-meta">
-                      {(toolEdit ? (toolEdit.description || '') : (editP[editField] || '')).length} 字
-                    </span></div>
-                  </div>
-                ) : null}
-
                 {editP ? (
                   <div className={"card col-form" + (!(editField || toolEdit) && editP ? " is-top" : "")}>
                     <div className="card-hd" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>

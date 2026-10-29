@@ -982,7 +982,9 @@ export default function App() {
           </div>
           {showSet ? (
             <aside className={'settings' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}>
-              {toolCfg ? (
+              <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : ((editP || toolCfg) ? ' two' : ''))}
+                onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
+                {toolCfg ? (
                 <div className={"card col-tool" + (toolCfg && !toolEdit && !editField ? " is-top" : "")}>
                   <div className="card-hd">
                     <button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
@@ -1023,9 +1025,7 @@ export default function App() {
                     <div className="set-meta">要改可用性：打开对应模型的「工具」勾选</div>
                   </div>
                 </div>
-              ) : null}
-              <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : ((editP || toolCfg) ? ' two' : ''))}
-                onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
+                ) : null}
                 {(editField || toolEdit) ? (
                   <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
                     <div className="card-hd"><button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button><span className="ef-label"><span className="ef-label-t">{toolEdit ? ('tool · ' + toolEdit.name) : 'system'}</span></span>

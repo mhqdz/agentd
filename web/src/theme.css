@@ -1058,3 +1058,19 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   .composer textarea{min-height:2.4rem;padding:.45rem .6rem}
   .composer .row3{padding:.24rem .5rem}
 }
+
+/* 竖屏：把手移到顶栏最左（状态指示的左边），无边框 */
+@media (max-width:1399px){
+  .side-toggle.collapsed,.side-toggle:not(.collapsed){
+    position:fixed;top:1px;left:4px;transform:none;
+    width:28px;height:32px;z-index:1001;
+    background:transparent;border:0;box-shadow:none;color:var(--c5)}
+  .side-toggle.collapsed:hover,.side-toggle:not(.collapsed):hover{background:var(--c2);color:var(--c7)}
+  .side-toggle:active{transform:none}
+  .st-icon{width:12px;height:12px}
+  .topbar .mobrail{padding-left:2.1rem}
+}
+@media (max-width:1399px){
+  /* 进度线让开左上角把手 */
+  .topbar .topline{margin-left:2.1rem}
+}

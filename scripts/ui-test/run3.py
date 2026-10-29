@@ -28,8 +28,9 @@ check("窄屏右栏搬到顶部（高度很小、贴顶）", isinstance(top,list
 check("窄屏消息列宽度合理（≥80% 视口）", s.js("const m=document.querySelector('.msg'); if(!m) return -1; return Math.round(m.getBoundingClientRect().width / innerWidth * 100)") >= 75)
 s.shot("/tmp/uitest/narrow_conv.png")
 # 窄屏折叠把手：可见（白底+描边）、内缩、不压正文
-tg = s.js("const b=document.querySelector('.side-toggle'); if(!b) return null; const g=b.getBoundingClientRect(); const c=getComputedStyle(b); return [Math.round(g.left),Math.round(g.width),c.backgroundColor,c.borderTopWidth,Math.round(g.height)]")
-check("窄屏折叠把手：无底色（透出正文）、保留细描边", isinstance(tg,list) and tg[0] >= 4 and tg[2] in ('rgba(0, 0, 0, 0)','transparent') and tg[3] != '0px', f"{tg}")
+tg = s.js("const b=document.querySelector('.side-toggle'); if(!b) return null; const g=b.getBoundingClientRect(); const c=getComputedStyle(b); const d=document.querySelector('.mobrail .mob-dot').getBoundingClientRect(); return [Math.round(g.left),Math.round(g.top),Math.round(g.width),c.borderTopWidth,c.backgroundColor,Math.round(d.left)]")
+check("竖屏把手：左下角无、改到顶栏最左（状态左侧），无边框无底色",
+      isinstance(tg,list) and tg[0] <= 8 and tg[1] <= 8 and tg[3] == '0px' and tg[4] in ('rgba(0, 0, 0, 0)','transparent') and tg[0]+tg[2] <= tg[5], f"{tg}")
 txt = s.js("const m=document.querySelector('.msg'); return m? Math.round(m.getBoundingClientRect().left) : -1")
 check("正文不被额外留白压缩（左边距≤24）", isinstance(txt,int) and 0 <= txt <= 24, f"left={txt}")
 

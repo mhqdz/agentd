@@ -2,8 +2,35 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import NumberFlow from '@number-flow/react'
+import { stream, useLiveMsg } from './conversation/streamStore'
 
 marked.setOptions({ gfm: true, breaks: true })
+
+// 实时气泡：订阅 streamStore，只它随 delta 重渲染（历史消息不参与）
+function LiveBubble() {
+  const live = useLiveMsg()
+  const has = live && ((live.content || '').trim() || (live.reasoning || '').trim())
+  if (!has) return null
+  return (
+    <div className="msg ef-panel cut-tl assistant">
+      <div>
+        <div className="mhead">
+          <span className="av">◈</span>
+          <b>Agent</b>
+          <span className="ef-field">生成中…</span>
+        </div>
+        {(live.reasoning || '').trim() ? (
+          <details className="fold" open>
+            <summary className="think-sum">思考过程 · <span className="num">{live.reasoning.length}</span> 字{
+              live.rsecs ? <>{' · '}<span className="num">{live.rsecs.toFixed(1)}</span>{'s'}</> : null}</summary>
+            <pre className="think">{live.reasoning}</pre>
+          </details>
+        ) : null}
+        {(live.content || '').trim() ? <Sections text={live.content} /> : null}
+      </div>
+    </div>
+  )
+}
 
 // 日历式翻数：数字变化时逐位滚动（+1 向上，-1 向下）
 function Roll({ value, digits = 2 }) {
@@ -673,13 +700,7 @@ export default function App() {
     let pushTimer = null
     const push = () => {
       if (pushTimer) return
-      pushTimer = setTimeout(() => {
-        pushTimer = null
-        setMsgs(m => {
-          const kept = trimDup(m.filter(x => !x.__live), live)
-          return [...kept, { ...live, __live: true }]
-        })
-      }, 80)
+      pushTimer = setTimeout(() => { pushTimer = null; stream.set({ ...live }) }, 80)
     }
     let done = false
     const finish = async (msg) => {
@@ -734,7 +755,7 @@ export default function App() {
               live = { role: 'assistant', content: '', reasoning: '', tools: [], at: now() }
               setMsgs(m => [...m.filter(x => !x.__live), doneLive,
                 { role: 'tool', toolName: d.name, toolArgs: d.args, content: d.text || '', ms: d.ms || 0, at: now(), __liveTool: true }])
-              push()
+              stream.clear()
             }
               else if (ev === 'usage') { if (d.tps > 0) setTps(d.tps) }
           }
@@ -773,10 +794,7 @@ export default function App() {
       let pushTimer = null
       const push = () => {
         if (pushTimer) return
-        pushTimer = setTimeout(() => {
-          pushTimer = null
-          setMsgs(m => [...m.filter(x => !x.__live), { ...asst, __live: true }])
-        }, 80)
+        pushTimer = setTimeout(() => { pushTimer = null; stream.set({ ...asst }) }, 80)
       }
       for (;;) {
         const { value, done } = await reader.read(); if (done) break
@@ -812,7 +830,7 @@ export default function App() {
             asst = { role: 'assistant', content: '', reasoning: '', at: now() }
             setMsgs(m => [...m.filter(x => !x.__live), doneAsst,
               { role: 'tool', toolName: d.name, toolArgs: d.args, content: d.text || '', ms: d.ms || 0, at: now(), __liveTool: true }])
-            push()
+            stream.clear()
           }
           else if (ev === 'error') { asst.content += '\n✗ ' + (d.error || ''); push() }
           else if (ev === 'interject') { setStatus('模型已收到插话：' + (d.text || '').slice(0, 30)) }

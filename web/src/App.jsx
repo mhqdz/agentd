@@ -870,8 +870,8 @@ export default function App() {
           </div>
         </aside>
         <button className={'side-toggle' + (sideOpen ? '' : ' collapsed')}
-          onClick={() => setSideOpen(!sideOpen)}
-          title={sideOpen ? '折叠侧栏' : '展开侧栏'}
+          onPointerDown={e => { e.preventDefault(); setSideOpen(v => !v) }}
+          title={sideOpen ? '收起会话列表' : '展开会话列表'}
           aria-label={sideOpen ? '折叠侧栏' : '展开侧栏'}
           aria-expanded={sideOpen}>
           <svg className="st-icon" viewBox="0 0 24 24" aria-hidden="true">

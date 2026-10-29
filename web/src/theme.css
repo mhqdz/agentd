@@ -1088,3 +1088,11 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 }
 .drawer .foot-btn{color:var(--ink)}
 .drawer .foot-btn:hover{color:var(--sage-d);border-color:var(--sage)}
+
+/* 竖屏：把手图标改上下朝向（展开=⌄，收起=⌃），旋转动画同样走 transform */
+@media (max-width:1399px){
+  .side-toggle .st-icon{transform:rotate(90deg)}          /* 收起态：朝上 ⌃ */
+  .side-toggle.collapsed .st-icon{transform:rotate(-90deg)} /* 展开态：朝下 ⌄ */
+  .side-toggle .st-icon,.side-toggle.collapsed .st-icon{transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+  .side-toggle{z-index:1200}
+}

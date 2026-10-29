@@ -29,6 +29,15 @@ check("窄屏消息列宽度合理（≥80% 视口）", s.js("const m=document.q
 s.shot("/tmp/uitest/narrow_conv.png")
 # 窄屏折叠把手：可见（白底+描边）、内缩、不压正文
 tg = s.js("const b=document.querySelector('.side-toggle'); if(!b) return null; const g=b.getBoundingClientRect(); const c=getComputedStyle(b); const d=document.querySelector('.mobrail .mob-dot').getBoundingClientRect(); return [Math.round(g.left),Math.round(g.top),Math.round(g.width),c.borderTopWidth,c.backgroundColor,Math.round(d.left)]")
+icon0 = s.js("return getComputedStyle(document.querySelector('.side-toggle .st-icon')).transform")
+check("竖屏把手收起态朝下（上下朝向）", isinstance(icon0,str) and icon0.startswith('matrix(0, -1, 1, 0'), f"{icon0}")
+n_open = 0
+for i in range(4):
+    s.click('.side-toggle'); time.sleep(.35)
+    cls = s.js("return document.querySelector('.side-toggle').className")
+    if 'collapsed' not in cls: n_open += 1
+check("竖屏把手点击可靠（4 次点击应开 2 次）", n_open == 2, f"open={n_open}")
+s.click('.side-toggle'); time.sleep(.3)   # 回到收起态
 check("竖屏把手：左下角无、改到顶栏最左（状态左侧），无边框无底色",
       isinstance(tg,list) and tg[0] <= 8 and tg[1] <= 8 and tg[3] == '0px' and tg[4] in ('rgba(0, 0, 0, 0)','transparent') and tg[0]+tg[2] <= tg[5], f"{tg}")
 txt = s.js("const m=document.querySelector('.msg'); return m? Math.round(m.getBoundingClientRect().left) : -1")

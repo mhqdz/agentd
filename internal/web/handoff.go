@@ -94,6 +94,8 @@ func (s *Server) runChild(ctx context.Context, parent int64, profileName, card s
 	if !ok {
 		return 0, "", fmt.Errorf("子会话 profile %q 不存在", profileName)
 	}
+	// 子会话工具固定：bash + handoff_fail（不受配方 profile 的 tools 影响）
+	prof.Tools = []string{"bash", "handoff_fail"}
 	c := &store.Conversation{Title: "↳ " + fmt.Sprint(parent), ParentID: parent, Kind: "child",
 		KV: map[string]string{"profile": profileName}}
 	if err := s.st.Save(c); err != nil {

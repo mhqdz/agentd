@@ -489,6 +489,8 @@ export default function App() {
           if (fld) { setEditOriginal(pr[fld] || ''); setEditField(fld) }
         }
       }
+      const tq = q.get('task')                     // ?task=3 直接看任务详情
+      if (tq) { const d = await api('/api/tasks/' + tq).catch(() => null); if (d && d.task) setTaskDetail(d) }
       const tl = q.get('tool')                    // ?tool=kb_search 直接打开工具卡
       if (tl) {
         const t = (await api('/api/tools').catch(() => []))?.find(x => x.name === tl)

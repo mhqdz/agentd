@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -138,14 +139,8 @@ func (s *Server) wakeToken() string {
 		return strings.TrimSpace(string(b))
 	}
 	buf := make([]byte, 16)
-	tok := fmt.Sprintf("%x", time.Now().UnixNano())
-	if _, err := os.ReadFile("/dev/urandom"); err == nil {
-		if f, err := os.Open("/dev/urandom"); err == nil {
-			_, _ = f.Read(buf)
-			f.Close()
-			tok = fmt.Sprintf("%x", buf)
-		}
-	}
+	_, _ = rand.Read(buf) // 修复：os.ReadFile("/dev/urandom") 会读无限流卡死
+	tok := fmt.Sprintf("%x", buf)
 	_ = os.MkdirAll(filepath.Dir(p), 0o755)
 	_ = os.WriteFile(p, []byte(tok+"\n"), 0o600)
 	return tok
@@ -196,6 +191,34 @@ func (s *Server) handleTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	path := strings.TrimPrefix(r.URL.Path, "/api/tasks")
+	if (path == "" || path == "/") && r.Method == http.MethodPost {
+		// 手动派发（前端"新建任务"/脚本用）：{kind, conv_id, card}
+		var in struct {
+			Kind   string         `json:"kind"`
+			ConvID string         `json:"conv_id"`
+			Card   map[string]any `json:"card"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.Kind == "" {
+			writeJSON(w, 400, map[string]string{"error": "需要 kind"})
+			return
+		}
+		parent, _ := strconv.ParseInt(in.ConvID, 10, 64)
+		if parent <= 0 {
+			writeJSON(w, 400, map[string]string{"error": "需要 conv_id"})
+			return
+		}
+		if s.ho == nil {
+			writeJSON(w, 503, map[string]string{"error": "未启用"})
+			return
+		}
+		id, err := s.ho.Dispatch(parent, in.Kind, in.Card)
+		if err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]any{"ok": true, "task_id": id})
+		return
+	}
 	if path == "" || path == "/" {
 		list, _ := s.hst.ListTasks()
 		recipes := []string{}

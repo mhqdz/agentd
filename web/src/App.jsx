@@ -189,6 +189,10 @@ export default function App() {
   const [toolEdit, setToolEdit] = useState(null)
   const [toolCfg, setToolCfg] = useState(null)   // 工具配置卡（只读信息）
   const [toolForm, setToolForm] = useState(null) // 插件表单（新建/编辑）
+  const [tasks, setTasks] = useState([])         // 交接任务
+  const [recipes, setRecipes] = useState([])
+  const [taskActive, setTaskActive] = useState(0)
+  const [taskDetail, setTaskDetail] = useState(null)
   const [expandedTool, setExpandedTool] = useState(null)
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
   const [readingIdx, setReadingIdx] = useState(0)
@@ -198,6 +202,10 @@ export default function App() {
   const [narrow, setNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < 1400)
   const [ctx, setCtx] = useState(null)   // 上下文占用 {chars,max,pct,raw}
   const [tps, setTps] = useState(0)   // 上游实时速度（tok/s，来自 usage 事件）
+  const loadTasks = async () => {
+    const r = await api('/api/tasks').catch(() => null)
+    if (r && !Array.isArray(r)) { setTasks(r.tasks || []); setRecipes(r.recipes || []); setTaskActive(r.active || 0) }
+  }
   const suppressPeekClose = useRef(false)
   const suppressTimer = useRef(null)
   const [editField, setEditField] = useState(null)
@@ -402,7 +410,7 @@ export default function App() {
   // 实时消息（还没落库）没有 seq：用 maxSeq+序号 给个临时编号，保证列表编号连续
   // 系统级提示（工具轮次上限 / 已停止 / 中断 / 空转中止）：模型要看到，但不该像对话那样占编号
   const isSysNote = (m) => m.role === 'assistant' && !(m.reasoning || '').trim() &&
-    /^\s*(——)?\s*（(已达到工具轮次上限|已停止|中断|检测到连续)/.test(m.content || '')
+    /^\s*(——)?\s*（(已达到工具轮次上限|已停止|中断|检测到连续|任务回报|任务已派发)/.test(m.content || '')
 
   const maxSeq = msgs.reduce((a, m) => Math.max(a, m.seq || 0), 0)   // 含工具消息，避免编号撞号
   const liveNo = new Map()
@@ -496,6 +504,7 @@ export default function App() {
     if (el) setTimeout(() => autoGrow(el), 0)
   }, [editField, toolEdit])
   useEffect(() => { loadShotStats() }, [])
+  useEffect(() => { loadTasks(); const t = setInterval(loadTasks, 5000); return () => clearInterval(t) }, [])
   useEffect(() => {
     const on = () => setNarrow(window.innerWidth < 1400)
     window.addEventListener('resize', on)
@@ -1301,6 +1310,41 @@ export default function App() {
                       setToolForm({ isNew: true, name: '', description: '', command: '', timeoutMs: 20000,
                         persistent: false, paramsText: '{\n  "query": { "type": "string" }\n}', requiredText: 'query' })
                     }}>＋ 新建插件</div>
+
+                      <div className="set-section">任务{taskActive ? '（' + taskActive + ' 个在跑）' : ''}</div>
+                      <div className="set-card">
+                        {tasks.length === 0 ? (
+                          <div className="set-meta">还没有任务{recipes.length ? '（可用配方：' + recipes.join('、') + '）' : '（未注册配方）'}</div>
+                        ) : tasks.map(t => (
+                          <div className="item col" key={t.id} onClick={async () => {
+                            const d = await api('/api/tasks/' + t.id).catch(() => null)
+                            setTaskDetail(prev => (prev && prev.task && prev.task.id === t.id) ? null : d)
+                          }}>
+                            <b className="item-title">#{t.id} {t.kind}
+                              <span className={'src-tag ' + (t.status === 'done' ? 'builtin' : 'plugin')}>{t.status}</span>
+                            </b>
+                            <span className="item-desc">{t.child_conv ? '子会话 ↳#' + t.child_conv + ' · ' : ''}{t.error || t.created_at}</span>
+                          </div>
+                        ))}
+                        {taskDetail ? (
+                          <div className="item static" style={{ display: 'block' }}>
+                            {(taskDetail.steps || []).map(s => (
+                              <div key={s.seq} className="task-step">
+                                <span className={'ts-dot ' + s.status} />
+                                <span className="ts-cmd">{s.cmd || s.name}</span>
+                                <span className="ts-meta">{s.exit_code ? 'exit ' + s.exit_code : ''} {s.ms}ms</span>
+                                {s.output ? <pre className="ts-out">{s.output.slice(0, 300)}</pre> : null}
+                              </div>
+                            ))}
+                            {taskDetail.task && taskDetail.task.status === 'interrupted' ? (
+                              <button className="btn" onClick={async () => {
+                                await api('/api/tasks/' + taskDetail.task.id + '/restore', { method: 'POST' })
+                                setTaskDetail(null); loadTasks()
+                              }}>执行收尾</button>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>

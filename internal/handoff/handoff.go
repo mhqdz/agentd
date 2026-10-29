@@ -104,6 +104,10 @@ func (m *Manager) Names() []string {
 func (m *Manager) Dispatch(parent int64, kind string, card map[string]any) (int64, error) {
 	r, ok := m.Recipes[kind]
 	if !ok {
+		_ = m.Load() // 配方改完即生效（与插件一致）
+		r, ok = m.Recipes[kind]
+	}
+	if !ok {
 		return 0, fmt.Errorf("未注册的任务类型 %q（可用：%s）", kind, strings.Join(m.Names(), ", "))
 	}
 	cb, _ := json.MarshalIndent(map[string]any{"kind": kind, "card": card, "created_at": time.Now().Format(time.RFC3339)}, "", "  ")
@@ -113,7 +117,6 @@ func (m *Manager) Dispatch(parent int64, kind string, card map[string]any) (int6
 	}
 	path := filepath.Join(m.Dir, fmt.Sprintf("task-%d.json", tid))
 	_ = os.WriteFile(path, cb, 0o644)
-	_, _ = m.st.CreateOutbox(parent, "system", fmt.Sprintf("（任务已派发）%s #%d，完成后会在这里回报", kind, tid))
 	go m.run(tid, r, parent, string(cb))
 	return tid, nil
 }

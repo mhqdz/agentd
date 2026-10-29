@@ -83,6 +83,7 @@ CREATE TABLE outbox(
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
+| POST | `/api/tasks` | 手动派发 `{kind, conv_id, card}`（前端/脚本用，和 `spawn_task` 同一套校验） |
 | POST | `/api/wake` | `{conv_id, text, origin}`；Header `X-Agentd-Token`（`~/.data/agentd/wake.token`）；写 outbox → 立即返回 id |
 | GET | `/api/tasks?conv=&status=` | 任务列表（含子会话编号） |
 | GET | `/api/tasks/{id}` | 详情：配方、步骤、产物、outbox |
@@ -134,7 +135,11 @@ L3 指针：子会话 id（↳#N），父需要细节可用 bash/recall 去读
 ## 10. 分期
 
 ```
-M1（本轮）：配方 + spawn_task + 子会话 + 执行记录 + outbox + /api/wake + 任务视图
+M1（已实现）：配方（热加载）+ spawn_task + 子会话 + 步骤/产物/收尾 + 执行记录 + outbox（会话内 FIFO）
+              + /api/wake（token）+ /api/tasks（列表/详情/手动派发/收尾）+ 前端任务区
+   已验证：go test ./... 全绿（handoff 单测 + web 交接测试）；E2E 用 smoke 配方跑通
+          （3 条命令 + sleep + 产物检查 + restore + 回报 outbox delivered）
+M1 已知缺口：任务详情需点击展开才加载；无重试/取消按钮；子会话 spawning 只能通过真实模型跑
 M2：cancel / retry / restore 按钮、产物缩略、任务通知
 M3：view_image 工具（复核产物）、定时任务共用一个"日程"会话的约定
 ```

@@ -293,11 +293,11 @@ func childTitle(card string, parent int64) string {
 			if len(r) > 24 {
 				r = append(r[:24], '…')
 			}
-			return "↳ " + string(r)
+			return string(r)
 		}
 		if d.Kind != "" {
-			return "↳ " + d.Kind + " (父 #" + fmt.Sprint(parent) + ")"
+			return d.Kind + " · 父 No." + fmt.Sprint(parent)
 		}
 	}
-	return "↳ 父 #" + fmt.Sprint(parent)
+	return "子会话 · 父 No." + fmt.Sprint(parent)
 }

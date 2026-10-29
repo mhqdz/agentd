@@ -1110,3 +1110,5 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .childbar a{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 
 
+.drawer .ef-record .ef-field.child-no{grid-area:date;justify-self:end;text-align:right;
+  font-size:.56rem;color:var(--c5);font-variant-numeric:tabular-nums;letter-spacing:.02em}

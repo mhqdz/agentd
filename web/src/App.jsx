@@ -853,8 +853,11 @@ export default function App() {
                   <li key={c.ID}>
                     <a className={'ef-record' + (c.ID === convId ? ' on' : '') + (c.ParentID ? ' child' : '')}
                       onClick={() => openConv(c.ID)} title={c.ParentID ? ('子会话 ↳#' + c.Seq + '（父 #' + c.ParentID + '）') : ''}>
-                      <span className="ef-tag" title={c.ID}>{c.ParentID ? '↳#' + c.Seq : 'No.' + String(c.ID).padStart(4, '0')}</span>
-                      <time className="ef-field" title="最后活跃">{fmtActive(c.UpdatedAt)}</time>
+                      <span className="ef-tag" title={c.ParentID ? ('子会话 #' + c.Seq + '（父 #' + c.ParentID + '）') : c.ID}>
+                        {c.ParentID ? '#' + c.Seq : 'No.' + String(c.ID).padStart(4, '0')}</span>
+                      {c.ParentID
+                        ? <span className="ef-field child-no" title="会话编号">No.{String(c.ID).padStart(4, '0')}</span>
+                        : <time className="ef-field" title="最后活跃">{fmtActive(c.UpdatedAt)}</time>}
                       <span className="name ef-read">{c.Title || '(无标题)'}</span>
                         <span className="ef-field count">{c.N}</span>
                         <button className="act" title={tab === 'archive' ? '恢复' : '归档'}
@@ -903,8 +906,8 @@ export default function App() {
           if (!me || !me.ParentID) return null
           return (
             <div className="childbar">
-              <span className="childbar-tag">↳#{me.Seq}</span>
-              <span className="childbar-txt">子会话 · 父 <a onClick={() => openConv(String(me.ParentID))}>#{me.ParentID}</a></span>
+              <span className="childbar-tag">#{me.Seq}</span>
+              <span className="childbar-txt">子会话 · 父 <a onClick={() => openConv(String(me.ParentID))}>No.{String(me.ParentID).padStart(4, '0')}</a></span>
             </div>
           )
         })()}
@@ -1394,7 +1397,7 @@ export default function App() {
                             {taskDetail.task && taskDetail.task.child_conv ? (
                               <button className="btn" style={{ marginRight: '.4rem' }}
                                 onClick={() => { openConv(String(taskDetail.task.child_conv)); setShowSet(false) }}>
-                                打开子会话 ↳#{taskDetail.task.child_conv}</button>
+                                打开子会话 No.{String(taskDetail.task.child_conv).padStart(4, '0')}</button>
                             ) : null}
                             {taskDetail.task && taskDetail.task.status === 'interrupted' ? (
                               <button className="btn" onClick={async () => {

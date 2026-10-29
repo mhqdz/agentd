@@ -1046,3 +1046,15 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 }
 
 /* 窄屏：不额外留白（宁可让把手压住一两个字，也别压缩正文宽度） */
+
+/* 竖屏：把手去掉底色（只留极细描边），输入框收窄 */
+@media (max-width:1399px){
+  .side-toggle.collapsed,.side-toggle:not(.collapsed){
+    background:transparent;box-shadow:none;border:1px solid var(--line);border-radius:0}
+  .side-toggle.collapsed{border-left:0}
+  .side-toggle.collapsed:hover,.side-toggle:not(.collapsed):hover{background:var(--c2)}
+  .composer{margin-bottom:.7rem}
+  .composer .row1{padding:.28rem .5rem}
+  .composer textarea{min-height:2.4rem;padding:.45rem .6rem}
+  .composer .row3{padding:.24rem .5rem}
+}

@@ -178,7 +178,7 @@ export default function App() {
   const stageRef = useRef(null)
   const setOpenRef = useRef(false)
   const threadRef = useRef(null)
-  const [inputH, setInputH] = useState(() => Number(localStorage.getItem('inputH')) || 92)
+  const [inputH, setInputH] = useState(() => Number(localStorage.getItem('inputH')) || (typeof window !== 'undefined' && window.innerWidth < 1400 ? 52 : 92))
   const hDrag = useRef(null)
   const abortRef = useRef(null)
   const [aborted, setAborted] = useState(false)
@@ -238,6 +238,10 @@ export default function App() {
   useEffect(() => { localStorage.setItem('colW', String(colW)) }, [colW])
 
   useEffect(() => { localStorage.setItem('inputH', String(inputH)) }, [inputH])
+  // 竖屏：输入框默认更矮（宽屏保持原高度；切到竖屏时把过高的收回来）
+  useEffect(() => {
+    if (narrow) setInputH(h => (h > 52 ? 52 : h))
+  }, [narrow])
 
   // 右上角小三角：拖动调整输入框高度（替代原生右下角 resize ✓）
   const startResize = (e) => {

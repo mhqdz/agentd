@@ -29,9 +29,13 @@ check("窄屏消息列宽度合理（≥80% 视口）", s.js("const m=document.q
 s.shot("/tmp/uitest/narrow_conv.png")
 # 窄屏折叠把手：可见（白底+描边）、内缩、不压正文
 tg = s.js("const b=document.querySelector('.side-toggle'); if(!b) return null; const g=b.getBoundingClientRect(); const c=getComputedStyle(b); return [Math.round(g.left),Math.round(g.width),c.backgroundColor,c.borderTopWidth,Math.round(g.height)]")
-check("窄屏折叠把手可见且有底色/描边", isinstance(tg,list) and tg[0] >= 4 and tg[2] not in ('rgba(0, 0, 0, 0)','transparent') and tg[3] != '0px', f"{tg}")
+check("窄屏折叠把手：无底色（透出正文）、保留细描边", isinstance(tg,list) and tg[0] >= 4 and tg[2] in ('rgba(0, 0, 0, 0)','transparent') and tg[3] != '0px', f"{tg}")
 txt = s.js("const m=document.querySelector('.msg'); return m? Math.round(m.getBoundingClientRect().left) : -1")
 check("正文不被额外留白压缩（左边距≤24）", isinstance(txt,int) and 0 <= txt <= 24, f"left={txt}")
+
+# 竖屏输入框收紧
+ch = s.js("const c=document.querySelector('.composer').getBoundingClientRect(); return Math.round(c.height)")
+check("竖屏输入框高度≤150", isinstance(ch,int) and ch <= 150, f"h={ch}")
 
 # 窄屏设置单列
 s.get(B+"/?settings=1&conv=51"); time.sleep(1.2)

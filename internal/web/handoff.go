@@ -101,10 +101,6 @@ func (s *Server) runChild(ctx context.Context, parent int64, profileName, card s
 	if err := s.st.Save(c); err != nil {
 		return 0, "", err
 	}
-	c.Messages = append(c.Messages, store.Message{Role: "user", Content: card, Origin: "handoff"})
-	if err := s.st.Save(c); err != nil {
-		return 0, "", err
-	}
 	ag := agent.New(s.cfg, s.st, prof)
 	ag.MsgOrigin = "handoff"
 	ag.MaxRounds = maxRounds
@@ -220,6 +216,9 @@ func (s *Server) handleTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if path == "" || path == "/" {
+		if s.ho != nil {
+			_ = s.ho.Load() // 配方改完即生效（列表也要看到）
+		}
 		list, _ := s.hst.ListTasks()
 		recipes := []string{}
 		if s.ho != nil {

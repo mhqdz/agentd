@@ -142,7 +142,12 @@ M1（已实现）：配方（热加载）+ spawn_task + 子会话 + 步骤/产�
               + /api/wake（token）+ /api/tasks（列表/详情/手动派发/收尾）+ 前端任务区
    已验证：go test ./... 全绿（handoff 单测 + web 交接测试）；E2E 用 smoke 配方跑通
           （3 条命令 + sleep + 产物检查 + restore + 回报 outbox delivered）
-M1 已验证的链路：
+M1 已验证的链路（跨本地/云端互调，2026-10-29）：
+  · 本地父（180-low）→ 云端子（ds-flash）：子会话回复 CLOUD-CHILD-OK，父会话收到回报并复核 ✓
+  · 云端父（ds-flash）→ 本地子（180-low）：父模型调 spawn_task，子会话 LOCAL-CHILD-OK ✓
+  · 云端父 → 云端子（ds-flash）：CLOUD-TO-CLOUD-OK ✓
+  · 本地父 → 本地子（180）：spawn-demo ✓
+  子会话 profile 只影响模型与工具（工具固定 bash+handoff_fail），provider 差异（reasoning 扩展）在 agent 层处理 ✓
   · 命令步骤 + sleep + 产物检查 + restore → task done，执行记录入 outbox
   · spawn 成功（子会话 conv#66 回复 "ok"，父会话拿到 ↳#66 与结尾正文）
   · spawn 失败（9B 后端未起 → upstream 503，restore 照跑，记录里带原始错误）

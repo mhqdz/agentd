@@ -189,7 +189,13 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		if keep <= 0 {
 			keep = a.cfg.KeepMessages
 		}
+		if a.OnStage != nil {
+			a.OnStage("compacting")
+		}
 		_ = a.maybeSummarize(ctx, c, keep)
+		if a.OnStage != nil {
+			a.OnStage("generating")
+		}
 		msgs, toolMsgs := toWire(c.Messages, reg)
 		before := len(msgs)
 		beforeChars := 0
@@ -239,6 +245,9 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		var content, reasoning strings.Builder
 		var reasonStart, reasonMs int64
 		var calls []llm.ToolCall
+		if a.OnStage != nil {
+			a.OnStage("generating")
+		}
 		err := a.llm.StreamWithTools(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, Tools: specs, MaxTokens: a.maxTokensOut(), ReasoningEffort: a.reasoningEffort(), ReasoningBudget: a.reasoningBudgetParam()},
 			func(ch llm.Chunk) error {
 				if ch.Done {

@@ -596,6 +596,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	}()
 	start := time.Now()
 	logx.Info("chat.start conv=%s profile=%s chars=%d", convID, ag.Profile().Name, len([]rune(in.Text)))
+	ag.OnStage = func(stage string) { send("stage", map[string]string{"stage": stage}) }
 	ag.OnToolStart = func(name, args string) {
 		send("tool_start", map[string]any{"name": name, "args": args})
 	}

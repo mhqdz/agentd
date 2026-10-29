@@ -248,6 +248,7 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [syncing, setSyncing] = useState(false)
   const [status, setStatus] = useState('')
+  const [stage, setStage] = useState('')   // compacting | generating | ''
   const [secs, setSecs] = useState(null)
   const endRef = useRef(null)
 
@@ -563,6 +564,24 @@ export default function App() {
   }, [])
   useEffect(() => { localStorage.setItem('profile', profile) }, [profile])
   useEffect(() => { if (window.innerWidth >= 1400) localStorage.setItem('sideOpen', sideOpen ? '1' : '0') }, [sideOpen])
+  // 运行中的趣味提示（大肥鱼语录）：不打扰，只做背景信息
+  const [quip, setQuip] = useState('')
+  useEffect(() => {
+    const lines = [
+      '大肥鱼说：慢慢来，比较快。',
+      '大肥鱼说：先在边界上想清楚，再动手。',
+      '大肥鱼说：能验证的才叫结论。',
+      '大肥鱼说：别猜，查一下。',
+      '大肥鱼说：失败也是证据。',
+      '大肥鱼说：把复杂留给代码，把简单留给用户。',
+    ]
+    if (!busy) { setQuip(''); return }
+    let i = 0
+    setQuip(lines[0])
+    const t = setInterval(() => { i = (i + 1) % lines.length; setQuip(lines[i]) }, 4000)
+    return () => clearInterval(t)
+  }, [busy])
+
   // 跟随到底：只有 stickRef 为真（用户没上翻过 / 已滚回底部）才跟随
   useEffect(() => {
     const th = threadRef.current
@@ -1172,7 +1191,11 @@ export default function App() {
               </div>
             )}
           </div>
-          <div className="status" onWheel={onComposerWheel}>{status}</div>
+          <div className="status" onWheel={onComposerWheel}>
+              {busy
+                ? (stage === 'compacting' ? '压缩中…（上下文超阈值，正在写摘要）' : (stage === 'generating' ? '生成中…　' + quip : (quip || '正在处理…')))
+                : status}
+            </div>
           <div className="composer" onWheel={onComposerWheel}>
             <div className="row1">
               <span className="eb" style={{ display: 'inline', letterSpacing: '.14em' }}>PROFILE</span>

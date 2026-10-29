@@ -1280,13 +1280,27 @@ export default function App() {
                         return d !== 0 ? d : a.name.localeCompare(b.name)
                       }).map(t => (
                         <div className="item" key={t.name} title={t.path || '内置工具（在程序内指定）'}
-                          onClick={() => { setToolCfg({ ...t, enabled: t.enabled !== false, subtools: t.subtools || [] }); setEditP(null); setToolEdit(null); setEditField(null) }}>
+                          onClick={() => {
+                            setEditP(null); setToolEdit(null); setEditField(null)
+                            setToolCfg({ ...t, enabled: t.enabled !== false, subtools: t.subtools || [] })
+                            setToolForm(t.source === 'plugin' ? {
+                              isNew: false, name: t.name, description: t.description || '',
+                              command: (t.command || []).join('\n'), timeoutMs: t.timeout_ms || 20000,
+                              persistent: !!t.persistent, paramsText: JSON.stringify(t.params || {}, null, 2),
+                              requiredText: (t.required || []).join(',')
+                            } : null)
+                          }}>
                           <b className="item-title">{t.name}
                             {t.source !== 'plugin' ? <span className="src-tag builtin">内置</span> : null}
                           </b>
                           <span className="item-desc">{t.description}</span>
                         </div>
                       ))}
+                    <div className="item item-new" onClick={() => {
+                      setEditP(null); setToolEdit(null); setEditField(null); setToolCfg(null)
+                      setToolForm({ isNew: true, name: '', description: '', command: '', timeoutMs: 20000,
+                        persistent: false, paramsText: '{\n  "query": { "type": "string" }\n}', requiredText: 'query' })
+                    }}>＋ 新建插件</div>
                     </div>
                   </div>
                 </div>

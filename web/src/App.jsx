@@ -615,7 +615,10 @@ export default function App() {
       loadCtx(id)
     // 后台仍在跑？轮询直到结束（刷新页面后能"接上"）
     // 单一事实来源：直接请求续传流。没内容/已结束会立刻返回，不会挂着
-    attachStream(id)
+    // 只有真的在跑才去接续传流；否则后端会回 404（控制台里那条红字），纯噪声
+    const runningNow = ((await api('/api/running').catch(() => [])) || []).includes(String(id))
+    if (runningNow) attachStream(id)
+    else setBusy(false)
   }
 
 

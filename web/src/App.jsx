@@ -187,7 +187,8 @@ export default function App() {
   const [toolList, setToolList] = useState([])
   const [settings, setSettings] = useState({ tool_rounds_enabled: true, tool_rounds: 8 })
   const [toolEdit, setToolEdit] = useState(null)
-  const [toolCfg, setToolCfg] = useState(null)   // 工具配置卡（开关/子工具）
+  const [toolCfg, setToolCfg] = useState(null)   // 工具配置卡（只读信息）
+  const [toolForm, setToolForm] = useState(null) // 插件表单（新建/编辑）
   const [expandedTool, setExpandedTool] = useState(null)
   const [models, setModels] = useState({ loading: false, list: [], err: '' })
   const [readingIdx, setReadingIdx] = useState(0)
@@ -486,6 +487,7 @@ export default function App() {
         if (t) setToolCfg({ ...t, enabled: true, subtools: [] })
         if (t && q.get('tooledit')) { setEditOriginal(t.description || ''); setToolEdit({ name: t.name, description: t.description }) }
       }
+        if (q.get('newplugin')) setToolForm({ isNew: true, name: '', description: '', command: '', timeoutMs: 20000, persistent: false, paramsText: '{\n  "query": { "type": "string" }\n}', requiredText: 'query' })
     })
   }, [])
   useEffect(() => { setOpenRef.current = showSet }, [showSet])
@@ -1003,15 +1005,77 @@ export default function App() {
                   </div>
                 ) : null}
 
-                {toolCfg ? (
-                <div className={"card col-tool" + (toolCfg && !toolEdit && !editField ? " is-top" : "")}>
+                {(toolCfg || toolForm) ? (
+                <div className={"card col-tool" + ((toolCfg || toolForm) && !toolEdit && !editField ? " is-top" : "")}>
                   <div className="card-hd">
                     <button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
-                    <span className="ef-label"><span className="ef-label-t">{'tool · ' + toolCfg.name}</span></span>
+                    <span className="ef-label"><span className="ef-label-t">{toolForm ? (toolForm.isNew ? 'new plugin' : 'tool · ' + toolForm.name) : ('tool · ' + toolCfg.name)}</span></span>
                     <span style={{ flex: 1 }} />
-                    {narrow ? dirtyActions : null}
+                    {toolForm ? (
+                      <span className="card-actions title-actions">
+                        <button className="btn" onClick={() => { setToolForm(null); setToolCfg(null) }}>取消</button>
+                        <button className="btn" onClick={async () => {
+                          if (!toolForm.name || !toolForm.command.trim()) { alert('名字与命令必填'); return }
+                          let params = null
+                          try { params = toolForm.paramsText.trim() ? JSON.parse(toolForm.paramsText) : null } catch { alert('参数不是合法 JSON'); return }
+                          const body = {
+                            name: toolForm.name.trim(), description: toolForm.description || '',
+                            command: toolForm.command.split('\n').map(x => x.trim()).filter(Boolean),
+                            timeoutMs: Number(toolForm.timeoutMs) || 20000, persistent: !!toolForm.persistent,
+                            params, required: (toolForm.requiredText || '').split(',').map(x => x.trim()).filter(Boolean)
+                          }
+                          const r = await fetch('/api/plugins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+                          const j = await r.json().catch(() => ({}))
+                          if (!r.ok) { alert(j.error || '保存失败'); return }
+                          setToolForm(null); setToolCfg(null); refresh(); setToolList((await api('/api/tools')) || [])
+                        }}>保存</button>
+                      </span>
+                    ) : (narrow ? dirtyActions : null)}
                   </div>
-                  <div className="card-bd">
+                  
+                  {toolForm ? (
+                    <div className="card-bd">
+                      <label className="field"><span>名称（小写字母开头，a-z 0-9 _）</span>
+                        <input value={toolForm.name} disabled={!toolForm.isNew}
+                          onChange={e => setToolForm({ ...toolForm, name: e.target.value })} /></label>
+                      <label className="field"><span>说明（模型看到的描述，也可在三级卡里改）</span>
+                        <input value={toolForm.description}
+                          onChange={e => setToolForm({ ...toolForm, description: e.target.value })} /></label>
+                      <label className="field"><span>命令（每行一个参数，直接 exec 不走 shell）</span>
+                        <textarea className="plugin-cmd" value={toolForm.command}
+                          placeholder={'~/Workspace/agentd/scripts/tools/kb_get\n{{id}}'}
+                          onChange={e => setToolForm({ ...toolForm, command: e.target.value })} /></label>
+                      <label className="field"><span>超时（毫秒）</span>
+                        <input type="number" min="1000" value={toolForm.timeoutMs}
+                          onChange={e => setToolForm({ ...toolForm, timeoutMs: e.target.value })} /></label>
+                      <div className="item static">
+                        <span className="item-title">常驻进程（JSON-RPC over stdio）</span>
+                        <button type="button" role="switch" aria-checked={!!toolForm.persistent}
+                          className={'tg' + (toolForm.persistent ? ' on' : '')}
+                          onClick={() => setToolForm({ ...toolForm, persistent: !toolForm.persistent })}><b /></button>
+                      </div>
+                      <label className="field"><span>参数（JSON Schema properties）</span>
+                        <textarea className="plugin-json" value={toolForm.paramsText}
+                          onChange={e => setToolForm({ ...toolForm, paramsText: e.target.value })} /></label>
+                      <label className="field"><span>必填参数（逗号分隔）</span>
+                        <input value={toolForm.requiredText}
+                          onChange={e => setToolForm({ ...toolForm, requiredText: e.target.value })} /></label>
+                      {!toolForm.isNew ? (
+                        <div className="card-foot del-bottom-wrap" style={{ display: 'flex' }}>
+                          <button className="btn danger del-bottom" onClick={async () => {
+                            if (!confirm('删除插件 ' + toolForm.name + '？（只删清单，脚本文件保留）')) return
+                            const r = await fetch('/api/plugins/' + toolForm.name, { method: 'DELETE' })
+                            const j = await r.json().catch(() => ({}))
+                            if (!r.ok) { alert(j.error || '删除失败'); return }
+                            setToolForm(null); setToolCfg(null); refresh(); setToolList((await api('/api/tools')) || [])
+                          }}>删除插件</button>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  {!toolForm ? (
+                    <div className="card-bd">
                     <div className="item" onClick={() => { setEditOriginal(toolCfg.description || ''); setToolEdit({ name: toolCfg.name, description: toolCfg.description }); setEditField(null) }}>
                       <span className="item-title">说明</span>
                       <span className="item-desc">{toolCfg.description || '（空）'}</span>
@@ -1043,6 +1107,7 @@ export default function App() {
                     </div>
                     <div className="set-meta">要改可用性：打开对应模型的「工具」勾选</div>
                   </div>
+                  ) : null}
                 </div>
                 ) : null}
                 {editP ? (

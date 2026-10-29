@@ -105,6 +105,15 @@ curl -s http://127.0.0.1:18400/api/conv/9 | jq '.messages[-1]'
 stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 `{"text":…,"images":[…]}`。
 可用性仍由 `profiles.json.tools` 决定。
 
+### 插件的增删
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| POST/PUT | `/api/plugins` | 保存清单（name/description/command/timeoutMs/persistent/params/required）；同名内置工具会被拒绝 |
+| DELETE | `/api/plugins/<name>` | 删除清单（只删 `~/.data/agentd/tools.d/<name>.json`，脚本文件保留）；内置工具拒绝 |
+
+`PUT /api/tools/<name> {"description":"…"}`：内置工具写 `tools.json` 覆盖；外置插件直接改清单里的 description。
+
 ## 截图文件
 
 | 方法 | 路径 | 说明 |

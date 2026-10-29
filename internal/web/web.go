@@ -206,6 +206,36 @@ func (s *Server) Handler() http.Handler {
 		sort.Strings(ids)
 		writeJSON(w, 200, map[string]any{"models": ids})
 	})
+	mux.HandleFunc("/api/plugins", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost && r.Method != http.MethodPut {
+			writeJSON(w, 405, map[string]string{"error": "POST/PUT only"})
+			return
+		}
+		var d tools.PluginDraft
+		if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		if err := tools.SavePlugin(d); err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		logx.Info("plugin.save name=%s persistent=%v cmd=%v", d.Name, d.Persistent, d.Command)
+		writeJSON(w, 200, map[string]any{"ok": true, "name": d.Name})
+	})
+	mux.HandleFunc("/api/plugins/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete {
+			writeJSON(w, 405, map[string]string{"error": "DELETE only"})
+			return
+		}
+		name := strings.TrimPrefix(r.URL.Path, "/api/plugins/")
+		if err := tools.DeletePlugin(name); err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		logx.Info("plugin.delete name=%s", name)
+		writeJSON(w, 200, map[string]any{"ok": true})
+	})
 	mux.HandleFunc("/api/tools", func(w http.ResponseWriter, r *http.Request) {
 		reg := tools.Registry()
 		out := make([]map[string]any, 0, len(reg))
@@ -230,11 +260,25 @@ func (s *Server) Handler() http.Handler {
 			writeJSON(w, 400, map[string]string{"error": err.Error()})
 			return
 		}
-		if _, ok := tools.Registry()[name]; !ok {
+		sp, ok := tools.Registry()[name]
+		if !ok {
 			writeJSON(w, 404, map[string]string{"error": "没有这个工具"})
 			return
 		}
-		logx.Info("tool.save name=%s chars=%d", name, len([]rune(body.Description)))
+		logx.Info("tool.save name=%s chars=%d source=%s", name, len([]rune(body.Description)), sp.Source)
+		if sp.Source == "plugin" {
+			// 插件：说明写回清单（避免被 tools.json 覆盖成第二份真源）
+			b, _ := os.ReadFile(sp.Path)
+			var m tools.PluginDraft
+			_ = json.Unmarshal(b, &m)
+			m.Name, m.Description = name, body.Description
+			if err := tools.SavePlugin(m); err != nil {
+				writeJSON(w, 400, map[string]string{"error": err.Error()})
+				return
+			}
+			writeJSON(w, 200, map[string]any{"ok": true})
+			return
+		}
 		if err := tools.SaveOverride(name, body.Description); err != nil {
 			writeJSON(w, 500, map[string]string{"error": err.Error()})
 			return

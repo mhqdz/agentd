@@ -1125,8 +1125,17 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .msg.pending-tool .mhead b::after{content:" ·";animation:pulse 1.1s infinite}
 
 /* 工具调用：仿系统提示的一行（编号 + 名称 + 参数 + 耗时），输出折叠在下面 */
-.toolnote{margin:.15rem 0;padding:.2rem 0 .2rem .55rem;border-left:2px solid var(--line);
-  font-size:.7rem;color:var(--ink3)}
+.toolnote{margin:0;padding:.3rem .7rem .35rem 1rem;font-size:.7rem;color:var(--ink3);
+  background:linear-gradient(180deg,rgba(196,206,207,.10),rgba(196,206,207,.04));
+  border-left:2px solid var(--line);position:relative}
+.toolnote.run-start{border-top:1px solid var(--line);margin-top:.3rem}
+.toolnote.run-end{border-bottom:1px solid var(--line);margin-bottom:.5rem}
+.toolnote.run-start::before,.toolnote.run-end::after{content:"";position:absolute;width:7px;height:7px;
+  border:1px solid var(--line)}
+.toolnote.run-start::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+.toolnote.run-end::after{right:0;bottom:-1px;border-left:0;border-top:0}
+.toolnote-tag{display:inline-block;margin-right:.5rem;padding:.02rem .3rem;border:1px solid var(--line);
+  font-size:.56rem;letter-spacing:.18em;color:var(--c5);vertical-align:1px}
 .toolnote-hd{display:flex;align-items:baseline;gap:.45rem;flex-wrap:wrap}
 .toolnote .sysnote-no{flex:0 0 auto;color:var(--c5);font-size:.6rem}
 .toolnote-name{color:var(--ink);font-size:.72rem}
@@ -1135,5 +1144,5 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .toolnote .sysnote-line{flex:1 1 auto;height:1px;background:var(--line)}
 .toolnote-out{margin:.15rem 0 .1rem .2rem}
 .toolnote-out>summary{font-size:.64rem;color:var(--c5)}
-.toolnote-out .out{margin:.2rem 0 0;font-size:.68rem;max-height:12rem;overflow:auto}
+.toolnote-out .out{margin:.2rem 0 0;font-size:.7rem;max-height:60vh;overflow:auto;line-height:1.7}
 .toolnote .msg-img{margin-top:.25rem}

@@ -834,6 +834,18 @@ export default function App() {
     </span>
   ) : null
 
+  const isGhostMsg = (m) => !!m && m.role === 'assistant' && !(m.content || '').trim() && !m.__live &&
+    (m.tool_calls?.length || m.toolCalls?.length)
+  // 工具块的首/尾：跳过不渲染的空正文 assistant
+  const neighborRole = (from, step) => {
+    for (let k = from; k >= 0 && k < msgs.length; k += step) {
+      const m = msgs[k]
+      if (isGhostMsg(m)) continue
+      return m.role
+    }
+    return null
+  }
+
   return (
     <div className="app">
       <div className="topbar">
@@ -979,7 +991,10 @@ export default function App() {
                   // 工具轮的 assistant 只有思考和 tool_calls，正文是空的：不占 Agent 卡，只留一行可展开的思考
                   null
                 ) : m.role === 'tool' ? (
-                  <div className="toolnote" key={i}>
+                  <div className={'toolnote' +
+                      (neighborRole(i - 1, -1) === 'tool' ? '' : ' run-start') +
+                      (neighborRole(i + 1, 1) === 'tool' ? '' : ' run-end')} key={i}>
+                    {neighborRole(i - 1, -1) !== 'tool' ? <div className="toolnote-tag">Tool</div> : null}
                     <div className="toolnote-hd">
                       {(m.seq || liveNo.get(m)) ? <span className="sysnote-no">[No.{String(m.seq || liveNo.get(m)).padStart(3, '0')}]</span> : null}
                       <span className="toolnote-name">{m.toolName || '工具'}</span>

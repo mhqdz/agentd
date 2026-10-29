@@ -1209,13 +1209,15 @@ export default function App() {
 
                     <div className="set-section">工具配置</div>
                     <div className="set-card">
-                      {toolList.map(t => (
+                      {[...toolList].sort((a, b) => {
+                        const g = (x) => (x.source === 'plugin' ? 1 : 0)   // 内置 0，外置 1
+                        const d = g(a) - g(b)
+                        return d !== 0 ? d : a.name.localeCompare(b.name)
+                      }).map(t => (
                         <div className="item" key={t.name} title={t.path || '内置工具（在程序内指定）'}
                           onClick={() => { setToolCfg({ ...t, enabled: t.enabled !== false, subtools: t.subtools || [] }); setEditP(null); setToolEdit(null); setEditField(null) }}>
                           <b className="item-title">{t.name}
-                            <span className={'src-tag ' + (t.source === 'plugin' ? 'plugin' : 'builtin')}>
-                              {t.source === 'plugin' ? '插件' : '内置'}
-                            </span>
+                            {t.source !== 'plugin' ? <span className="src-tag builtin">内置</span> : null}
                           </b>
                           <span className="item-desc">{t.description}</span>
                         </div>

@@ -1124,25 +1124,26 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .msg.pending-tool{border-left-color:var(--c4);opacity:.95}
 .msg.pending-tool .mhead b::after{content:" ·";animation:pulse 1.1s infinite}
 
-/* 工具调用：仿系统提示的一行（编号 + 名称 + 参数 + 耗时），输出折叠在下面 */
-.toolnote{margin:0;padding:.3rem .7rem .35rem 1rem;font-size:.7rem;color:var(--ink3);
-  background:linear-gradient(180deg,rgba(196,206,207,.10),rgba(196,206,207,.04));
-  border-left:2px solid var(--line);position:relative}
-.toolnote.run-start{border-top:1px solid var(--line);margin-top:.3rem}
-.toolnote.run-end{border-bottom:1px solid var(--line);margin-bottom:.5rem}
-.toolnote.run-start::before,.toolnote.run-end::after{content:"";position:absolute;width:7px;height:7px;
-  border:1px solid var(--line)}
-.toolnote.run-start::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
-.toolnote.run-end::after{right:0;bottom:-1px;border-left:0;border-top:0}
-.toolnote-tag{display:inline-block;margin-right:.5rem;padding:.02rem .3rem;border:1px solid var(--line);
-  font-size:.56rem;letter-spacing:.18em;color:var(--c5);vertical-align:1px}
+/* 工具调用：和系统提示同款——浅底 + 左上/右下两个半角括号，无整圈边框、无尾部横线 */
+.toolnote{position:relative;margin:0;padding:.3rem .8rem .35rem .85rem;
+  background:rgba(196,206,207,.12);font-size:.7rem;color:var(--ink3)}
+.toolnote.run-start{margin-top:.35rem}
+.toolnote.run-end{margin-bottom:.5rem}
+.toolnote.run-start::before,.toolnote.run-end::after{content:"";position:absolute;width:6px;height:6px;
+  border:0 solid var(--c4);pointer-events:none}
+.toolnote.run-start::before{left:0;top:0;border-left-width:2px;border-top-width:2px}
+.toolnote.run-end::after{right:0;bottom:0;border-right-width:2px;border-bottom-width:2px}
+.toolnote + .toolnote{border-top:1px solid var(--line)}
+.toolnote-tag{display:inline-block;margin-right:.5rem;font-size:.56rem;letter-spacing:.18em;
+  color:var(--c3);vertical-align:1px}
 .toolnote-hd{display:flex;align-items:baseline;gap:.45rem;flex-wrap:wrap}
-.toolnote .sysnote-no{flex:0 0 auto;color:var(--c5);font-size:.6rem}
-.toolnote-name{color:var(--ink);font-size:.72rem}
-.toolnote-args{color:var(--c6);font-size:.66rem;overflow-wrap:anywhere;max-width:60rem}
-.toolnote-ms{color:var(--c5);font-size:.6rem;white-space:nowrap}
-.toolnote .sysnote-line{flex:1 1 auto;height:1px;background:var(--line)}
-.toolnote-out{margin:.15rem 0 .1rem .2rem}
+.toolnote .sysnote-no{flex:0 0 auto;color:var(--c3);font-size:.62rem;letter-spacing:.12em;
+  font-variant-numeric:tabular-nums}
+.toolnote-name{color:var(--c6);font-size:.72rem}
+.toolnote-args{color:var(--c5);font-size:.66rem;overflow-wrap:anywhere;max-width:60rem}
+.toolnote-ms{color:var(--c4);font-size:.6rem;white-space:nowrap}
+.toolnote .sysnote-line{display:none}
+.toolnote-out{margin:.1rem 0 .1rem .2rem}
 .toolnote-out>summary{font-size:.64rem;color:var(--c5)}
 .toolnote-out .out{margin:.2rem 0 0;font-size:.7rem;max-height:60vh;overflow:auto;line-height:1.7}
 .toolnote .msg-img{margin-top:.25rem}

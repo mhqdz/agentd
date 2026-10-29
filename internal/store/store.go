@@ -23,6 +23,7 @@ type Message struct {
 	ToolResult  any            `json:"tool_result,omitempty"`
 	Images      []string       `json:"images,omitempty"` // data:image/...;base64（工具返回的图 ✓）
 	CreatedAt   time.Time      `json:"created_at"`
+	Origin      string         `json:"origin,omitempty"` // user | system | timer | handoff
 }
 
 type Conversation struct {
@@ -31,7 +32,9 @@ type Conversation struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Messages  []Message `json:"messages"`
-	MsgCount  int       `json:"-"` // 列表用的消息条数（不加载消息）
+	MsgCount  int       `json:"-"`                   // 列表用的消息条数（不加载消息）
+	ParentID  int64     `json:"parent_id,omitempty"` // 0 = 顶层
+	Kind      string    `json:"kind,omitempty"`      // chat | child
 
 	// 压缩检查点（模型可换、可追溯）
 	Summary      string            `json:"summary,omitempty"`

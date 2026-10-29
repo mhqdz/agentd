@@ -20,6 +20,10 @@ import (
 // Env：工具需要的会话上下文（recall 用）。Messages 传 []store.Message，避免包循环。
 type Env struct {
 	Messages any
+	// SpawnTask：派发一个已注册任务（父会话用），返回任务 id
+	SpawnTask func(kind string, card map[string]any) (int64, error)
+	// FailTask：子会话汇报失败事实（父会话不给这个工具）
+	FailTask func(reason, evidence string) (string, error)
 }
 
 type Spec struct {
@@ -44,6 +48,17 @@ func Registry() map[string]*Spec {
 		{Name: "screenshot", Description: "截屏并返回文字说明 + 截屏原图（模型能看到像素）。用于判断窗口内容/排版/报错。",
 			Params: map[string]any{"question": map[string]any{"type": "string", "description": "可留空；留空只返回截图，填了也不会回显"}},
 			Run:    runScreenshot},
+		{Name: "spawn_task", Description: "派发一个已注册的后台任务（会换模型/让出显卡，完成后回到本会话回报）。" +
+			"kind 必须是任务注册表里的名字；card 是交接卡内容（目标/输入/约束/产物）。",
+			Params: map[string]any{
+				"kind": map[string]any{"type": "string", "description": "任务类型（见 tasks.d 注册表）"},
+				"card": map[string]any{"type": "object", "description": "交接卡：目标、输入、约束、期望产物"},
+			}, Required: []string{"kind", "card"}, Run: runSpawnTask},
+		{Name: "handoff_fail", Description: "子会话无法继续时调用：只写事实（命令、退出码、关键行、产物路径），不要解释原因。",
+			Params: map[string]any{
+				"reason":   map[string]any{"type": "string", "description": "一句话事实，如 CUDA OOM"},
+				"evidence": map[string]any{"type": "string", "description": "证据：命令、退出码、日志路径"},
+			}, Required: []string{"reason"}, Run: runHandoffFail},
 		{Name: "recall", Description: "在**本会话**历史里检索（不跨会话）。默认在消息正文里按关键词 OR 匹配，返回命中的片段与序号。" +
 			"需要正则时加 re=true（Go RE2 语法，示例: (鹈鹕|pelican).*(车|bike)）。" +
 			"想看某条附近上下文用 around=<序号>。level=raw 才返回整段原文（贵，慎用）。" +
@@ -333,4 +348,33 @@ func snippet(s, q string, window int) string {
 		}
 	}
 	return truncate(s, 120)
+}
+
+func runSpawnTask(_ context.Context, args map[string]any, e *Env) (any, error) {
+	if e == nil || e.SpawnTask == nil {
+		return "[error] 当前会话不能派发任务", nil
+	}
+	kind, _ := args["kind"].(string)
+	card, _ := args["card"].(map[string]any)
+	if strings.TrimSpace(kind) == "" {
+		return "[error] 缺少 kind", nil
+	}
+	id, err := e.SpawnTask(kind, card)
+	if err != nil {
+		return "[error] " + err.Error(), nil
+	}
+	return fmt.Sprintf("已派发 task #%d（%s），完成后会在本会话回报", id, kind), nil
+}
+
+func runHandoffFail(_ context.Context, args map[string]any, e *Env) (any, error) {
+	reason, _ := args["reason"].(string)
+	evidence, _ := args["evidence"].(string)
+	if e == nil || e.FailTask == nil {
+		return "[error] 只有子会话可以调用 handoff_fail", nil
+	}
+	msg, err := e.FailTask(reason, evidence)
+	if err != nil {
+		return "[error] " + err.Error(), nil
+	}
+	return msg, nil
 }

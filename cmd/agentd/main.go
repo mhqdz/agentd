@@ -76,6 +76,9 @@ func main() {
 			addr = v
 		}
 		s := web.New(cfg, a, st)
+		if err := s.InitHandoff(cfg.DataDir); err != nil {
+			logx.Warn("handoff 初始化失败: %v", err)
+		}
 		srv := &http.Server{Addr: addr, Handler: s.Handler()}
 		fmt.Fprintf(os.Stderr, "agentd %s · model=%s · http://%s\n", version, cfg.Model, addr)
 		// 优雅停机：先把进行中的轮次取消（它们会落库半截内容 + 中断说明），再退出

@@ -320,7 +320,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 				if args == nil {
 					args = map[string]any{}
 				}
-				res, err := spec.Run(ctx, args, &tools.Env{Messages: c.Messages})
+				res, err := spec.Run(ctx, args, &tools.Env{Messages: c.Messages, SpawnTask: a.SpawnTask, FailTask: a.FailTask})
 				if err != nil {
 					res = "✗ " + err.Error()
 				}

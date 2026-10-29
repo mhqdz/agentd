@@ -22,8 +22,11 @@ type Agent struct {
 	Drain       func() []string
 	OnInterject func(string)
 	OnStats     func(llm.Stats) // 每轮结束后的上游速度/用量（可为 nil）
-	st          store.Store
-	profile     config.Profile
+	// 交接：父会话派发任务 / 子会话汇报失败
+	SpawnTask func(kind string, card map[string]any) (int64, error)
+	FailTask  func(reason, evidence string) (string, error)
+	st        store.Store
+	profile   config.Profile
 }
 
 func New(cfg config.Config, st store.Store, profile config.Profile) *Agent {

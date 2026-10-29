@@ -60,6 +60,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_msg_conv_seq ON messages(conv_id, seq);
 		return nil, err
 	}
 	ensureReasoningMs(db)
+	if err := migrateHandoff(db); err != nil {
+		return nil, err
+	}
 	return &SQLiteStore{db: db}, nil
 }
 
@@ -72,9 +75,11 @@ func (s *SQLiteStore) Get(id string) (*Conversation, error) {
 	}
 	var c Conversation
 	var kv, sat, cat, uat string
-	err := s.db.QueryRow(`SELECT id,title,summary,summary_upto,summary_model,COALESCE(summary_at,''),kv,created_at,updated_at
+	var kind string
+	err := s.db.QueryRow(`SELECT id,title,summary,summary_upto,summary_model,COALESCE(summary_at,''),kv,created_at,updated_at,parent_id,kind
 		FROM conversations WHERE id=? AND archived=0`, n).
-		Scan(&n, &c.Title, &c.Summary, &c.SummaryUpto, &c.SummaryModel, &sat, &kv, &cat, &uat)
+		Scan(&n, &c.Title, &c.Summary, &c.SummaryUpto, &c.SummaryModel, &sat, &kv, &cat, &uat, &c.ParentID, &kind)
+	c.Kind = kind
 	c.CreatedAt, _ = time.Parse(time.RFC3339Nano, cat)
 	c.UpdatedAt, _ = time.Parse(time.RFC3339Nano, uat)
 	if err != nil {
@@ -96,7 +101,7 @@ func (s *SQLiteStore) Get(id string) (*Conversation, error) {
 }
 
 func (s *SQLiteStore) messages(convID int) ([]Message, error) {
-	rows, err := s.db.Query(`SELECT seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at
+	rows, err := s.db.Query(`SELECT seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at,origin
 		FROM messages WHERE conv_id=? ORDER BY seq`, convID)
 	if err != nil {
 		return nil, err
@@ -107,7 +112,7 @@ func (s *SQLiteStore) messages(convID int) ([]Message, error) {
 		var m Message
 		var tc, tr, im, ca string
 		var seq int
-		if err := rows.Scan(&seq, &m.Role, &m.Content, &m.Reasoning, &m.ReasoningMs, &tc, &m.ToolCallID, &tr, &im, &ca); err != nil {
+		if err := rows.Scan(&seq, &m.Role, &m.Content, &m.Reasoning, &m.ReasoningMs, &tc, &m.ToolCallID, &tr, &im, &ca, &m.Origin); err != nil {
 			return nil, err
 		}
 		m.Seq = seq
@@ -145,16 +150,16 @@ func (s *SQLiteStore) Save(c *Conversation) error {
 		sat = c.SummaryAt.Format(time.RFC3339Nano)
 	}
 	if c.ID == "" {
-		res, err := tx.Exec(`INSERT INTO conversations(title,summary,summary_upto,summary_model,summary_at,kv,created_at,updated_at)
-			VALUES(?,?,?,?,?,?,?,?)`, c.Title, c.Summary, c.SummaryUpto, c.SummaryModel, sat, string(kv), nStr, nStr)
+		res, err := tx.Exec(`INSERT INTO conversations(title,summary,summary_upto,summary_model,summary_at,kv,created_at,updated_at,parent_id,kind)
+			VALUES(?,?,?,?,?,?,?,?,?,?)`, c.Title, c.Summary, c.SummaryUpto, c.SummaryModel, sat, string(kv), nStr, nStr, c.ParentID, c.Kind)
 		if err != nil {
 			return err
 		}
 		id, _ := res.LastInsertId()
 		c.ID = fmt.Sprint(id)
 	} else {
-		if _, err := tx.Exec(`UPDATE conversations SET title=?,summary=?,summary_upto=?,summary_model=?,summary_at=?,kv=?,updated_at=? WHERE id=?`,
-			c.Title, c.Summary, c.SummaryUpto, c.SummaryModel, sat, string(kv), nStr, c.ID); err != nil {
+		if _, err := tx.Exec(`UPDATE conversations SET title=?,summary=?,summary_upto=?,summary_model=?,summary_at=?,kv=?,updated_at=?,parent_id=?,kind=? WHERE id=?`,
+			c.Title, c.Summary, c.SummaryUpto, c.SummaryModel, sat, string(kv), nStr, c.ParentID, c.Kind, c.ID); err != nil {
 			return err
 		}
 	}
@@ -175,8 +180,12 @@ func (s *SQLiteStore) Save(c *Conversation) error {
 		if err := tx.QueryRow(`SELECT COALESCE(MAX(seq),0)+1 FROM messages WHERE conv_id=?`, c.ID).Scan(&nextSeq); err != nil {
 			return err
 		}
-		res, err := tx.Exec(`INSERT INTO messages(conv_id,seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at)
-			VALUES(?,?,?,?,?,?,?,?,?,?,?)`, c.ID, nextSeq, m.Role, m.Content, m.Reasoning, m.ReasoningMs, string(tc), m.ToolCallID, tr, string(im), nStr)
+		origin := m.Origin
+		if origin == "" {
+			origin = "user"
+		}
+		res, err := tx.Exec(`INSERT INTO messages(conv_id,seq,role,content,reasoning,reasoning_ms,tool_calls,tool_call_id,tool_result,images,created_at,origin)
+			VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`, c.ID, nextSeq, m.Role, m.Content, m.Reasoning, m.ReasoningMs, string(tc), m.ToolCallID, tr, string(im), nStr, origin)
 		if err != nil {
 			return err
 		}

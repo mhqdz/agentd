@@ -14,11 +14,13 @@ import (
 
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
 	"agentd/internal/agent"
 	"agentd/internal/config"
+	"agentd/internal/handoff"
 	"agentd/internal/store"
 	"agentd/internal/tools"
 )
@@ -33,6 +35,8 @@ type Server struct {
 	cfg         config.Config
 	a           *agent.Agent
 	st          store.Store
+	ho          *handoff.Manager
+	hst         *store.SQLiteStore
 }
 
 func New(cfg config.Config, a *agent.Agent, st store.Store) *Server {
@@ -236,6 +240,9 @@ func (s *Server) Handler() http.Handler {
 		logx.Info("plugin.delete name=%s", name)
 		writeJSON(w, 200, map[string]any{"ok": true})
 	})
+	mux.HandleFunc("/api/wake", s.handleWake)
+	mux.HandleFunc("/api/tasks", s.handleTasks)
+	mux.HandleFunc("/api/tasks/", s.handleTasks)
 	mux.HandleFunc("/api/tools", func(w http.ResponseWriter, r *http.Request) {
 		reg := tools.Registry()
 		out := make([]map[string]any, 0, len(reg))
@@ -492,9 +499,20 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	if set.ToolRoundsEnabled {
 		ag.MaxRounds = set.ToolRounds
 	}
+	if s.ho != nil && strings.TrimSpace(in.ConvID) != "" {
+		if pid, err := strconv.ParseInt(in.ConvID, 10, 64); err == nil {
+			ag.SpawnTask = func(kind string, card map[string]any) (int64, error) { return s.ho.Dispatch(pid, kind, card) }
+		}
+	}
+	ag.FailTask = func(reason, evidence string) (string, error) { return "（父会话无 handoff_fail）", nil }
 	if in.Profile != "" {
 		if prof, ok := config.GetProfile(in.Profile); ok {
 			ag = agent.New(s.cfg, s.st, prof)
+			if s.ho != nil && strings.TrimSpace(in.ConvID) != "" {
+				if pid, err := strconv.ParseInt(in.ConvID, 10, 64); err == nil {
+					ag.SpawnTask = func(kind string, card map[string]any) (int64, error) { return s.ho.Dispatch(pid, kind, card) }
+				}
+			}
 			if set.ToolRoundsEnabled {
 				ag.MaxRounds = set.ToolRounds
 			}

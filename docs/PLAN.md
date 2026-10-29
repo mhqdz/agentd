@@ -1,40 +1,43 @@
 # agentd 计划与待办
 
-## 一、工具/插件体系（已实现 · 2026-10-28）
+## 一、工具/插件体系的决策记录
 
-现状：工具全部是 Go 内置（`internal/tools/tools.go` 的 `Registry()`，一条 Spec = name/description/
-JSON Schema/Required/Run）。加工具必须改代码 + 重新编译。
+2026-10-25：不引入插件（体量不值）→ 2026-10-28 推翻：kb/web 四个工具更适合脚本形态。
 
-决策（2026-10-28 更新）：**已引入**，分两层——内置（bash / screenshot / recall，Go 内指定）与
-外置插件（kb_search / kb_get / web_search / web_fetch，清单 + 脚本，`~/.data/agentd/tools.d/*.json`）。
-原先"不引入"的决策（2026-10-25）作废；保留下面的调研结论作为协议依据。理由：Go 的 `plugin` 包只有 Linux、
-要求构建参数完全一致、不能卸载；要达到 DSH（npm 包 + YAML 预设）那种效果只能走"独立进程 + 协议"，
-当前 4 个工具的体量不值得付出这层复杂度。
+协议要点（详细实现见 §二、DESIGN.md §4）：
 
-若将来要做，按下面这套（已调研，直接可落地）：
+```
+清单位置：~/.data/agentd/tools.d/<name>.json（模板在 scripts/tools.d/，deploy 时 @REPO@ 替换）
+一次性：command 直接 exec，参数走 AGENTD_ARG_*；超时 timeoutMs；非 0 退出 → 文本 + [exit N]
+常驻：persistent:true → JSON-RPC over stdio（initialize / tools/list / tools/call）
+作用域：仍由 profiles.json.tools 决定（不引入第二套开关）
+不采用：Go plugin(.so)；在配置里表达分支逻辑
+```
 
-### 形态
-- 清单：`~/.data/agentd/tools.d/*.json`，字段对齐 MCP 的 tools/list：
-  `{ "name", "description", "params": <JSON Schema>, "command": [...], "env": {...},
-     "timeoutMs": 120000, "persistent": false }`
-- 调用（一次性）：启动进程 → stdin 写 `{"tool","args","env":{"conv_id","cwd"}}` → 读 stdout 文本；
-  退出码非 0 时把 stderr + `[exit N]` 作为结果（与 bash 一致）。
-- 调用（常驻）：`persistent:true` 时走 JSON-RPC over stdio（initialize / tools/list / tools/call），
-  宿主负责生命周期与崩溃重启。
-- 作用域：仍由 `profiles.json` 的 `tools` 数组决定暴露给谁。
-- 与 DSH 的对应：清单 ≈ 插件包声明，`params` ≈ schemastery/zod schema，进程 ≈ 插件实例。
+## 二、插件体系：已完成 / 待做
 
-### 不采用
-- Go `plugin`（.so）：平台与构建耦合，不可热重载。
-- 在配置里表达分支逻辑：配置只声明"怎么调"，逻辑留在进程内（脚本/服务）。
+已完成（2026-10-28/29）：
+- 清单目录 `~/.data/agentd/tools.d/*.json`，模板入仓 `scripts/tools.d/`，deploy.sh 用 `@REPO@` 替换后同步（变更先备份）
+- 一次性插件：直接 exec + `AGENTD_ARG_*` 环境变量 + stdin JSON；必填参数宿主侧校验
+- 常驻插件：`persistent:true` → JSON-RPC over stdio（initialize/tools/list/tools/call），一进程多工具，
+  自动重启、退出时 ShutdownPlugins()；示例 `scripts/tools/demo_persist.py`
+- 前后端管理：`/api/plugins` 保存/删除清单；工具卡表单（名称/说明/命令/超时/常驻/参数/必填）；
+  列表内置在前、外置在后，仅内置显示徽标；说明修改对插件写清单、对内置写 tools.json
+- 文档：API.md「工具」与「插件的增删」、DESIGN.md §4
 
-## 二、其他待办
+待做：
+- MCP 客户端：直接复用常驻通道接标准 MCP server（配置里只写 command）
+- 插件健康检查：`/api/tools` 返回 last_error / 上次耗时；连续失败给提示
+- 插件批量导入：从目录扫描脚本生成清单；参数 schema 可从 `--describe` 推导
+- 插件级权限：是否允许网络/写盘（现在没有沙箱）
+
+## 三、其他待办
 - 工具说明再压缩（`recall` 649 字符 → ~200）以省上下文。
 - 归档页「恢复」图标已做；删除会话 UI 尚未提供。
 - 设置里显示"上次自动归档时间/数量"。
 - 消息重试、会话重命名。
 
-## 三、已完成但仍需沿用（部署脚本）
+## 四、已完成但仍需沿用（部署脚本）
 
 `scripts/deploy.sh` 已实现并验证（2026-10-26），部署时一律用它，不再手敲命令：
 

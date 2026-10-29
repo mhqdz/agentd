@@ -43,8 +43,10 @@
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| GET | `/api/settings` | `{tool_rounds_enabled,tool_rounds,auto_archive_enabled,auto_archive_days}` |
-| PUT | `/api/settings` | 同上结构；**自动归档相关字段变化时**会立即触发一次巡检 |
+| GET | `/api/settings` | `{tool_rounds_enabled,tool_rounds,auto_archive_enabled,auto_archive_days,shots_auto_clean,shots_keep_days}` |
+| PUT | `/api/settings` | 同上结构；自动归档 / 截图清理相关字段变化时立即触发一次巡检 |
+
+截图：`GET /api/shots/stats` → `{count,size_mb}`；`POST /api/shots/cleanup {"days":7}` → `{removed,freed_kb,days}`。
 
 ## 模型与 profile
 
@@ -55,12 +57,20 @@
 | PUT | `/api/profiles/{name}` | 新建或更新（`api_key` 为空则回落全局配置） |
 | DELETE | `/api/profiles/{name}` | 删除（内置也可删） |
 
-## 工具
+profile 里与上下文/生成相关的字段：
 
-| 方法 | 路径 | 说明 |
+| 字段 | 默认 | 说明 |
 |---|---|---|
-| GET | `/api/tools` | `[{name,description,params,required}]` |
-| PUT | `/api/tools/{name}` | `{"description":"…"}` 覆盖说明（写 `~/.data/agentd/tools.json`） |
+| `system` | — | 系统提示（唯一来源，前端可编辑） |
+| `tools` | `[]` | 该模型可用的工具名（内置 + 插件，统一在这里控制） |
+| `keep_messages` | 16 | 压缩时至少保留的最近消息条数 |
+| `max_prompt_tokens` | 105000 | 输入 token 上限（内部按 ×1.8 换算字符） |
+| `context_window` | 0（自动） | 模型窗口；0 = 读上游 `meta.n_ctx` |
+| `compact_pct` | 80 | 达到上限的百分之几触发摘要/裁剪 |
+| `max_tokens_out` | 8192 | 单轮输出上限（含思考），防止跑飞 |
+| `reasoning_budget` | 4096 | 单轮思考 token 预算（上游 `reasoning_budget_tokens`） |
+| `summarizer` | 空（自己） | 用哪个 profile 写摘要 |
+| `reasoning_effort` | — | none/low/medium/high，透传上游 |
 
 ## 静态
 
@@ -114,6 +124,44 @@ stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 
 
 `PUT /api/tools/<name> {"description":"…"}`：内置工具写 `tools.json` 覆盖；外置插件直接改清单里的 description。
 
+## 上下文统计
+
+`GET /api/context?conv=<id>&profile=<name>`
+
+```json
+{"chars":89677,"max":189000,"est_tokens":49820,"limit_tokens":105000,"window":131072,
+ "chars_per_token":1.8,"compact_pct":80,"compact_at":84000,"raw":92497,
+ "messages":43,"summary":false,"pct":47.4}
+```
+
+- 单位：接口对外用 **token**（配置也是 token）；内部实际裁剪按**字符(rune)**，`chars ÷ 1.8 ≈ tokens`
+- `limit_tokens`：该 profile 的输入上限（`max_prompt_tokens`，默认 105000）
+- `window`：模型窗口，优先 `profiles.json.context_window`，否则读上游 `GET /v1/models` 的 `meta.n_ctx`（10 分钟缓存），兜底 131072
+- `compact_pct` / `compact_at`：达到上限的百分之几（默认 80）触发摘要 + 裁剪
+- `chars` / `max`：压缩后的字符数；`raw`：未压缩的原始字符数（消息正文 + 思考）
+
+## SSE 事件（`/api/chat` 与 `/api/conv/<id>/stream`）
+
+| event | data | 说明 |
+|---|---|---|
+| `meta` | `{conv_id,title}` | 会话建立/标题 |
+| `reasoning` | `{text}` | 思考增量 |
+| `delta` | `{text}` | 正文增量 |
+| `tool` | `{name,args,text,image}` | 一次工具调用完成（前端渲染成独立工具气泡） |
+| `interject` | `{text}` | 本轮接收到的插话回显 |
+| `usage` | `{tps,completion,prompt,cached}` | 上游 `usage/timings`（右栏 tok/s 用） |
+| `error` | `{error}` | 本轮失败/被中止 |
+| `done` | `{secs}` | 本轮结束 |
+
+补充：流期间服务端每 5 秒发 `: ping` 注释帧，避免长工具执行时连接被判空闲断开。
+
+## 插话
+
+`POST /api/conv/<id>/interject {"text":"…"}` → `{"ok":true}`
+
+- 有工具轮次时：下一轮开始前注入上下文，模型本轮即可看到
+- 本轮没有工具轮次：结束时落库成一条 `user` 消息，下一轮生效（不会丢）
+
 ## 截图文件
 
 | 方法 | 路径 | 说明 |
@@ -125,24 +173,3 @@ stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 
 消息里只存 `/shots/<name>.png` 路径；发给模型时由 `toWire` 读盘转 data URL。
 自动清理：`settings.shots_auto_clean` + `shots_keep_days`（默认开 + 7 天），
 启动与每小时巡检时执行一次。
-
-## 上下文占用
-
-`GET /api/context?conv=<id>&profile=<name>`
-
-```json
-{"chars":4061, "max":240000, "pct":1.69, "raw":213204, "messages":136, "summary":true}
-```
-
-- `chars` 是**实际会发给模型的字符数**（已按 keep_messages 压缩、已含 system 与摘要）
-- 口径统一为 **token**：`profiles.json` 的 `max_prompt_tokens`，留空/0 用内置默认 105000
-- `limit_tokens` 是该 profile 的输入上限（`max_prompt_tokens`，默认 105000）
-- `window` 是模型窗口：优先 `profiles.json.context_window`；否则**自动读上游 `GET /v1/models` 的 `meta.n_ctx`**（10 分钟缓存）；都拿不到才用 131072
-- `chars` / `max` 是内部换算值（1 token ≈ 1.8 字符），仅用于实际裁剪
-- 例：`{"est_tokens":29096,"limit_tokens":105000,"window":131072,"compact_pct":80,"compact_at":84000,"chars":52373,"max":189000}`
-- `compact_pct` / `compact_at`：达到上限的百分之几（默认 80）时触发自动压缩/摘要，以及对应的字符数
-- 全局不再维护上限与阈值：都写在每个 profile 里（`max_prompt_chars`、`compact_pct`），超过即中止该轮并提示新开会话
-- `raw` 是未压缩的原始体量（消息正文 + 思考），用于判断"对话本身有多大"
-- `summary` 表示该会话已有压缩摘要
-
-前端在状态栏显示：`上下文 5.0k / 240k（2.1%） 原 214k`，达到压缩阈值时变深加粗；鼠标悬停会提示"达到 80%（约 192k）会自动压缩/摘要"。

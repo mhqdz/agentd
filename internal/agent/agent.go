@@ -23,6 +23,7 @@ type Agent struct {
 	OnInterject func(string)
 	OnStats     func(llm.Stats) // 每轮结束后的上游速度/用量（可为 nil）
 	// 交接：父会话派发任务 / 子会话汇报失败
+	MsgOrigin string // 本轮用户消息的来源（user/system/timer/handoff）
 	SpawnTask func(kind string, card map[string]any) (int64, error)
 	FailTask  func(reason, evidence string) (string, error)
 	st        store.Store
@@ -66,7 +67,7 @@ func (a *Agent) Conversation(id string) (*store.Conversation, error) {
 // onDelta 用来把增量交给调用方（CLI 打印 / HTTP SSE 推送）。
 func (a *Agent) Send(ctx context.Context, c *store.Conversation, text string,
 	onDelta func(content, reasoning string)) error {
-	c.Messages = append(c.Messages, store.Message{Role: "user", Content: text, CreatedAt: time.Now()})
+	c.Messages = append(c.Messages, store.Message{Role: "user", Content: text, CreatedAt: time.Now(), Origin: a.MsgOrigin})
 	if c.Title == "新会话" || c.Title == "" {
 		t := strings.TrimSpace(text)
 		if r := []rune(t); len(r) > 24 {

@@ -409,8 +409,8 @@ export default function App() {
   // 缩略图导航：悬停 36/36 → 右侧栏左侧弹出 5 条，中心对应当前阅读位置
   // 实时消息（还没落库）没有 seq：用 maxSeq+序号 给个临时编号，保证列表编号连续
   // 系统级提示（工具轮次上限 / 已停止 / 中断 / 空转中止）：模型要看到，但不该像对话那样占编号
-  const isSysNote = (m) => m.role === 'assistant' && !(m.reasoning || '').trim() &&
-    /^\s*(——)?\s*（(已达到工具轮次上限|已停止|中断|检测到连续|任务回报|任务已派发)/.test(m.content || '')
+  const isSysNote = (m) => !(m.reasoning || '').trim() && (m.origin === 'timer' || m.origin === 'handoff' || (m.role === 'assistant' &&
+    /^\s*(——)?\s*（(已达到工具轮次上限|已停止|中断|检测到连续|任务回报|任务已派发)/.test(m.content || '')))
 
   const maxSeq = msgs.reduce((a, m) => Math.max(a, m.seq || 0), 0)   // 含工具消息，避免编号撞号
   const liveNo = new Map()

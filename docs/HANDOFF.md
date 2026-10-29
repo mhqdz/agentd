@@ -139,7 +139,15 @@ M1（已实现）：配方（热加载）+ spawn_task + 子会话 + 步骤/产�
               + /api/wake（token）+ /api/tasks（列表/详情/手动派发/收尾）+ 前端任务区
    已验证：go test ./... 全绿（handoff 单测 + web 交接测试）；E2E 用 smoke 配方跑通
           （3 条命令 + sleep + 产物检查 + restore + 回报 outbox delivered）
-M1 已知缺口：任务详情需点击展开才加载；无重试/取消按钮；子会话 spawning 只能通过真实模型跑
+M1 已验证的链路：
+  · 命令步骤 + sleep + 产物检查 + restore → task done，执行记录入 outbox
+  · spawn 成功（子会话 conv#66 回复 "ok"，父会话拿到 ↳#66 与结尾正文）
+  · spawn 失败（9B 后端未起 → upstream 503，restore 照跑，记录里带原始错误）
+  · /api/wake（token）→ outbox → 会话内 FIFO 投递 → 消息 origin=timer，界面按系统提示渲染
+  · 重启：running → interrupted（启动时日志提示），任务区给「执行收尾」按钮
+
+M1 已知缺口：任务详情需点击展开才加载；无重试/取消按钮；任务列表未按父会话过滤；
+             投递与父会话的 profile 绑定（KV.profile），旧会话没有该字段时用默认 profile
 M2：cancel / retry / restore 按钮、产物缩略、任务通知
 M3：view_image 工具（复核产物）、定时任务共用一个"日程"会话的约定
 ```

@@ -160,7 +160,10 @@ func (m *Manager) run(tid int64, r Recipe, parent int64, card string) {
 				fail = "子会话失败：" + err.Error()
 			} else {
 				childID, childText = cid, text
-				_ = m.st.SetTaskChild(tid, cid)
+			}
+			if cid > 0 {
+				_ = m.st.SetTaskChild(tid, cid) // 失败也要记子会话指针
+				childID = cid
 				st.Output = fmt.Sprintf("child #%d", cid)
 				st.Cmd = fmt.Sprintf("child #%d (%s)", cid, profile)
 			}

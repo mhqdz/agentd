@@ -23,3 +23,13 @@
 - 现象：同一行文字看着基线不齐。
 - 原因：endfield 的 .ef-read / .ef-prose 自带 --ef-font-* 变量，回落到 Noto，与全局字体不同。
 - 修法：把 --ef-font-ui / --ef-font-text / --ef-font-mono 也指向同一字体。
+
+## 2026-10-29 `go test` 挂死在 wakeToken
+
+现象：`/api/wake` 的单元测试永远停在 `=== RUN`，`-timeout` 触发后才看到栈：
+`os.ReadFile(/dev/urandom)` 永不返回。
+
+原因：`/dev/urandom` 是字符设备，`os.ReadFile` 会一直读到 EOF（永远没有），把进程读死。
+
+修法：改用 `crypto/rand.Read`。教训：读"随机源"永远不要用 ReadFile，测试里也别用无超时的
+外部调用（`go test -timeout` 是唯一的兜底）。

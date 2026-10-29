@@ -1,0 +1,12 @@
+{
+  "kind": "smoke",
+  "description": "冒烟：两条命令 + 产物检查 + 收尾",
+  "timeout_s": 60,
+  "steps": [
+    { "run": "echo step-one" },
+    { "run": "sleep 1" },
+    { "run": "date +%s > /tmp/agentd-smoke.txt" }
+  ],
+  "restore": [ { "run": "echo restore-done" } ],
+  "artifacts": ["/tmp/agentd-smoke.txt"]
+}

@@ -1,0 +1,18 @@
+{
+  "kind": "comfy-render",
+  "description": "让出 2080ti 渲染，结束后把 180 切回来",
+  "profile": "9-exec",
+  "max_rounds": 30,
+  "timeout_s": 3600,
+  "steps": [
+    { "run": "llm-local use 9b" },
+    { "run": "sleep 30" },
+    { "run": "systemctl --user start comfyui" },
+    { "spawn": true }
+  ],
+  "restore": [
+    { "run": "systemctl --user stop comfyui" },
+    { "run": "llm-local use 180" }
+  ],
+  "artifacts": ["/tmp/render/*.png"]
+}

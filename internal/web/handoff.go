@@ -82,10 +82,7 @@ func (s *Server) runTurn(ctx context.Context, conv int64, text, origin string) e
 		ag.MaxRounds = set.ToolRounds
 	}
 	ag.OnStats = func(llm.Stats) {}
-	c.Messages = append(c.Messages, store.Message{Role: "user", Content: text, Origin: origin})
-	if err := s.st.Save(c); err != nil {
-		return err
-	}
+	ag.MsgOrigin = origin
 	err = ag.SendWithTools(ctx, c, text, func(string, string) {}, func(string, string, any) {})
 	_ = s.st.Save(c)
 	return err
@@ -107,6 +104,7 @@ func (s *Server) runChild(ctx context.Context, parent int64, profileName, card s
 		return 0, "", err
 	}
 	ag := agent.New(s.cfg, s.st, prof)
+	ag.MsgOrigin = "handoff"
 	ag.MaxRounds = maxRounds
 	ag.SpawnTask = nil // 子会话不能再派发任务（天然两层）
 	ag.FailTask = func(reason, evidence string) (string, error) {

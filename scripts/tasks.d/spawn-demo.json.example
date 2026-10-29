@@ -1,0 +1,12 @@
+{
+  "kind": "spawn-demo",
+  "description": "起一个子会话跑交接卡（测试用）",
+  "profile": "180-low",
+  "max_rounds": 4,
+  "timeout_s": 180,
+  "steps": [
+    { "run": "echo before-spawn" },
+    { "spawn": true }
+  ],
+  "restore": [ { "run": "echo spawn-demo-restore" } ]
+}

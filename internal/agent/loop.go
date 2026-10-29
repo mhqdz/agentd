@@ -136,7 +136,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 	}
 	specs := tools.SchemaJSON(reg)
 
-	c.Messages = append(c.Messages, store.Message{Role: "user", Content: text})
+	c.Messages = append(c.Messages, store.Message{Role: "user", Content: text, Origin: a.MsgOrigin})
 	if c.Title == "新会话" || c.Title == "" {
 		t := strings.TrimSpace(text)
 		if r := []rune(t); len(r) > 24 {

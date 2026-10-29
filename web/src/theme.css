@@ -1134,23 +1134,27 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .tn-c.tr{right:0;top:0;border-right-width:2px;border-top-width:2px}
 .tn-c.bl{left:0;bottom:0;border-left-width:2px;border-bottom-width:2px}
 .tn-c.br{right:0;bottom:0;border-right-width:2px;border-bottom-width:2px}
-.tn-hd{display:flex;align-items:baseline;gap:.55rem;padding:.1rem 0 .3rem;
-  border-bottom:1px solid var(--line);margin-bottom:.25rem}
-.tn-tag{font-size:.58rem;letter-spacing:.22em;color:var(--c6)}
-.tn-count{font-size:.58rem;color:var(--c4);letter-spacing:.06em}
-.tn-row{display:grid;grid-template-columns:3.4rem minmax(0,1fr) auto;gap:.5rem;align-items:baseline;
-  padding:.28rem 0 .1rem}
-.tn-no{font-size:.6rem;color:var(--c4);font-variant-numeric:tabular-nums;letter-spacing:.04em}
-.tn-name{font-size:.72rem;color:var(--ink);overflow-wrap:anywhere}
-.tn-meta{font-size:.6rem;color:var(--c4);white-space:nowrap;font-variant-numeric:tabular-nums}
-.toolnote + .toolnote{border-top:1px solid var(--line)}
-.tn-arg{margin:.05rem 0 .1rem 3.9rem;font-size:.64rem;color:var(--c6);
+.tn-hd{display:flex;align-items:baseline;gap:.55rem;padding:.1rem 0 .2rem;margin-bottom:.1rem}
+.tn-tag{font-size:.66rem;letter-spacing:.22em;color:var(--c6)}
+.tn-count{font-size:.66rem;color:var(--c4);letter-spacing:.06em}
+.tn-row{display:grid;grid-template-columns:3.9rem minmax(0,1fr) auto;gap:.55rem;align-items:baseline;
+  padding:.34rem 0 .12rem}
+.tn-no{font-size:.68rem;color:var(--c4);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.tn-name{font-size:.84rem;color:var(--ink);overflow-wrap:anywhere}
+.tn-meta{font-size:.68rem;color:var(--c4);white-space:nowrap;font-variant-numeric:tabular-nums}
+.toolnote + .toolnote{border-top:0}
+.tn-arg{margin:.05rem 0 .1rem 3.9rem;font-size:.74rem;color:var(--c6);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tn-arg::before{content:"› ";color:var(--c4)}
 .tn-out{margin:.1rem 0 .15rem 3.9rem}
-.tn-out>summary{cursor:pointer;list-style:none;font-size:.63rem;color:var(--c5)}
+.tn-out>summary{cursor:pointer;list-style:none;font-size:.7rem;color:var(--c5)}
 .tn-out>summary::before{content:"▸ "}
 .tn-out[open]>summary::before{content:"▾ "}
 .tn-out .out{margin:.25rem 0 .3rem;padding:.35rem .5rem;background:var(--c1);border-left:2px solid var(--line);
-  font-size:.68rem;max-height:60vh;overflow:auto;line-height:1.7;white-space:pre-wrap}
+  font-size:.74rem;max-height:60vh;overflow:auto;line-height:1.7;white-space:pre-wrap}
 .toolnote .msg-img{margin:.2rem 0 .2rem 3.9rem;max-width:100%}
+/* 去掉工具条目里残余的下划线（details/summary 的浏览器默认样式） */
+.tn-out,.tn-out>summary{text-decoration:none}
+.tn-out>summary{border-bottom:0;box-shadow:none}
+.tn-out>summary::-webkit-details-marker{display:none}
+.tn-row,.tn-row *{text-decoration:none;border-bottom:0}

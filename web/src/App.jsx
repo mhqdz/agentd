@@ -985,9 +985,10 @@ export default function App() {
               {toolCfg ? (
                 <div className={"card col-tool" + (toolCfg && !toolEdit && !editField ? " is-top" : "")}>
                   <div className="card-hd">
-                    <span>{'工具配置 · ' + toolCfg.name}</span>
+                    <button className="icon-x back card-back narrow-only" onClick={() => closeOne()} aria-label="关闭" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="square"/></svg></button>
+                    <span className="ef-label"><span className="ef-label-t">{'tool · ' + toolCfg.name}</span></span>
                     <span style={{ flex: 1 }} />
-                    <button className="btn" onClick={() => setToolCfg(null)}>关闭</button>
+                    {narrow ? dirtyActions : null}
                   </div>
                   <div className="card-bd">
                     <div className="item" onClick={() => { setEditOriginal(toolCfg.description || ''); setToolEdit({ name: toolCfg.name, description: toolCfg.description }); setEditField(null) }}>
@@ -1023,7 +1024,7 @@ export default function App() {
                   </div>
                 </div>
               ) : null}
-              <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : (editP ? ' two' : ''))}
+              <div className={'set-cols' + ((editField || toolEdit) ? (editP ? ' three' : ' two') : ((editP || toolCfg) ? ' two' : ''))}
                 onClick={e => { if (e.target === e.currentTarget) closeOne() }}>
                 {(editField || toolEdit) ? (
                   <div className={"card col-editor" + ((editField || toolEdit) ? " is-top" : "")}>
@@ -1193,7 +1194,7 @@ export default function App() {
                     <div className="set-card">
                       {profiles.map(pr => (
                         <div className={'item col' + (editP && editP.name === pr.name ? ' on' : '')} key={pr.name}
-                          onClick={() => { const v = { ...pr, tools: (pr.tools || []).join(',') }; setEditP(v); setEditSnap(snapOf(v)); setEditField(null); setToolEdit(null) }}>
+                          onClick={() => { const v = { ...pr, tools: (pr.tools || []).join(',') }; setEditP(v); setEditSnap(snapOf(v)); setEditField(null); setToolEdit(null); setToolCfg(null) }}>
                           <b className="item-title">{pr.name}</b>
                           <span className="item-desc">{pr.model || '（未设置模型）'}</span>
                         </div>
@@ -1209,7 +1210,7 @@ export default function App() {
                     <div className="set-card">
                       {toolList.map(t => (
                         <div className="item" key={t.name} title={t.path || '内置工具（在程序内指定）'}
-                          onClick={() => { setToolCfg({ ...t, enabled: t.enabled !== false, subtools: t.subtools || [] }); setToolEdit(null); setEditField(null) }}>
+                          onClick={() => { setToolCfg({ ...t, enabled: t.enabled !== false, subtools: t.subtools || [] }); setEditP(null); setToolEdit(null); setEditField(null) }}>
                           <b className="item-title">{t.name}
                             <span className={'src-tag ' + (t.source === 'plugin' ? 'plugin' : 'builtin')}>
                               {t.source === 'plugin' ? '插件' : '内置'}

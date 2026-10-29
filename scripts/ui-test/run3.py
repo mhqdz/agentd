@@ -34,6 +34,14 @@ check("竖屏把手：左下角无、改到顶栏最左（状态左侧），无�
 txt = s.js("const m=document.querySelector('.msg'); return m? Math.round(m.getBoundingClientRect().left) : -1")
 check("正文不被额外留白压缩（左边距≤24）", isinstance(txt,int) and 0 <= txt <= 24, f"left={txt}")
 
+# 竖屏抽屉：设置按钮不换行；选完会话自动收起
+s.js("document.querySelector('.side-toggle').click(); return 1"); time.sleep(.6)
+fb = s.js("const b=document.querySelector('.drawer .foot-btn'); const g=b.getBoundingClientRect(); const c=getComputedStyle(b); return [Math.round(g.width),Math.round(g.height),c.whiteSpace,c.color]")
+check("竖屏设置按钮单行且可见", isinstance(fb,list) and fb[1] <= 30 and fb[2] == 'nowrap' and fb[3] != 'rgb(222, 228, 229)', f"{fb}")
+s.js("const a=[...document.querySelectorAll('.drawer .ef-records a')][1]; a && a.click(); return 1"); time.sleep(1.2)
+check("竖屏选会话后抽屉自动收起", s.js("return document.querySelector('.drawer').classList.contains('hide')") is True)
+check("收起后遮罩消失", s.js("return !document.querySelector('.drawer-scrim')") is True)
+
 # 竖屏输入框收紧
 ch = s.js("const c=document.querySelector('.composer').getBoundingClientRect(); return Math.round(c.height)")
 check("竖屏输入框高度≤150", isinstance(ch,int) and ch <= 150, f"h={ch}")

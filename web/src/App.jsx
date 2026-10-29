@@ -578,6 +578,8 @@ export default function App() {
   const openConv = async (id) => {
     convIdRef.current = id
     setConvId(id)
+    // 竖屏：抽屉是浮层，选完会话要收起来（否则遮住正文）
+    if (typeof window !== 'undefined' && window.innerWidth < 1400) setSideOpen(false)
     // A：会话 id 进 URL，刷新后能回到同一会话（也便于分享/重开）
     if (id) history.replaceState(null, '', '?conv=' + id)
     else history.replaceState(null, '', location.pathname)

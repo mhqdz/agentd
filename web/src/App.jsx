@@ -1022,9 +1022,7 @@ export default function App() {
                     return (
                       <div className={'toolnote' + (first ? ' run-start' : '') + (last ? ' run-end' : '')} key={i}>
                         {first ? <span className="tn-c tl" /> : null}
-                        {first ? <span className="tn-c tr" /> : null}
-                        {last ? <span className="tn-c bl" /> : null}
-                        {last ? <span className="tn-c br" /> : null}
+                        {(last || !open) ? <span className="tn-c br" /> : null}
                         {first ? (
                           <div className="tn-hd" onClick={toggle} role="button" title={open ? '收起' : '展开'}>
                             <span className="tn-tag">Tool</span>

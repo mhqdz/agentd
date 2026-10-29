@@ -1131,8 +1131,6 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
 .toolnote.run-end{margin-bottom:.6rem;padding-bottom:.5rem}
 .tn-c{position:absolute;width:7px;height:7px;border:0 solid var(--c4);pointer-events:none}
 .tn-c.tl{left:0;top:0;border-left-width:2px;border-top-width:2px}
-.tn-c.tr{right:0;top:0;border-right-width:2px;border-top-width:2px}
-.tn-c.bl{left:0;bottom:0;border-left-width:2px;border-bottom-width:2px}
 .tn-c.br{right:0;bottom:0;border-right-width:2px;border-bottom-width:2px}
 .tn-hd{display:flex;align-items:baseline;gap:.55rem;padding:.1rem 0 .2rem;margin-bottom:.1rem}
 .tn-tag{font-size:.66rem;letter-spacing:.22em;color:var(--c6)}

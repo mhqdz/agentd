@@ -1030,3 +1030,22 @@ pre.out{display:block;margin:.25rem 0 0;max-width:100%;max-height:11rem;overflow
   padding:.2rem 0 .2rem .55rem;color:var(--ink2);max-height:10rem}
 
 .send:disabled{cursor:not-allowed;opacity:.38}
+
+/* 窄屏折叠把手：原先 c1 底 + 单边线，在浅底上几乎看不见 → 给白底、完整描边与浅阴影 */
+@media (max-width:1399px){
+  .side-toggle.collapsed{
+    left:8px;width:32px;height:64px;
+    background:var(--panel);border:1px solid var(--c4);border-left:1px solid var(--c4);
+    box-shadow:0 1px 2px rgba(30,40,40,.06), 0 8px 20px rgba(30,40,40,.08);
+    color:var(--c6)}
+  .side-toggle.collapsed:hover{background:var(--c2);border-color:var(--c5);color:var(--c7)}
+  .side-toggle.collapsed:active{transform:translateY(-50%) scale(.97)}
+  .side-toggle:not(.collapsed){
+    background:var(--panel);border:1px solid var(--c4);border-right:0;
+    box-shadow:0 1px 2px rgba(30,40,40,.06)}
+}
+
+/* 窄屏：把折叠把手放进左侧留白里，避免压在正文上 */
+@media (max-width:1399px){
+  .thread{padding-left:3.2rem}
+}

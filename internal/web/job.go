@@ -78,8 +78,13 @@ func (s *Server) streamFrom(w http.ResponseWriter, r *http.Request, convID strin
 	s.convMu.Unlock()
 	j := s.job(convID)
 	if !running {
-		// 没在跑：历史用 /api/conv 读；不要回放旧帧（前端会误判成"正在运行"）
-		writeJSON(w, 404, map[string]string{"error": "这一轮已经结束，或没有可续传的内容"})
+		// 没在跑是正常情况（比如打开一个已结束的会话）：给一个空的 done 流，不报错。
+		// 历史消息走 /api/conv；这里不回放旧帧，避免前端误判成"正在运行"。
+		w.Header().Set("Content-Type", "text/event-stream; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("X-Accel-Buffering", "no")
+		fmt.Fprint(w, "event: done\ndata: {}\n\n")
+		flusher.Flush()
 		return
 	}
 	w.Header().Set("Content-Type", "text/event-stream; charset=utf-8")

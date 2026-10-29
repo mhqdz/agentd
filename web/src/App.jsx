@@ -1032,14 +1032,12 @@ export default function App() {
                             {(m.toolName || '工具') + (m.toolArgs ? ' · ' + String(m.toolArgs).slice(0, 120) : '')}
                           </div>
                           {(m.images || []).map((u, k) => <img key={k} className="msg-img" src={u} alt="tool" />)}
-                          {(m.content || '').length > 300 ? (
+                          {(m.content || '').trim() ? (
                             <details className="fold">
                               <summary>输出 · {String(m.content).length} 字</summary>
                               <pre className="out">{m.content}</pre>
                             </details>
-                          ) : (
-                            <pre className="out">{m.content}</pre>
-                          )}
+                          ) : null}
                         </div>
                       ) : null}
                       {(m.images || []).map((u, k) => <img key={k} className="msg-img" src={u} alt="image" />)}

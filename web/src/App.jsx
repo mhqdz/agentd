@@ -670,10 +670,17 @@ export default function App() {
     const sleep = (ms) => new Promise(r => setTimeout(r, ms))
     const running = async () => ((await api('/api/running').catch(() => [])) || []).includes(String(id))
     let live = { role: 'assistant', content: '', reasoning: '', at: now() }
-    const push = () => setMsgs(m => {
-      const kept = trimDup(m.filter(x => !x.__live), live)
-      return [...kept, { ...live, __live: true }]
-    })
+    let pushTimer = null
+    const push = () => {
+      if (pushTimer) return
+      pushTimer = setTimeout(() => {
+        pushTimer = null
+        setMsgs(m => {
+          const kept = trimDup(m.filter(x => !x.__live), live)
+          return [...kept, { ...live, __live: true }]
+        })
+      }, 80)
+    }
     let done = false
     const finish = async (msg) => {
       setPendingTools([])
@@ -763,7 +770,14 @@ export default function App() {
       })
       const reader = resp.body.getReader(); const dec = new TextDecoder()
       let buf = '', asst = { role: 'assistant', content: '', reasoning: '', at: now() }
-      const push = () => setMsgs(m => [...m.filter(x => !x.__live), { ...asst, __live: true }])
+      let pushTimer = null
+      const push = () => {
+        if (pushTimer) return
+        pushTimer = setTimeout(() => {
+          pushTimer = null
+          setMsgs(m => [...m.filter(x => !x.__live), { ...asst, __live: true }])
+        }, 80)
+      }
       for (;;) {
         const { value, done } = await reader.read(); if (done) break
         buf += dec.decode(value, { stream: true })
@@ -1140,7 +1154,7 @@ export default function App() {
                         <details className="fold">
                           <summary className="think-sum">思考过程 · <span className="num">{String(m.reasoning).length}</span> 字{
                             (m.reasoning_ms || (m.rsecs ? m.rsecs * 1000 : 0))
-                              ? <>{' · '}<span className="num">{Math.round((m.reasoning_ms || m.rsecs * 1000) / 1000)}</span>{'s'}</> : null}</summary>
+                              ? <>{' · '}<span className="num">{((m.reasoning_ms || m.rsecs * 1000) / 1000).toFixed(1)}</span>{'s'}</> : null}</summary>
                           <pre className="think">{m.reasoning}</pre>
                           <button className="fold-close" onClick={e => {
                             const d = e.currentTarget.closest('details')

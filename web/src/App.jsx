@@ -1175,7 +1175,12 @@ export default function App() {
                       </label>
                       <label className="field"><span>思考强度</span>
                         <select value={editP.reasoning_effort || 'none'} onChange={e => setEditP({ ...editP, reasoning_effort: e.target.value })}>
-                          {['none', 'low', 'medium', 'high'].map(x => <option key={x} value={x}>{x}</option>)}
+                          {['none', 'low', 'medium', 'high', 'max'].map(x => <option key={x} value={x}>{x}</option>)}
+                        </select></label>
+                      <label className="field"><span>服务商（云端 OpenAI 兼容填 openai：不发本地扩展字段）</span>
+                        <select value={editP.provider || ''} onChange={e => setEditP({ ...editP, provider: e.target.value })}>
+                          <option value="">自动 / 本地（Strata、llama.cpp）</option>
+                          <option value="openai">openai（云端兼容接口）</option>
                         </select></label>
                       <label className="field"><span>上下文窗口（tokens，留空=自动读上游）</span>
                         <input type="number" min="0" max="2000000" placeholder="自动（如 131072）"

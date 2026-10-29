@@ -104,11 +104,20 @@ func Registry() map[string]*Spec {
 func SchemaJSON(reg map[string]*Spec) []map[string]any {
 	out := make([]map[string]any, 0, len(reg))
 	for _, s := range reg {
+		// OpenAI 严格校验：required 必须是数组（不能是 null），properties 必须是对象
+		req := s.Required
+		if req == nil {
+			req = []string{}
+		}
+		props := s.Params
+		if props == nil {
+			props = map[string]any{}
+		}
 		out = append(out, map[string]any{
 			"type": "function",
 			"function": map[string]any{
 				"name": s.Name, "description": s.Description,
-				"parameters": map[string]any{"type": "object", "properties": s.Params, "required": s.Required},
+				"parameters": map[string]any{"type": "object", "properties": props, "required": req},
 			},
 		})
 	}

@@ -64,8 +64,12 @@ func fetchWindow(baseURL, apiKey, model string) int {
 	}
 	var out struct {
 		Data []struct {
-			ID   string `json:"id"`
-			Meta struct {
+			ID string `json:"id"`
+			// 云端（OpenAI 兼容）常见：上下文窗口直接放在顶层
+			ContextWindow int `json:"context_window"`
+			ContextLen    int `json:"context_length"`
+			MaxOut        int `json:"max_output_tokens"`
+			Meta          struct {
 				NCtx       int `json:"n_ctx"`
 				ContextLen int `json:"context_length"`
 				MaxCtx     int `json:"max_context"`
@@ -79,6 +83,12 @@ func fetchWindow(baseURL, apiKey, model string) int {
 	for _, d := range out.Data {
 		if model != "" && d.ID != model {
 			continue
+		}
+		if d.ContextWindow > 0 {
+			return d.ContextWindow
+		}
+		if d.ContextLen > 0 {
+			return d.ContextLen
 		}
 		for _, n := range []int{d.Meta.NCtx, d.Meta.ContextLen, d.Meta.MaxCtx, d.Meta.NCtxTrain} {
 			if n > 0 {

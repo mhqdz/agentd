@@ -74,7 +74,8 @@ profile 里与上下文/生成相关的字段：
 | `max_tokens_out` | 8192 | 单轮输出上限（含思考），防止跑飞 |
 | `reasoning_budget` | 4096 | 单轮思考 token 预算（上游 `reasoning_budget_tokens`） |
 | `summarizer` | 空（自己） | 用哪个 profile 写摘要 |
-| `reasoning_effort` | — | none/low/medium/high，透传上游 |
+| `reasoning_effort` | — | none/low/medium/high/max，透传上游（云端 none 时省略） |
+| `provider` | 空（本地/兼容） | `openai` = 云端兼容接口：不发 `reasoning_budget_tokens`，窗口读 `/v1/models` 的顶层 `context_window` |
 
 ## 静态
 
@@ -142,7 +143,8 @@ stdin 同时给一份 `{"tool":"…","args":{…}}`；stdout 为纯文本，或 
 
 - 单位：接口对外用 **token**（配置也是 token）；内部实际裁剪按**字符(rune)**，`chars ÷ 1.8 ≈ tokens`
 - `limit_tokens`：该 profile 的输入上限（`max_prompt_tokens`，默认 105000）
-- `window`：模型窗口，优先 `profiles.json.context_window`，否则读上游 `GET /v1/models` 的 `meta.n_ctx`（10 分钟缓存），兜底 131072
+- `window`：模型窗口，优先 `profiles.json.context_window`，否则读上游 `GET /v1/models`（10 分钟缓存）：
+  本地引擎看 `meta.n_ctx`，云端兼容接口看顶层 `context_window` / `context_length`；都没有才兜底 131072
 - `compact_pct` / `compact_at`：达到上限的百分之几（默认 80）触发摘要 + 裁剪
 - `chars` / `max`：压缩后的字符数；`raw`：未压缩的原始字符数（消息正文 + 思考）
 

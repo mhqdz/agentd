@@ -115,20 +115,32 @@ reasoning_budget（默认 4096）：单轮思考预算，透传上游 reasoning_
 保存/取消只在有改动时出现；遮罩点击逐级退出。理由：配置项会越加越多，
 "一张大表单"必然演变成难以维护的条件渲染。
 
-## 9. 时间语义只有一个：最后活跃
+## 9. 云端接入（2026-10-29）
+
+```
+同一套 profile 字段接云端：base_url + api_key + model；provider=openai 表示"通用 OpenAI 兼容"
+差异点只有两处，都在 provider 里处理：
+  · reasoning_budget_tokens 是 Strata 扩展 → openai 时不发（标准 effort 仍可发）
+  · 窗口：云端 /v1/models 常把 context_window / context_length 放顶层 → 解析时一并读
+实测（DeepSeek）：流式、tool_calls、reasoning_content、usage(cached)、图片输入都兼容；
+未知字段 reasoning_budget_tokens 它不报错，但 OpenAI 官方接口会严格校验，所以默认不发。
+注意：工具 schema 里 required 必须是数组（不能是 null），否则 OpenAI 严格模式直接 400。
+```
+
+## 10. 时间语义只有一个：最后活跃
 `updated_at` 是唯一驱动排序与自动归档的时间；`created_at` 只用于审计。
 自动归档 = 启动时 + 每小时巡检 + 改动相关设置时立刻巡检，阈值默认 7 天。
 
-## 10. 可观测性优先，但别过度
+## 11. 可观测性优先，但别过度
 自建 `internal/logx`：起始、会话归档/恢复、每轮对话、每次工具调用（名称/耗时/输出长度）、
 自动归档数量。日志是**给人复盘**用的，不进模型上下文；模型侧的"工具输出"另有截断策略。
 
-## 11. 明确不做的事
+## 12. 明确不做的事
 - 多用户/鉴权：只监听 127.0.0.1。
 - 云端同步、遥测、自动更新。
 - 用配置表达分支逻辑：配置只声明"是什么/怎么调"，逻辑留在代码或（将来的）工具进程里。
 
-## 12. 仓库约定
+## 13. 仓库约定
 - 远端：`git@github.com:mhqdz/agentd.git`（用 SSH；本机 `~/.ssh/id_ed25519_kb` 已授权）。
 - 入库：源码、`docs/`、`web/src`、`web/public/fonts`（字体随项目分发）。
 - 不入库（`.gitignore`）：`web/dist/`、`node_modules/`、`*.log`、`agentd`、`/tmp/`。
@@ -138,7 +150,7 @@ reasoning_budget（默认 4096）：单轮思考预算，透传上游 reasoning_
   手动等价命令仅在脚本不可用时使用（见 `PLAN.md` 第三节）。
 - 历史里的 `web/dist` 仍在旧提交中（`.git` 约 81MB）；若需瘦身要重写历史，属一次性操作，先备份再强推。
 
-## 13. 系统提示只有一份
+## 14. 系统提示只有一份
 提示文本只存在于 `~/.data/agentd/profiles.json` 的 `system` 字段（设置卡里可编辑）。
 - 代码里不再硬编码任何提示：`internal/config/profiles.go` 的内置 profile 与
   `internal/config/config.go` 的兜底配置，`System` 一律为空。

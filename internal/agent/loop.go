@@ -52,6 +52,25 @@ func (a *Agent) maxTokensOut() int {
 }
 
 // reasoningBudget：单轮思考 token 预算（默认 4096）—— 引擎默认是"不限"，会跑飞
+// reasoningEffort：openai 兼容的云端不认本地扩展时按需省略（provider=openai 仍发标准 effort）
+func (a *Agent) reasoningEffort() string {
+	if a.profile.Provider == "openai" {
+		switch a.profile.ReasoningEffort {
+		case "", "none":
+			return ""
+		}
+	}
+	return a.profile.ReasoningEffort
+}
+
+// reasoningBudgetParam：Strata 扩展字段，只有本地/未知 provider 才发
+func (a *Agent) reasoningBudgetParam() int {
+	if a.profile.Provider == "openai" {
+		return 0
+	}
+	return a.reasoningBudget()
+}
+
 func (a *Agent) reasoningBudget() int {
 	if a.profile.ReasoningBudget > 0 {
 		return a.profile.ReasoningBudget
@@ -220,7 +239,7 @@ func (a *Agent) SendWithTools(ctx context.Context, c *store.Conversation, text s
 		var content, reasoning strings.Builder
 		var reasonStart, reasonMs int64
 		var calls []llm.ToolCall
-		err := a.llm.StreamWithTools(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, Tools: specs, MaxTokens: a.maxTokensOut(), ReasoningEffort: a.profile.ReasoningEffort, ReasoningBudget: a.reasoningBudget()},
+		err := a.llm.StreamWithTools(ctx, llm.ChatRequest{Model: a.profile.Model, Messages: msgs, Tools: specs, MaxTokens: a.maxTokensOut(), ReasoningEffort: a.reasoningEffort(), ReasoningBudget: a.reasoningBudgetParam()},
 			func(ch llm.Chunk) error {
 				if ch.Done {
 					return nil

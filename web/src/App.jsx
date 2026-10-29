@@ -276,6 +276,9 @@ export default function App() {
 
   // 插话：把内容压进后端队列，模型在下一个工具轮次就能看到（不中断当前生成）
   const interject = async () => {
+    // 先确认后端真的在跑；不在跑就按普通发送走（否则只会存成插话、不会唤起新一轮）
+    const run = await api('/api/running').catch(() => [])
+    if (!(run || []).includes(String(convId))) { return send() }
     const t = text.trim()
     if (!t) return
     if (!convId) { setStatus('这一轮还没拿到会话 id，稍等一下再插话'); return }
